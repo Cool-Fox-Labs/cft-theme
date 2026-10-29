@@ -6,7 +6,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Theme Check
-        uses: shopify/theme-check-action@v2
+      - uses: actions/setup-node@v4
         with:
-          token: ${{ github.token }}
+          node-version: 22
+      # Runs the Shopify CLI directly. shopify/theme-check-action@v2 installs
+      # the latest CLI, and its annotation step crashes on CLI 5.0.0
+      # ("e.filter is not a function"). The CLI is pinned so a new release
+      # cannot break the check again without a deliberate bump.
+      - name: Theme Check
+        run: npx --yes @shopify/cli@4.9.4 theme check --fail-level error
