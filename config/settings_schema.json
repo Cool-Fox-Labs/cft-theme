@@ -24,7 +24,7 @@
             "label": "t:options.page_width.wide"
           }
         ],
-        "default": "80rem"
+        "default": "90rem"
       },
       {
         "type": "range",

@@ -29,7 +29,7 @@
     --font-display: 'Familjen Grotesk', 'Helvetica Neue', Arial, sans-serif;
     --font-mono: 'IBM Plex Mono', ui-monospace, Menlo, monospace;
     --page-width: {{ settings.max_page_width }};
-    --page-margin: {{ settings.min_page_margin }}px;
+    --page-margin: max({{ settings.min_page_margin }}px, 2.5vw);
     --color-background: {{ settings.background_color }};
     --color-foreground: {{ settings.foreground_color }};
     --color-accent: {{ settings.accent_color }};
