@@ -1,0 +1,40 @@
+{% doc %}
+  Renders the Garments or Services link list used by both the desktop
+  drop-down panels and the phone drawer, so the two menus never drift apart.
+
+  Garment links point at collections by handle; the collections themselves
+  are created later. Service links point at the homepage How it works
+  section until each service has its own page.
+
+  @param {string} list - Either 'garments' or 'services'.
+
+  @example
+  {% render 'menu-links', list: 'garments' %}
+{% enddoc %}
+
+{%- liquid
+  if list == 'garments'
+    assign items = 't_shirts,hoodies,sportswear,workwear,headwear,totes' | split: ','
+    assign handles = 't-shirts,hoodies-and-sweatshirts,sportswear,workwear,headwear,tote-bags' | split: ','
+  else
+    assign items = 'one_off,hen_stag,leavers,events,uniforms' | split: ','
+  endif
+-%}
+
+<div class="cats">
+  {%- for item in items -%}
+    {%- liquid
+      if list == 'garments'
+        assign url = routes.collections_url | append: '/' | append: handles[forloop.index0]
+      else
+        assign url = routes.root_url | append: '#how'
+      endif
+      assign title_key = 'menu.' | append: list | append: '.' | append: item | append: '.title'
+      assign text_key = 'menu.' | append: list | append: '.' | append: item | append: '.text'
+    -%}
+    <a href="{{ url }}">
+      <b>{{ title_key | t }}</b>
+      <span>{{ text_key | t }}</span>
+    </a>
+  {%- endfor -%}
+</div>

@@ -1,3 +1,11 @@
+# Cool Fox Tees notes
+
+This is the Cool Fox Tees store theme, built on Skeleton. Read `README.md`
+first. Project rules live in the `Cool-Fox-Labs/cft-shopify` repository's
+`CLAUDE.md`; the ones that matter here: no prices or checkout yet, never
+hard-code a store domain, never put supplier imagery through AI, and keep the
+bulk discount tiers identical in the block, `theme.js` and the locale file.
+
 # Skeleton Theme Agent Guide
 
 A minimal Shopify theme that defines page structure directly in Liquid. This

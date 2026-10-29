@@ -1,0 +1,41 @@
+{% doc %}
+  Renders the bulk discount card with an item-count slider that shows the
+  discount for that many items. The tiers match the published bulk discount:
+  10+ 5%, 20+ 10%, 40+ 15%, 50+ 20%. The slider is wired up in theme.js.
+
+  @param {string} content - Required. Headline and explanation.
+
+  @example
+  {% block 'bulk-discount' %}
+    <h2>{{ 'home.bulk.title' | t }}</h2>
+  {% endblock %}
+{% enddoc %}
+
+<section class="sec sec-tight" id="bulk" aria-labelledby="bulk-title" {{ block.shopify_attributes }}>
+  <div class="bulk" data-bulk>
+    <div>
+      {{ content }}
+    </div>
+    <div class="calc">
+      <div class="calc-read">
+        <label for="bulk-qty">{{ 'home.bulk.items_label' | t }} <span data-bulk-count>25</span></label>
+        <output for="bulk-qty"><span data-bulk-output>10%</span><small>{{ 'home.bulk.off' | t }}</small></output>
+      </div>
+      <input type="range" id="bulk-qty" min="1" max="100" value="25" aria-describedby="bulk-tiers" data-bulk-range>
+      <div class="tiers" id="bulk-tiers">
+        <span data-min="1"><b>0%</b>1-9</span>
+        <span data-min="10"><b>5%</b>10+</span>
+        <span data-min="20" class="on"><b>10%</b>20+</span>
+        <span data-min="40"><b>15%</b>40+</span>
+        <span data-min="50"><b>20%</b>50+</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "t:general.bulk_discount",
+  "settings": []
+}
+{% endschema %}

@@ -37,25 +37,6 @@
     "expires_on": "Expires on {{ expires_on }}",
     "use_at_checkout": "Use this gift card at checkout"
   },
-  "hello_world": {
-    "title": "Hello, World!",
-    "intro": "The Skeleton theme is a minimal, carefully structured Shopify theme designed to help you quickly get started. Designed with modularity, maintainability, and Shopify's best practices in mind.",
-    "description": "Themes shape the online store experience for merchants and their customers. Build fast, flexible themes at scale using Liquid, Shopify's theme templating language, along with HTML, CSS, JavaScript, and JSON.",
-    "key_concepts_title": "Key Concepts",
-    "key_concepts_body": "Shopify themes are a package of template files, building blocks, and supporting assets. Use these building blocks to create modular, customizable themes.",
-    "key_concepts_link": "Learn more about key concepts",
-    "liquid_title": "Liquid",
-    "liquid_body": "The Liquid templating language is the backbone of Shopify themes, and is used to load dynamic content on storefronts. Extend Liquid objects to store and present custom data using metafields.",
-    "liquid_link": "View the Liquid reference",
-    "best_practices_title": "Best Practices",
-    "best_practices_body": "To optimize your theme development experience, Shopify has established a set of best practices that you can refer to when developing your theme and setting up your toolchains and processes.",
-    "best_practices_link": "Follow best practices",
-    "liquid_tips_title": "Liquid tips",
-    "liquid_tips_refresh": "Show another tip",
-    "liquid_tips_1": "Prefer whitespace control with {%- -%} to keep rendered markup clean",
-    "liquid_tips_2": "Reach for the render tag instead of include so each snippet gets its own scope",
-    "liquid_tips_3": "Assign expensive lookups to a variable once and reuse it across the template"
-  },
   "password": {
     "title": "This shop is private",
     "password": "Password",
@@ -67,5 +48,162 @@
     "submit": "Search",
     "no_results_html": "No results found for {{ terms }}",
     "results_for_html": "{{ count }} results found for {{ terms }}"
+  },
+  "header": {
+    "showroom_open": "Showroom open",
+    "google_rating_html": "<b>{{ rating }}</b> from {{ count }} Google reviews",
+    "main_menu": "Main",
+    "garments": "Garments",
+    "services": "Services",
+    "how_it_works": "How it works",
+    "visit_showroom": "Visit the showroom",
+    "get_quote": "Get a quote",
+    "menu": "Menu",
+    "close": "Close",
+    "choose_garment": "Choose your garment",
+    "what_we_print_for": "What we print for",
+    "promo_hand_picked_title": "Hand-picked range",
+    "promo_hand_picked_text": "Every garment chosen for how it prints and wears.",
+    "promo_showroom_title": "See it in person",
+    "promo_showroom_text": "Feel the fabric in our showroom first.",
+    "promo_bulk_title": "Bulk discount",
+    "promo_bulk_text": "From 5% off at 10 items, up to 20% off at 50.",
+    "promo_no_minimum_title": "No minimum order",
+    "promo_no_minimum_text": "One shirt is fine. So is two hundred."
+  },
+  "menu": {
+    "garments": {
+      "t_shirts": {
+        "title": "T-shirts",
+        "text": "Everyday, heavyweight and kids"
+      },
+      "hoodies": {
+        "title": "Hoodies and sweatshirts",
+        "text": "Pullovers, zips and crew necks"
+      },
+      "sportswear": {
+        "title": "Sportswear",
+        "text": "Performance tees and team kit"
+      },
+      "workwear": {
+        "title": "Workwear",
+        "text": "Polos, softshells and aprons"
+      },
+      "headwear": {
+        "title": "Headwear",
+        "text": "Five-panel caps and beanies"
+      },
+      "totes": {
+        "title": "Tote bags",
+        "text": "Cotton and canvas bags"
+      }
+    },
+    "services": {
+      "one_off": {
+        "title": "One-off prints",
+        "text": "A single gift or a piece for you"
+      },
+      "hen_stag": {
+        "title": "Hen and stag do's",
+        "text": "Matching tees for the group"
+      },
+      "leavers": {
+        "title": "Leavers hoodies",
+        "text": "School or college name and year"
+      },
+      "events": {
+        "title": "Event merch",
+        "text": "Tees, hoodies and totes"
+      },
+      "uniforms": {
+        "title": "Workwear",
+        "text": "Uniforms with your logo"
+      }
+    }
+  },
+  "footer": {
+    "visit_us": "Visit us",
+    "opening_hours": "Opening hours",
+    "call_first": "Please call before you visit.",
+    "get_in_touch": "Get in touch"
+  },
+  "home": {
+    "hero": {
+      "title": "Your design, printed in Leamington.",
+      "intro": "Tees, hoodies, sportswear and workwear printed with your logo or design in our studio at Bath Place. One item or two hundred, with a proof before anything is printed.",
+      "start_quote": "Start a quote",
+      "browse": "Browse garments",
+      "fact_printing": "DTG and DTF printing",
+      "fact_turnaround": "Quick turnaround",
+      "fact_bulk": "Bulk discounts from 10 items",
+      "image_alt": "A printed black t-shirt reading Your design, with a hoodie, sweatshirt, cap and polo each carrying a small fox logo"
+    },
+    "garments": {
+      "title": "Choose your garment",
+      "intro": "Every range hand-picked for how it prints and how it wears.",
+      "tshirts_text": "Everyday cotton to heavyweight. Adult and kids sizes.",
+      "tshirts_alt": "Black, navy and cream t-shirts laid flat",
+      "hoodies_text": "Pullovers, zip hoodies and crew necks.",
+      "hoodies_alt": "Black hoodie and cream sweatshirt laid flat",
+      "sportswear_text": "Performance tees, tops and team kit.",
+      "sportswear_alt": "Royal blue performance t-shirt, navy quarter-zip top and black sports shorts laid flat",
+      "workwear_text": "Polos, softshells and aprons for your team.",
+      "workwear_alt": "Folded green polo, navy softshell jacket and grey apron laid flat",
+      "headwear_text": "Five-panel caps and beanies with your logo.",
+      "headwear_alt": "Grey five-panel cap and green beanie with a blank patch",
+      "totes_text": "Cotton and canvas bags for events and shops.",
+      "totes_alt": "Cream canvas tote bag and charcoal shopper bag"
+    },
+    "showroom": {
+      "eyebrow": "Our showroom",
+      "title": "Every garment is hand-picked. Come and see them.",
+      "intro": "We only stock garments we're happy to put our name to. Visit the showroom in Leamington Spa to feel the fabric, check the colours and try sizes before you order.",
+      "where": "Where",
+      "when": "When",
+      "call": "Call",
+      "plan_visit": "Plan your visit",
+      "tag": "Come and say hello",
+      "tag_small": "Unit 12, Bath Place",
+      "image_alt": "The Cool Fox Tees shopfront at Unit 12, Bath Place, with its black and orange fox signage and CFT lettering on the doors"
+    },
+    "bulk": {
+      "title": "Order more, pay less for each one.",
+      "intro": "The discount counts every item in your order, mixed garments and sizes included, and comes off automatically.",
+      "items_label": "Items in your order:",
+      "off": "off"
+    },
+    "how": {
+      "title": "How it works",
+      "intro": "One shirt or two hundred, it's the same three steps.",
+      "step1_title": "Choose your garment",
+      "step1_text": "Tees, hoodies, sweatshirts, sportswear, tote bags and workwear, in the colours and sizes you need.",
+      "step2_title": "Send your artwork",
+      "step2_text": "Upload a logo or design and tell us where it goes. We check it will print well.",
+      "step3_title": "Approve your proof",
+      "step3_text": "We send a proof showing your design on the garment at its real print size. Nothing is printed until you approve it. Most orders are ready in 5-7 working days after you approve. Some in-stock tees can be quicker, just ask."
+    },
+    "artwork": {
+      "link": "Artwork requirements",
+      "title": "Artwork requirements",
+      "close": "Close",
+      "file_types_label": "File types",
+      "file_types": "Vector files are best: SVG, PDF, AI or EPS. PNG also works.",
+      "resolution_label": "Resolution",
+      "resolution": "At least 300 dpi at the size you want printed.",
+      "background_label": "Background",
+      "background": "Transparent, unless you want the background printed too.",
+      "text_label": "Text",
+      "text": "In vector files, convert text to outlines so the font prints correctly.",
+      "note": "Not sure your file is right? Send what you have and we will check it before anything is printed."
+    },
+    "reviews": {
+      "title": "Google reviews",
+      "count": "From {{ count }} reviews",
+      "read_all": "Read all reviews",
+      "source": "Google review",
+      "review1": "\"Ordered a t-shirt for my daughter's World Book Day. Really good quality, printed in less than 48 hours and much cheaper than online shops.\"",
+      "review2": "\"Needed a last minute bespoke T-shirt for a very fussy young customer and the guys went above and beyond to help.\"",
+      "review3": "\"I take in second hand t-shirts for him to print my company logo on. Even helps out loads with graphic design and sends the designs across.\""
+    }
   }
 }

@@ -1,5 +1,89 @@
-{% block 'container' %}
-  {% block 'hello-world' %}
-    {% block 'liquid-tips', tips: ['hello_world.liquid_tips_1', 'hello_world.liquid_tips_2', 'hello_world.liquid_tips_3'] %}{% endblock %}
+{% block 'container', tag: 'div' %}
+  {% block 'hero' %}
+    <h1 id="hero-title">{{ 'home.hero.title' | t }}</h1>
+    <p>{{ 'home.hero.intro' | t }}</p>
+    <div class="cta">
+      <a class="pill pill-d" href="#how">{{ 'home.hero.start_quote' | t }}</a>
+      <a class="pill pill-l" href="#garments">{{ 'home.hero.browse' | t }}</a>
+    </div>
+    <div class="big-facts">
+      <span>{{ 'home.hero.fact_printing' | t }}</span>
+      <span>{{ 'home.hero.fact_turnaround' | t }}</span>
+      <span>{{ 'home.hero.fact_bulk' | t }}</span>
+    </div>
+  {% endblock %}
+{% endblock %}
+
+{% block 'container', tag: 'section' %}
+  <div class="sec" id="garments">
+    <div class="sec-head">
+      <h2>{{ 'home.garments.title' | t }}</h2>
+      <p>{{ 'home.garments.intro' | t }}</p>
+    </div>
+    <div class="cats4">
+      {% block 'garment-tile', handle: 't-shirts', asset: 'garments-tshirts.jpg', alt: 'home.garments.tshirts_alt', tint: '#FCE6D6' %}
+        <b>{{ 'menu.garments.t_shirts.title' | t }}</b>
+        <span>{{ 'home.garments.tshirts_text' | t }}</span>
+      {% endblock %}
+      {% block 'garment-tile', handle: 'hoodies-and-sweatshirts', asset: 'garments-hoodies.jpg', alt: 'home.garments.hoodies_alt', tint: '#EEE8E0' %}
+        <b>{{ 'menu.garments.hoodies.title' | t }}</b>
+        <span>{{ 'home.garments.hoodies_text' | t }}</span>
+      {% endblock %}
+      {% block 'garment-tile', handle: 'sportswear', asset: 'garments-sportswear.jpg', alt: 'home.garments.sportswear_alt', tint: '#E5EADF' %}
+        <b>{{ 'menu.garments.sportswear.title' | t }}</b>
+        <span>{{ 'home.garments.sportswear_text' | t }}</span>
+      {% endblock %}
+      {% block 'garment-tile', handle: 'workwear', asset: 'garments-workwear.jpg', alt: 'home.garments.workwear_alt', tint: '#E0EAE6' %}
+        <b>{{ 'menu.garments.workwear.title' | t }}</b>
+        <span>{{ 'home.garments.workwear_text' | t }}</span>
+      {% endblock %}
+      {% block 'garment-tile', handle: 'headwear', asset: 'garments-headwear.jpg', alt: 'home.garments.headwear_alt', tint: '#F6EFD2' %}
+        <b>{{ 'menu.garments.headwear.title' | t }}</b>
+        <span>{{ 'home.garments.headwear_text' | t }}</span>
+      {% endblock %}
+      {% block 'garment-tile', handle: 'tote-bags', asset: 'garments-totes.jpg', alt: 'home.garments.totes_alt', tint: '#ECE6F2' %}
+        <b>{{ 'menu.garments.totes.title' | t }}</b>
+        <span>{{ 'home.garments.totes_text' | t }}</span>
+      {% endblock %}
+    </div>
+  </div>
+{% endblock %}
+
+{% block 'container', tag: 'div' %}
+  {% block 'showroom' %}
+    <span class="eyebrow">{{ 'home.showroom.eyebrow' | t }}</span>
+    <h2 id="showroom-title">{{ 'home.showroom.title' | t }}</h2>
+    <p>{{ 'home.showroom.intro' | t }}</p>
+  {% endblock %}
+{% endblock %}
+
+{% block 'container', tag: 'div' %}
+  {% block 'bulk-discount' %}
+    <h2 id="bulk-title">{{ 'home.bulk.title' | t }}</h2>
+    <p>{{ 'home.bulk.intro' | t }}</p>
+  {% endblock %}
+{% endblock %}
+
+{% block 'container', tag: 'div' %}
+  {% block 'how-it-works' %}
+    <h2 id="how-title">{{ 'home.how.title' | t }}</h2>
+    <p>{{ 'home.how.intro' | t }}</p>
+  {% endblock %}
+{% endblock %}
+
+{% block 'container', tag: 'div' %}
+  {% block 'reviews' %}
+    <figure class="rev">
+      <blockquote>{{ 'home.reviews.review1' | t }}</blockquote>
+      <figcaption><b>Adam S.</b> &middot; {{ 'home.reviews.source' | t }}</figcaption>
+    </figure>
+    <figure class="rev">
+      <blockquote>{{ 'home.reviews.review2' | t }}</blockquote>
+      <figcaption><b>Maximillien H.</b> &middot; {{ 'home.reviews.source' | t }}</figcaption>
+    </figure>
+    <figure class="rev">
+      <blockquote>{{ 'home.reviews.review3' | t }}</blockquote>
+      <figcaption><b>Oliver B.</b> &middot; {{ 'home.reviews.source' | t }}</figcaption>
+    </figure>
   {% endblock %}
 {% endblock %}

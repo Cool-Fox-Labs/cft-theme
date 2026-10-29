@@ -1,46 +1,42 @@
 {% doc %}
-  Renders the theme's storefront footer: copyright line, footer menu,
-  and optional payment icons. Composed directly in layout/theme.liquid
-  so it appears on every page.
+  Renders the dark storefront footer: stacked logo, showroom address,
+  opening hours and contact details from the Cool Fox Tees theme settings.
+  Composed directly in layout/theme.liquid so it appears on every page.
 {% enddoc %}
 
-<footer {{ block.shopify_attributes }}>
-  <div class="footer__copyright">
-    &copy;
-    {{ 'now' | date: '%Y' }}
-    {{ shop.name | link_to: routes.root_url }}, {{ powered_by_link }}
-  </div>
+{%- assign email = settings.email | default: shop.email -%}
 
-  <div class="footer__links">
-    {% for link in block.settings.menu.links %}
-      {{ link.title | link_to: link.url }}
-    {% endfor %}
+<footer class="foot full-width" id="visit" {{ block.shopify_attributes }}>
+  <div class="in">
+    <a href="{{ routes.root_url }}">
+      {{- 'logo-stacked.svg' | asset_url | image_tag: width: 120, height: 103, alt: shop.name, loading: 'lazy' -}}
+    </a>
+    <div>
+      <h3>{{ 'footer.visit_us' | t }}</h3>
+      <p>{{ settings.showroom_address }}</p>
+    </div>
+    <div>
+      <h3>{{ 'footer.opening_hours' | t }}</h3>
+      <p>{{ settings.showroom_hours }}.<br>{{ 'footer.call_first' | t }}</p>
+    </div>
+    <div>
+      <h3>{{ 'footer.get_in_touch' | t }}</h3>
+      {%- if settings.phone != blank -%}
+        <p><a href="tel:{{ settings.phone | remove: ' ' }}">{{ settings.phone }}</a></p>
+      {%- endif -%}
+      {%- if email != blank -%}
+        <p><a href="mailto:{{ email }}">{{ email }}</a></p>
+      {%- endif -%}
+    </div>
   </div>
-
-  <div class="footer__payment">
-    {% if block.settings.show_payment_icons %}
-      {% for type in shop.enabled_payment_types %}
-        {{ type | payment_type_svg_tag }}
-      {% endfor %}
-    {% endif %}
+  <div class="in foot-base">
+    <span>&copy; {{ 'now' | date: '%Y' }} {{ shop.name }}</span>
   </div>
 </footer>
 
 {% schema %}
 {
   "name": "t:general.footer",
-  "settings": [
-    {
-      "type": "link_list",
-      "id": "menu",
-      "label": "t:labels.menu"
-    },
-    {
-      "type": "checkbox",
-      "id": "show_payment_icons",
-      "label": "t:labels.show_payment_icons",
-      "default": true
-    }
-  ]
+  "settings": []
 }
 {% endschema %}

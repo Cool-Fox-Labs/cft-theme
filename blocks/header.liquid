@@ -1,52 +1,111 @@
 {% doc %}
-  Renders the theme's storefront header: shop title, main menu,
-  customer account entry, and cart link. Composed directly in
-  layout/theme.liquid so it wraps every page.
+  Renders the storefront header: the showroom info bar, the dark menu strip
+  with the wordmark, the Garments and Services drop-down panels, and the
+  phone menu drawer. Composed directly in layout/theme.liquid so it wraps
+  every page. Business details come from the Cool Fox Tees theme settings.
 {% enddoc %}
 
-<header {{ block.shopify_attributes }}>
-  <h2 class="header__title">
-    {{ shop.name | link_to: routes.root_url }}
-  </h2>
+{%- assign how_url = routes.root_url | append: '#how' -%}
+{%- assign showroom_url = routes.root_url | append: '#showroom' -%}
 
-  <div class="header__menu">
-    {% for link in block.settings.menu.links %}
-      {{ link.title | link_to: link.url }}
-    {% endfor %}
+<header class="site-head full-width" id="site-head" {{ block.shopify_attributes }}>
+  <div class="infobar">
+    <div class="in">
+      <span>
+        <span class="dot-s" aria-hidden="true"></span>
+        <b>{{ 'header.showroom_open' | t }}</b>
+        {{ settings.showroom_hours }}
+        <span class="hide-s"> &middot; {{ settings.showroom_address }}</span>
+      </span>
+      {%- if settings.google_rating != blank -%}
+        <span>
+          <span class="stars" aria-hidden="true">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
+          {{ 'header.google_rating_html' | t: rating: settings.google_rating, count: settings.google_review_count }}
+        </span>
+      {%- endif -%}
+    </div>
   </div>
 
-  <div class="header__icons">
-    {% if shop.customer_accounts_enabled %}
-      <shopify-account menu="{{ block.settings.customer_account_menu }}">
-        {{ 'icon-account.svg' | inline_asset_content }}
-      </shopify-account>
-    {% endif %}
+  <div class="strip">
+    <div class="in">
+      <a href="{{ routes.root_url }}" class="logo-link">
+        {{- 'logo-wordmark.svg' | asset_url | image_tag: class: 'logo', width: 140, height: 56, alt: shop.name -}}
+      </a>
 
-    <a href="{{ routes.cart_url }}">
-      {% if cart.item_count > 0 %}
-        <sup>{{ cart.item_count }}</sup>
-      {% endif %}
+      <nav class="nav" aria-label="{{ 'header.main_menu' | t }}">
+        <button class="top" type="button" aria-expanded="false" aria-controls="panel-garments">
+          {{ 'header.garments' | t }}
+          <svg viewBox="0 0 10 10" aria-hidden="true"><path d="M1 3l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
+        </button>
+        <button class="top" type="button" aria-expanded="false" aria-controls="panel-services">
+          {{ 'header.services' | t }}
+          <svg viewBox="0 0 10 10" aria-hidden="true"><path d="M1 3l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
+        </button>
+        <a href="{{ how_url }}">{{ 'header.how_it_works' | t }}</a>
+        <a href="{{ showroom_url }}"><span class="dot" aria-hidden="true"></span>{{ 'header.visit_showroom' | t }}</a>
+        <a class="pill pill-o" href="{{ how_url }}">{{ 'header.get_quote' | t }}</a>
+        <button class="burger" type="button" id="menu-btn" aria-expanded="false" aria-controls="drawer" data-open-label="{{ 'header.close' | t }}" data-closed-label="{{ 'header.menu' | t }}">
+          {{- 'header.menu' | t -}}
+        </button>
+      </nav>
+    </div>
+  </div>
 
-      {{ 'icon-cart.svg' | inline_asset_content }}
-    </a>
+  <div class="panel" id="panel-garments" hidden>
+    <div class="panel-in">
+      <div>
+        <h3>{{ 'header.choose_garment' | t }}</h3>
+        {% render 'menu-links', list: 'garments' %}
+      </div>
+      <a class="promo promo-o" href="{{ showroom_url }}">
+        <b>{{ 'header.promo_hand_picked_title' | t }}</b>
+        <span>{{ 'header.promo_hand_picked_text' | t }}</span>
+      </a>
+      <a class="promo promo-d" href="{{ showroom_url }}">
+        <b>{{ 'header.promo_showroom_title' | t }}</b>
+        <span>{{ 'header.promo_showroom_text' | t }}</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="panel" id="panel-services" hidden>
+    <div class="panel-in">
+      <div>
+        <h3>{{ 'header.what_we_print_for' | t }}</h3>
+        {% render 'menu-links', list: 'services' %}
+      </div>
+      <a class="promo promo-d" href="{{ routes.root_url }}#bulk">
+        <span class="big-num">20%</span>
+        <b>{{ 'header.promo_bulk_title' | t }}</b>
+        <span>{{ 'header.promo_bulk_text' | t }}</span>
+      </a>
+      <a class="promo promo-o" href="{{ how_url }}">
+        <b>{{ 'header.promo_no_minimum_title' | t }}</b>
+        <span>{{ 'header.promo_no_minimum_text' | t }}</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="drawer" id="drawer" hidden>
+    <div class="in">
+      <details>
+        <summary>{{ 'header.garments' | t }}</summary>
+        {% render 'menu-links', list: 'garments' %}
+      </details>
+      <details>
+        <summary>{{ 'header.services' | t }}</summary>
+        {% render 'menu-links', list: 'services' %}
+      </details>
+      <a href="{{ how_url }}">{{ 'header.how_it_works' | t }}</a>
+      <a href="{{ showroom_url }}">{{ 'header.visit_showroom' | t }}</a>
+      <a class="pill pill-o" href="{{ how_url }}">{{ 'header.get_quote' | t }}</a>
+    </div>
   </div>
 </header>
 
 {% schema %}
 {
   "name": "t:general.header",
-  "settings": [
-    {
-      "type": "link_list",
-      "id": "menu",
-      "label": "t:labels.menu"
-    },
-    {
-      "type": "link_list",
-      "id": "customer_account_menu",
-      "label": "t:labels.customer_account_menu",
-      "default": "customer-account-main-menu"
-    }
-  ]
+  "settings": []
 }
 {% endschema %}
