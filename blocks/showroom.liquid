@@ -32,7 +32,7 @@
         {{ block.settings.image | image_url: width: 1200 | image_tag: class: 'front', widths: '480, 800, 1200', sizes: '(min-width: 960px) 55vw, 100vw', alt: block.settings.image.alt, loading: 'lazy' }}
       {%- else -%}
         {%- assign alt_text = 'home.showroom.image_alt' | t -%}
-        {{ 'showroom-shopfront.jpg' | asset_url | image_tag: class: 'front', width: 1073, height: 976, alt: alt_text, loading: 'lazy' }}
+        <img class="front" src="{{ 'showroom-shopfront.jpg' | asset_url }}" width="1073" height="976" alt="{{ alt_text | escape }}" loading="lazy">
       {%- endif -%}
       <figcaption class="tag">{{ 'home.showroom.tag' | t }}<small>{{ 'home.showroom.tag_small' | t }}</small></figcaption>
     </figure>

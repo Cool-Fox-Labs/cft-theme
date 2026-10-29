@@ -29,7 +29,7 @@
   <div class="strip">
     <div class="in">
       <a href="{{ routes.root_url }}" class="logo-link">
-        {{- 'logo-wordmark.svg' | asset_url | image_tag: class: 'logo', width: 140, height: 56, alt: shop.name -}}
+        <img class="logo" src="{{ 'logo-wordmark.svg' | asset_url }}" width="140" height="56" alt="{{ shop.name | escape }}">
       </a>
 
       <nav class="nav" aria-label="{{ 'header.main_menu' | t }}">

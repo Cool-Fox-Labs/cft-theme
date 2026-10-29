@@ -22,7 +22,7 @@
       {{ block.settings.image | image_url: width: 900 | image_tag: widths: '360, 600, 900', sizes: '(min-width: 760px) 33vw, 50vw', alt: block.settings.image.alt, loading: 'lazy' }}
     {%- else -%}
       {%- assign alt_text = alt | t -%}
-      {{ asset | asset_url | image_tag: width: 1200, height: 900, alt: alt_text, loading: 'lazy' }}
+      <img src="{{ asset | asset_url }}" width="1200" height="900" alt="{{ alt_text | escape }}" loading="lazy">
     {%- endif -%}
   </div>
   <div class="cat-body">

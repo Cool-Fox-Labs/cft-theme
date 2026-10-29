@@ -82,7 +82,7 @@
     }
   },
   "info": {
-    "email": "Leave blank to use the store's contact email.",
+    "email": "Shown in the footer. Leave blank to hide it.",
     "transparent_png": "Use a transparent PNG or WebP, about 1250 px square.",
     "four_by_three": "Use a 4:3 photo, at least 1200 px wide. Keep the garments in the middle, phones crop the sides."
   }

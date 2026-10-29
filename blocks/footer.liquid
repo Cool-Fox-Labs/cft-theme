@@ -4,12 +4,12 @@
   Composed directly in layout/theme.liquid so it appears on every page.
 {% enddoc %}
 
-{%- assign email = settings.email | default: shop.email -%}
+{%- assign email = settings.email -%}
 
 <footer class="foot full-width" id="visit" {{ block.shopify_attributes }}>
   <div class="in">
     <a href="{{ routes.root_url }}">
-      {{- 'logo-stacked.svg' | asset_url | image_tag: width: 120, height: 103, alt: shop.name, loading: 'lazy' -}}
+      <img src="{{ 'logo-stacked.svg' | asset_url }}" width="120" height="103" alt="{{ shop.name | escape }}" loading="lazy">
     </a>
     <div>
       <h3>{{ 'footer.visit_us' | t }}</h3>
