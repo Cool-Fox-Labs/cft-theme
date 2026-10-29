@@ -145,9 +145,9 @@ h1, h2, h3 { font-family: var(--f-d); text-wrap: balance; margin: 0 }
 @media (min-width: 961px) { .drawer { display: none !important } }
 
 /* big hero */
-.big { padding-left: max(12px, env(safe-area-inset-left, 0px)); padding-right: max(12px, env(safe-area-inset-right, 0px)); padding-top: 12px }
-.big-in { position: relative; max-width: 1400px; margin: 0 auto; background: var(--card); box-shadow: 0 0 0 1px var(--line); color: var(--ink); border-radius: 32px; overflow: hidden; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); align-items: center; min-height: 600px }
-.big-in::before { content: ""; position: absolute; right: -8%; top: 50%; width: 62%; aspect-ratio: 1; transform: translateY(-50%); border-radius: 50%; background: radial-gradient(circle, var(--orange-soft) 0 70%, transparent 71%) }
+.big { padding-top: 12px }
+.big-in { position: relative; background: var(--card); box-shadow: 0 0 0 1px var(--line); color: var(--ink); border-radius: 32px; overflow: hidden; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); align-items: center; min-height: 600px }
+.big-in::before { content: ""; position: absolute; right: 4%; top: 50%; height: 88%; aspect-ratio: 1; transform: translateY(-50%); border-radius: 50%; background: radial-gradient(circle, var(--orange-soft) 0 70%, transparent 71%) }
 .big-copy { position: relative; z-index: 2; display: grid; gap: 24px; padding: clamp(32px, 5vw, 72px); min-width: 0 }
 .big h1 { font-weight: 700; font-size: clamp(44px, 5.4vw, 80px); line-height: .96; letter-spacing: -.04em }
 .big p { margin: 0; font-size: clamp(17px, 1.5vw, 20px); max-width: 40ch; color: var(--muted) }
@@ -159,7 +159,7 @@ h1, h2, h3 { font-family: var(--f-d); text-wrap: balance; margin: 0 }
 @keyframes drop { from { opacity: .001; translate: 0 60px } to { opacity: 1; translate: 0 0 } }
 @media (max-width: 900px) {
   .big-in { grid-template-columns: 1fr; min-height: 0 }
-  .big-in::before { width: 110%; right: -30%; top: auto; bottom: -30%; transform: none }
+  .big-in::before { height: auto; width: 84%; right: 8%; top: auto; bottom: 24px; transform: none }
 }
 
 .hero-set { position: relative; z-index: 1; display: grid; place-items: center; padding: 5% 6% 5% 0 }
