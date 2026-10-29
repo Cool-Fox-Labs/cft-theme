@@ -1,0 +1,68 @@
+{% doc %}
+  Renders the three-step "How it works" list and the "Artwork requirements"
+  pop-up opened from step 2. Uses a native dialog element, wired up in
+  theme.js; Esc and the close button both close it.
+
+  @param {string} content - Required. The section heading and intro line.
+
+  @example
+  {% block 'how-it-works' %}
+    <h2>{{ 'home.how.title' | t }}</h2>
+  {% endblock %}
+{% enddoc %}
+
+<section class="sec sec-tight" id="how" aria-labelledby="how-title" {{ block.shopify_attributes }}>
+  <div class="sec-head">
+    {{ content }}
+  </div>
+  <ol class="steps">
+    <li>
+      <h3>{{ 'home.how.step1_title' | t }}</h3>
+      <p>{{ 'home.how.step1_text' | t }}</p>
+    </li>
+    <li>
+      <h3>{{ 'home.how.step2_title' | t }}</h3>
+      <p>{{ 'home.how.step2_text' | t }}</p>
+      <button type="button" class="art-link" aria-haspopup="dialog" data-dialog-open="artwork-dialog">
+        {{- 'home.artwork.link' | t -}}
+      </button>
+    </li>
+    <li>
+      <h3>{{ 'home.how.step3_title' | t }}</h3>
+      <p>{{ 'home.how.step3_text' | t }}</p>
+    </li>
+  </ol>
+
+  <dialog class="art-dlg" id="artwork-dialog" aria-labelledby="artwork-title">
+    <div class="art-top">
+      <h2 id="artwork-title">{{ 'home.artwork.title' | t }}</h2>
+      <button type="button" class="art-x" aria-label="{{ 'home.artwork.close' | t }}" data-dialog-close>&times;</button>
+    </div>
+    <dl class="art-list">
+      <div>
+        <dt>{{ 'home.artwork.file_types_label' | t }}</dt>
+        <dd>{{ 'home.artwork.file_types' | t }}</dd>
+      </div>
+      <div>
+        <dt>{{ 'home.artwork.resolution_label' | t }}</dt>
+        <dd>{{ 'home.artwork.resolution' | t }}</dd>
+      </div>
+      <div>
+        <dt>{{ 'home.artwork.background_label' | t }}</dt>
+        <dd>{{ 'home.artwork.background' | t }}</dd>
+      </div>
+      <div>
+        <dt>{{ 'home.artwork.text_label' | t }}</dt>
+        <dd>{{ 'home.artwork.text' | t }}</dd>
+      </div>
+    </dl>
+    <p class="art-note">{{ 'home.artwork.note' | t }}</p>
+  </dialog>
+</section>
+
+{% schema %}
+{
+  "name": "t:general.how_it_works",
+  "settings": []
+}
+{% endschema %}

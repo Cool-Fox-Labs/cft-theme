@@ -1,0 +1,44 @@
+{% doc %}
+  Renders the homepage hero: a white rounded card with the headline, intro,
+  two call-to-action buttons and a short facts line on the left, and a
+  garment image over a soft peach circle on the right. The image can be
+  replaced in the theme editor; until then the bundled collection image is
+  used.
+
+  @param {string} content - Required. The headline, intro, buttons and facts.
+
+  @example
+  {% block 'hero' %}
+    <h1>{{ 'home.hero.title' | t }}</h1>
+  {% endblock %}
+{% enddoc %}
+
+<section class="big" aria-labelledby="hero-title" {{ block.shopify_attributes }}>
+  <div class="big-in">
+    <div class="big-copy">
+      {{ content }}
+    </div>
+    <div class="hero-set">
+      {%- if block.settings.image != blank -%}
+        {{ block.settings.image | image_url: width: 1300 | image_tag: widths: '480, 720, 960, 1300', sizes: '(min-width: 900px) 50vw, 100vw', alt: block.settings.image.alt, fetchpriority: 'high' }}
+      {%- else -%}
+        {%- assign alt_text = 'home.hero.image_alt' | t -%}
+        <img src="{{ 'hero-collection.webp' | asset_url }}" width="1254" height="1231" alt="{{ alt_text | escape }}" fetchpriority="high">
+      {%- endif -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "t:general.hero",
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "t:labels.image",
+      "info": "t:info.transparent_png"
+    }
+  ]
+}
+{% endschema %}

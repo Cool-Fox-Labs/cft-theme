@@ -17,9 +17,7 @@
     "footer": "Footer",
     "group": "Group",
     "header": "Header",
-    "hello_world": "Hello world",
     "layout": "Layout",
-    "liquid_tips": "Liquid tips",
     "main": "Main",
     "page": "Page",
     "password": "Password",
@@ -31,7 +29,14 @@
     "settings": "Settings",
     "sidebar": "Sidebar",
     "theme": "Theme",
-    "typography": "Typography"
+    "typography": "Typography",
+    "business": "Cool Fox Tees",
+    "hero": "Hero",
+    "garment_tile": "Garment tile",
+    "showroom": "Showroom",
+    "bulk_discount": "Bulk discount",
+    "how_it_works": "How it works",
+    "reviews": "Google reviews"
   },
   "labels": {
     "alignment": "Alignment",
@@ -46,7 +51,16 @@
     "padding": "Padding",
     "page_margin": "Page margin",
     "page_width": "Page width",
-    "show_payment_icons": "Show payment icons"
+    "show_payment_icons": "Show payment icons",
+    "accent": "Accent",
+    "image": "Image",
+    "showroom_address": "Showroom address",
+    "showroom_hours": "Opening hours",
+    "phone": "Phone number",
+    "email": "Email address",
+    "google_rating": "Google rating",
+    "google_review_count": "Number of Google reviews",
+    "google_reviews_url": "Link to Google reviews"
   },
   "options": {
     "alignment": {
@@ -66,5 +80,10 @@
       "large": "Large",
       "small": "Small"
     }
+  },
+  "info": {
+    "email": "Shown in the footer. Leave blank to hide it.",
+    "transparent_png": "Use a transparent PNG or WebP, about 1250 px square.",
+    "four_by_three": "Use a 4:3 photo, at least 1200 px wide. Keep the garments in the middle, phones crop the sides."
   }
 }

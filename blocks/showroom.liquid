@@ -1,0 +1,53 @@
+{% doc %}
+  Renders the dark showroom card: eyebrow, headline, intro and visit details
+  on the left, and the shopfront photo with a "Come and say hello" tag on the
+  right. Address, hours and phone come from the Cool Fox Tees theme settings.
+
+  @param {string} content - Required. Eyebrow, headline and intro.
+
+  @example
+  {% block 'showroom' %}
+    <h2>{{ 'home.showroom.title' | t }}</h2>
+  {% endblock %}
+{% enddoc %}
+
+<section class="sec" id="showroom" aria-labelledby="showroom-title" {{ block.shopify_attributes }}>
+  <div class="show">
+    <div class="show-copy">
+      {{ content }}
+      <dl class="visit">
+        <dt>{{ 'home.showroom.where' | t }}</dt>
+        <dd>{{ settings.showroom_address }}</dd>
+        <dt>{{ 'home.showroom.when' | t }}</dt>
+        <dd>{{ settings.showroom_hours }}. {{ 'footer.call_first' | t }}</dd>
+        {%- if settings.phone != blank -%}
+          <dt>{{ 'home.showroom.call' | t }}</dt>
+          <dd><a href="tel:{{ settings.phone | remove: ' ' }}">{{ settings.phone }}</a></dd>
+        {%- endif -%}
+      </dl>
+      <div><a class="pill pill-c" href="#visit">{{ 'home.showroom.plan_visit' | t }}</a></div>
+    </div>
+    <figure class="rail">
+      {%- if block.settings.image != blank -%}
+        {{ block.settings.image | image_url: width: 1200 | image_tag: class: 'front', widths: '480, 800, 1200', sizes: '(min-width: 960px) 55vw, 100vw', alt: block.settings.image.alt, loading: 'lazy' }}
+      {%- else -%}
+        {%- assign alt_text = 'home.showroom.image_alt' | t -%}
+        <img class="front" src="{{ 'showroom-shopfront.jpg' | asset_url }}" width="1073" height="976" alt="{{ alt_text | escape }}" loading="lazy">
+      {%- endif -%}
+      <figcaption class="tag">{{ 'home.showroom.tag' | t }}<small>{{ 'home.showroom.tag_small' | t }}</small></figcaption>
+    </figure>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "t:general.showroom",
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "t:labels.image"
+    }
+  ]
+}
+{% endschema %}

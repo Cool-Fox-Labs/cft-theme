@@ -1,26 +1,11 @@
 [
   {
     "name": "theme_info",
-    "theme_name": "Skeleton",
+    "theme_name": "Cool Fox Tees",
     "theme_version": "0.1.0",
-    "theme_author": "Shopify",
+    "theme_author": "Cool Fox Labs",
     "theme_documentation_url": "https://help.shopify.com/manual/online-store/themes",
     "theme_support_url": "https://support.shopify.com/"
-  },
-  {
-    "name": "t:general.typography",
-    "settings": [
-      {
-        "type": "header",
-        "content": "t:general.fonts"
-      },
-      {
-        "type": "font_picker",
-        "id": "type_primary_font",
-        "default": "work_sans_n4",
-        "label": "t:general.primary"
-      }
-    ]
   },
   {
     "name": "t:general.layout",
@@ -31,11 +16,11 @@
         "label": "t:labels.page_width",
         "options": [
           {
-            "value": "90rem",
+            "value": "80rem",
             "label": "t:options.page_width.narrow"
           },
           {
-            "value": "110rem",
+            "value": "90rem",
             "label": "t:options.page_width.wide"
           }
         ],
@@ -49,7 +34,7 @@
         "step": 1,
         "unit": "px",
         "label": "t:labels.page_margin",
-        "default": 20
+        "default": 16
       }
     ]
   },
@@ -59,14 +44,20 @@
       {
         "type": "color",
         "id": "background_color",
-        "default": "#FFFFFF",
+        "default": "#F2F3F0",
         "label": "t:labels.background"
       },
       {
         "type": "color",
         "id": "foreground_color",
-        "default": "#333333",
+        "default": "#1D1D1B",
         "label": "t:labels.foreground"
+      },
+      {
+        "type": "color",
+        "id": "accent_color",
+        "default": "#EB7024",
+        "label": "t:labels.accent"
       },
       {
         "type": "range",
@@ -76,7 +67,53 @@
         "step": 1,
         "unit": "px",
         "label": "t:labels.input_corner_radius",
-        "default": 4
+        "default": 8
+      }
+    ]
+  },
+  {
+    "name": "t:general.business",
+    "settings": [
+      {
+        "type": "text",
+        "id": "showroom_address",
+        "label": "t:labels.showroom_address",
+        "default": "Unit 12, Bath Place, Leamington Spa CV31 3AQ"
+      },
+      {
+        "type": "text",
+        "id": "showroom_hours",
+        "label": "t:labels.showroom_hours",
+        "default": "Monday to Friday, 9am to 4pm"
+      },
+      {
+        "type": "text",
+        "id": "phone",
+        "label": "t:labels.phone",
+        "default": "07706 949932"
+      },
+      {
+        "type": "text",
+        "id": "email",
+        "label": "t:labels.email",
+        "info": "t:info.email"
+      },
+      {
+        "type": "text",
+        "id": "google_rating",
+        "label": "t:labels.google_rating",
+        "default": "5.0"
+      },
+      {
+        "type": "number",
+        "id": "google_review_count",
+        "label": "t:labels.google_review_count",
+        "default": 29
+      },
+      {
+        "type": "url",
+        "id": "google_reviews_url",
+        "label": "t:labels.google_reviews_url"
       }
     ]
   }

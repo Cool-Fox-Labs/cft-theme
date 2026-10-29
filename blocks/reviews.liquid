@@ -1,0 +1,33 @@
+{% doc %}
+  Renders the Google reviews strip: the overall rating from the Cool Fox Tees
+  theme settings and the review cards passed in as body content.
+
+  @param {string} content - Required. One figure.rev per review.
+
+  @example
+  {% block 'reviews' %}
+    <figure class="rev">...</figure>
+  {% endblock %}
+{% enddoc %}
+
+<section class="sec sec-tight" id="reviews" aria-labelledby="reviews-title" {{ block.shopify_attributes }}>
+  <div class="revs">
+    <div class="score">
+      <h2 id="reviews-title" class="eyebrow eyebrow-muted">{{ 'home.reviews.title' | t }}</h2>
+      <b>{{ settings.google_rating }}</b>
+      <span class="stars" aria-hidden="true">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
+      <span>{{ 'home.reviews.count' | t: count: settings.google_review_count }}</span>
+      {%- if settings.google_reviews_url != blank -%}
+        <a class="link" href="{{ settings.google_reviews_url }}">{{ 'home.reviews.read_all' | t }}</a>
+      {%- endif -%}
+    </div>
+    {{ content }}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "t:general.reviews",
+  "settings": []
+}
+{% endschema %}

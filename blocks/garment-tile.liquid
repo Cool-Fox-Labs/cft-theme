@@ -1,0 +1,46 @@
+{% doc %}
+  Renders one category tile in the "Choose your garment" grid: a 4:3 flat-lay
+  photo on a soft tint, the category name and a one-line description.
+  Links to the category's collection by handle. The photo can be replaced in
+  the theme editor; until then the bundled asset is used.
+
+  @param {string} handle - Collection handle the tile links to.
+  @param {string} asset - Bundled fallback image in assets/.
+  @param {string} alt - Translation key for the fallback image's alt text.
+  @param {string} tint - Background colour behind the text.
+  @param {string} content - Required. The tile's name and description.
+
+  @example
+  {% block 'garment-tile', handle: 't-shirts', asset: 'garments-tshirts.jpg', alt: 'home.garments.tshirts_alt', tint: '#FCE6D6' %}
+    <b>{{ 'menu.garments.t_shirts.title' | t }}</b>
+  {% endblock %}
+{% enddoc %}
+
+<a class="cat" href="{{ routes.collections_url }}/{{ handle }}" style="--tint: {{ tint }};" {{ block.shopify_attributes }}>
+  <div class="cat-img">
+    {%- if block.settings.image != blank -%}
+      {{ block.settings.image | image_url: width: 900 | image_tag: widths: '360, 600, 900', sizes: '(min-width: 760px) 33vw, 50vw', alt: block.settings.image.alt, loading: 'lazy' }}
+    {%- else -%}
+      {%- assign alt_text = alt | t -%}
+      <img src="{{ asset | asset_url }}" width="1200" height="900" alt="{{ alt_text | escape }}" loading="lazy">
+    {%- endif -%}
+  </div>
+  <div class="cat-body">
+    {{ content }}
+  </div>
+  <i aria-hidden="true">&rarr;</i>
+</a>
+
+{% schema %}
+{
+  "name": "t:general.garment_tile",
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "t:labels.image",
+      "info": "t:info.four_by_three"
+    }
+  ]
+}
+{% endschema %}
