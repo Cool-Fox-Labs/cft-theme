@@ -23,7 +23,7 @@
         {{ block.settings.image | image_url: width: 1300 | image_tag: widths: '480, 720, 960, 1300', sizes: '(min-width: 900px) 50vw, 100vw', alt: block.settings.image.alt, fetchpriority: 'high' }}
       {%- else -%}
         {%- assign alt_text = 'home.hero.image_alt' | t -%}
-        <img src="{{ 'hero-collection.webp' | asset_url }}" width="1254" height="1231" alt="{{ alt_text | escape }}" fetchpriority="high">
+        <img src="{{ 'hero-collection.webp' | asset_url }}" width="1254" height="1254" alt="{{ alt_text | escape }}" fetchpriority="high">
       {%- endif -%}
     </div>
   </div>
