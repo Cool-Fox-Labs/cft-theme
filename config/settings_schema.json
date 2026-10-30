@@ -116,5 +116,16 @@
         "label": "t:labels.google_reviews_url"
       }
     ]
+  },
+  {
+    "name": "t:general.quotes",
+    "settings": [
+      {
+        "type": "text",
+        "id": "quote_endpoint",
+        "label": "t:labels.quote_endpoint",
+        "info": "t:info.quote_endpoint"
+      }
+    ]
   }
 ]

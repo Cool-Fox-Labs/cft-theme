@@ -36,7 +36,9 @@
     "showroom": "Showroom",
     "bulk_discount": "Bulk discount",
     "how_it_works": "How it works",
-    "reviews": "Google reviews"
+    "reviews": "Google reviews",
+    "product_builder": "Product quote builder",
+    "quotes": "Quote requests"
   },
   "labels": {
     "alignment": "Alignment",
@@ -60,7 +62,8 @@
     "email": "Email address",
     "google_rating": "Google rating",
     "google_review_count": "Number of Google reviews",
-    "google_reviews_url": "Link to Google reviews"
+    "google_reviews_url": "Link to Google reviews",
+    "quote_endpoint": "Quote request address"
   },
   "options": {
     "alignment": {
@@ -84,6 +87,7 @@
   "info": {
     "email": "Shown in the footer. Leave blank to hide it.",
     "transparent_png": "Use a transparent PNG or WebP, about 1250 px square.",
-    "four_by_three": "Use a 4:3 photo, at least 1200 px wide. Keep the garments in the middle, phones crop the sides."
+    "four_by_three": "Use a 4:3 photo, at least 1200 px wide. Keep the garments in the middle, phones crop the sides.",
+    "quote_endpoint": "Where \"Send for quote\" posts the request. Leave blank until the Business Hub app is installed."
   }
 }
