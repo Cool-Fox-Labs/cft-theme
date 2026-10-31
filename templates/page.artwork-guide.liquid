@@ -1,0 +1,109 @@
+{% comment %}
+  Artwork guide page. Wording lives in locales/en.default.json under
+  pages.artwork. To use it: create a page in Shopify admin (handle
+  "artwork-guide") and choose the "artwork-guide" template.
+{% endcomment %}
+
+{% block 'container', tag: 'section' %}
+  {%- liquid
+    assign file_types = 'vector,png,jpg' | split: ','
+    assign tips = 'text,outlines,lines,dark,colour' | split: ','
+    assign tip_prefix = 'pages.artwork.tip_'
+  -%}
+
+  <div class="info in">
+    <header class="info-head">
+      <span class="eyebrow">{{ 'pages.artwork.eyebrow' | t }}</span>
+      <h1>{{ 'pages.artwork.title' | t }}</h1>
+      <p>{{ 'pages.artwork.intro' | t }}</p>
+    </header>
+
+    <section class="info-sec">
+      <h2>{{ 'pages.artwork.files_title' | t }}</h2>
+      <div class="info-table">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">{{ 'pages.artwork.file_col' | t }}</th>
+              <th scope="col">{{ 'pages.artwork.use_col' | t }}</th>
+              <th scope="col">{{ 'pages.artwork.note_col' | t }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {%- for f in file_types -%}
+              {%- assign key = 'pages.artwork.' | append: f -%}
+              <tr>
+                <td>{{ key | t }}</td>
+                <td>{{ key | append: '_use' | t }}</td>
+                <td>{{ key | append: '_note' | t }}</td>
+              </tr>
+            {%- endfor -%}
+          </tbody>
+        </table>
+      </div>
+      <p class="info-note">{{ 'pages.artwork.files_warning' | t }}</p>
+    </section>
+
+    <section class="info-sec">
+      <h2>{{ 'pages.artwork.size_title' | t }}</h2>
+      <p>{{ 'pages.artwork.size_text' | t }}</p>
+      <p>{{ 'pages.artwork.size_guide' | t }}</p>
+      <p>{{ 'pages.artwork.size_small' | t }}</p>
+    </section>
+
+    <section class="info-sec">
+      <h2>{{ 'pages.artwork.tips_title' | t }}</h2>
+      <ul>
+        {%- for tip in tips -%}
+          <li>{{ tip_prefix | append: tip | t }}</li>
+        {%- endfor -%}
+      </ul>
+    </section>
+
+    <section class="info-sec">
+      <h2>{{ 'pages.artwork.methods_title' | t }}</h2>
+      <p>{{ 'pages.artwork.methods_intro' | t }}</p>
+      <div class="info-cards">
+        <div>
+          <h3>{{ 'pages.artwork.dtg_title' | t }}</h3>
+          <p>{{ 'pages.artwork.dtg_text' | t }}</p>
+        </div>
+        <div>
+          <h3>{{ 'pages.artwork.dtf_title' | t }}</h3>
+          <p>{{ 'pages.artwork.dtf_text' | t }}</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="info-sec">
+      <h2>{{ 'pages.artwork.help_title' | t }}</h2>
+      <p>{{ 'pages.artwork.help_text' | t }}</p>
+    </section>
+
+    <section class="info-sec">
+      <h2>{{ 'pages.artwork.send_title' | t }}</h2>
+      <p>
+        {{ 'pages.artwork.send_text' | t }}
+        {%- if settings.email != blank %}
+          <a href="mailto:{{ settings.email }}">{{ settings.email }}</a>
+        {%- endif -%}
+      </p>
+    </section>
+
+    <section class="info-sec">
+      <h2>{{ 'pages.artwork.rights_title' | t }}</h2>
+      <p>
+        {{ 'pages.artwork.rights_text' | t }}
+        {%- if shop.terms_of_service %}
+          <a href="{{ shop.terms_of_service.url }}">{{ 'pages.artwork.terms_link' | t }}</a>
+        {%- endif -%}
+      </p>
+    </section>
+
+    <p><a class="pill pill-o" href="{{ routes.root_url }}#garments">{{ 'pages.artwork.cta' | t }}</a></p>
+
+    {%- if page.content != blank -%}
+      <div class="rte">{{ page.content }}</div>
+    {%- endif -%}
+  </div>
+{% endblock %}

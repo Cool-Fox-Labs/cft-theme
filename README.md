@@ -15,6 +15,9 @@ before you push.
 ## What is in it
 
 - `templates/index.liquid` - the homepage, composed from the blocks below.
+- `templates/page.faq.liquid` and `templates/page.artwork-guide.liquid` - the
+  FAQ and Artwork guide pages. Wording is in the locale file under `pages`. In
+  Shopify admin, create a page and pick the matching template.
 - `blocks/` - header, footer, hero, garment tile, showroom, bulk discount,
   how it works (with the artwork requirements pop-up) and Google reviews.
 - `locales/en.default.json` - all homepage wording. Change text here.

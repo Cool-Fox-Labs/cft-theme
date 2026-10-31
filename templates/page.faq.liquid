@@ -1,0 +1,53 @@
+{% comment %}
+  FAQ page. Wording lives in locales/en.default.json under pages.faq.
+  To use it: create a page in Shopify admin (handle "faq") and choose the
+  "faq" template.
+{% endcomment %}
+
+{% block 'container', tag: 'section' %}
+  {%- liquid
+    assign artwork_page = pages['artwork-guide']
+    assign t = 'pages.faq.'
+    assign groups = 'ordering:minimum,bulk,price,mix,find,business|artwork:file,proof,design,colour|delivery:time,collect,cost|returns:wash,return,own' | split: '|'
+  -%}
+
+  <div class="info in">
+    <header class="info-head">
+      <span class="eyebrow">{{ 'pages.faq.eyebrow' | t }}</span>
+      <h1>{{ 'pages.faq.title' | t }}</h1>
+      <p>{{ 'pages.faq.intro' | t }}</p>
+    </header>
+
+    {%- for group in groups -%}
+      {%- assign parts = group | split: ':' -%}
+      {%- assign questions = parts[1] | split: ',' -%}
+      <section class="info-sec">
+        <h2>{{ t | append: parts[0] | t }}</h2>
+        {%- for q in questions -%}
+          <details class="faq">
+            <summary>{{ t | append: 'q_' | append: q | t }}</summary>
+            <p>{{ t | append: 'a_' | append: q | t }}</p>
+            {%- case q -%}
+              {%- when 'file' -%}
+                {%- if artwork_page -%}
+                  <p><a href="{{ artwork_page.url }}">{{ 'pages.faq.artwork_link' | t }}</a></p>
+                {%- endif -%}
+              {%- when 'cost' -%}
+                {%- if shop.shipping_policy -%}
+                  <p><a href="{{ shop.shipping_policy.url }}">{{ 'pages.faq.delivery_link' | t }}</a></p>
+                {%- endif -%}
+              {%- when 'return' -%}
+                {%- if shop.refund_policy -%}
+                  <p><a href="{{ shop.refund_policy.url }}">{{ 'pages.faq.returns_link' | t }}</a></p>
+                {%- endif -%}
+            {%- endcase -%}
+          </details>
+        {%- endfor -%}
+      </section>
+    {%- endfor -%}
+
+    {%- if page.content != blank -%}
+      <div class="rte">{{ page.content }}</div>
+    {%- endif -%}
+  </div>
+{% endblock %}
