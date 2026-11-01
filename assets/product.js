@@ -22,14 +22,13 @@
   };
 
   // Default positions on a flat front shot. x and y are % of the photo; one
-  // inch covers about 2.4% of the photo width. A product can override these
-  // with its cft.print_positions metafield.
+  // inch covers about 2.4% of the photo width. w is the widest print there.
+  // The front is one area; "chest" is where a left chest logo sits in it.
+  // A product can override these with its cft.print_positions metafield.
   const DEFAULT = {
     inch: 2.4,
     positions: [
-      { id: 'lc', w: 4, x: 62, y: 30, view: 'front' },
-      { id: 'rc', w: 4, x: 38, y: 30, view: 'front' },
-      { id: 'ff', w: 11, x: 50, y: 30, view: 'front' },
+      { id: 'fr', w: 11, x: 50, y: 30, view: 'front', chest: { w: 4, x: 62, y: 30 } },
       { id: 'fb', w: 12, x: 50, y: 27, view: 'back' },
       { id: 'ls', w: 3, x: 85, y: 33, view: 'front' },
       { id: 'rs', w: 3, x: 15, y: 33, view: 'front' },
@@ -66,13 +65,32 @@
 
   const total = () => SIZES.reduce((n, s) => n + (st.colour.sizes.includes(s) ? st.qty[s] || 0 : 0), 0);
   const items = (n) => (n === 1 ? T.itemsOne : fill(T.itemsOther, { n }));
-  const height = (p, item) => (p.w / item.ratio).toFixed(1);
+  const height = (w, item) => (w / item.ratio).toFixed(1);
+
+  // A print size is 'best' (we choose), 'chest' (left chest logo) or a
+  // width in inches. geo() is where and how big it shows on the photo.
+  const sizeOf = (v) => (v === 'chest' || typeof v === 'number' ? v : 'best');
+  function geo(p, size) {
+    if (size === 'chest' && p.chest) return { ...p.chest };
+    if (typeof size === 'number') return { x: p.x, y: p.y, w: size };
+    return { x: p.x, y: p.y, w: p.w };
+  }
+  function tag(p, size) {
+    if (size === 'chest') return `${T.chestTag} ${geo(p, size).w}in`;
+    if (typeof size === 'number') return `${p.name} ${size}in`;
+    return p.name;
+  }
+  function sizeText(p, size, item) {
+    if (size === 'chest') return T.chestLogo;
+    if (typeof size === 'number') return item && item.ratio ? fill(T.wxh, { w: size, h: height(size, item) }) : fill(T.inches, { w: size });
+    return T.bestSize;
+  }
 
   // Artwork check: compare the trimmed design's pixel width with the print width.
-  function check(p, item) {
+  function check(w, item) {
     if (!item || item.kind === 'text') return '';
     if (item.vector) return T.vector;
-    const dpi = item.px / p.w;
+    const dpi = item.px / w;
     return dpi >= 200 ? T.good : dpi >= 120 ? T.ok : T.low;
   }
 
@@ -91,10 +109,12 @@
     box.innerHTML = '';
     POS.filter((p) => p.view === view && (placed[p.id] !== undefined || p.id === selected)).forEach((p) => {
       const item = placed[p.id];
-      const w = p.w * INCH;
+      const size = sizeOf(item && item.size);
+      const g = geo(p, size);
+      const w = g.w * INCH;
       const el = make('div', 'ph' + (item && item.src ? '' : ' empty') + (p.id === selected ? ' sel' : ''));
-      el.style.cssText = `left:${p.x - w / 2}%;top:${p.y}%;width:${w}%`;
-      el.append(make('span', 'ph-tag', `${p.name} ${p.w}in`));
+      el.style.cssText = `left:${g.x - w / 2}%;top:${g.y}%;width:${w}%`;
+      el.append(make('span', 'ph-tag', tag(p, size)));
       if (item && item.src) {
         const img = make('img');
         img.src = item.src;
@@ -111,7 +131,7 @@
     if (!d) return {};
     if (d.mode === 'designer') return d.items;
     const out = {};
-    d.files.forEach((f) => Object.keys(f.at).forEach((id) => { out[id] = out[id] || { src: f.thumb }; }));
+    d.files.forEach((f) => Object.keys(f.at).forEach((id) => { out[id] = out[id] || { src: f.thumb, size: f.at[id] }; }));
     return out;
   }
 
@@ -173,12 +193,12 @@
       return POS.filter((p) => d.items[p.id]).map((p) => {
         const item = d.items[p.id];
         const what = item.kind === 'text' ? `${T.text}: "${item.lines.join(' / ')}" (${item.font}, ${item.ink})` : item.name;
-        return { name: p.name, text: `${what} · ${fill(T.wxh, { w: p.w, h: height(p, item) })}` };
+        return { name: p.name, text: `${what} · ${sizeText(p, sizeOf(item.size), item)}` };
       });
     }
     const out = [];
     POS.forEach((p) => {
-      const parts = d.files.filter((f) => p.id in f.at).map((f) => `${f.name} · ${f.at[p.id] ? fill(T.inches, { w: f.at[p.id] }) : T.bestSize}`);
+      const parts = d.files.filter((f) => p.id in f.at).map((f) => `${f.name} · ${sizeText(p, sizeOf(f.at[p.id]))}`);
       if (parts.length) out.push({ name: p.name, text: parts.join('; ') });
     });
     return out;
@@ -307,6 +327,36 @@
     return lab;
   }
 
+  // Best size for me / left chest logo / I need a specific size + width box.
+  function sizePicker(p, value, onChange) {
+    const row = make('div', 'fz-size');
+    const sel = make('select');
+    sel.setAttribute('aria-label', T.sizeLabel);
+    const opts = [['best', T.bestSize]];
+    if (p.chest) opts.push(['chest', T.chestLogo]);
+    opts.push(['specific', T.specificSize]);
+    const now = typeof value === 'number' ? 'specific' : sizeOf(value);
+    opts.forEach(([v, t]) => {
+      const o = make('option', '', t);
+      o.value = v;
+      o.selected = now === v;
+      sel.append(o);
+    });
+    const w = Object.assign(make('input'), { type: 'number', min: 1, max: 14, step: 0.5, inputMode: 'decimal', value: typeof value === 'number' ? value : p.w });
+    w.setAttribute('aria-label', T.widthIn);
+    const wl = make('label', 'fz-w');
+    wl.append(w, make('span', '', T.widthIn));
+    wl.hidden = now !== 'specific';
+    const send = () => {
+      wl.hidden = sel.value !== 'specific';
+      onChange(sel.value === 'specific' ? parseFloat(w.value) || p.w : sel.value === 'chest' ? 'chest' : 'best');
+    };
+    sel.addEventListener('change', send);
+    w.addEventListener('input', send);
+    row.append(sel, wl);
+    return row;
+  }
+
   function textForm(p, item) {
     const form = make('div', 'text-design');
     const field = (label, el) => { const l = make('label', '', label); l.append(el); form.append(l); return el; };
@@ -341,8 +391,9 @@
     const item = dzs.items[p.id];
     info.innerHTML = '';
     if (!item) return;
-    info.append(make('b', '', fill(T.wxh, { w: p.w, h: height(p, item) })));
-    const note = check(p, item);
+    const size = sizeOf(item.size);
+    info.append(make('b', '', sizeText(p, size, item)));
+    const note = check(geo(p, size).w, item);
     if (note) info.append(make('span', note === T.low ? 'low' : '', note));
   }
 
@@ -353,7 +404,7 @@
     if (!p) return;
     const item = dzs.items[p.id];
     panel.append(make('h3', '', `${p.name} · ${fill(T.inWide, { w: p.w })}`));
-    const setItem = (it) => { dzs.items[p.id] = it; dzRender(); };
+    const setItem = (it) => { it.size = item ? item.size : 'best'; dzs.items[p.id] = it; dzRender(); };
     if (!item) {
       panel.append(make('p', 'muted', T.emptyPos));
       const row = make('div', 'dz-choice');
@@ -361,9 +412,11 @@
       const textBtn = make('button', 'pill pill-l', T.addText);
       textBtn.type = 'button';
       textBtn.addEventListener('click', () => {
-        const fresh = { kind: 'text', lines: [], fontVar: T.fonts[0][0], font: T.fonts[0][1], inkHex: T.inks[0][0], ink: T.inks[0][1] };
+        const fresh = { kind: 'text', size: 'best', lines: [], fontVar: T.fonts[0][0], font: T.fonts[0][1], inkHex: T.inks[0][0], ink: T.inks[0][1] };
         q('p.muted', panel).remove();
-        panel.lastChild.replaceWith(textForm(p, fresh));
+        const info = make('div', 'dz-info');
+        info.setAttribute('data-dz-info', '');
+        panel.lastChild.replaceWith(info, sizePicker(p, fresh.size, (v) => { fresh.size = v; dzStage(); dzInfo(p); }), textForm(p, fresh));
       });
       row.append(textBtn);
       panel.append(row);
@@ -372,6 +425,7 @@
     panel.append(make('div', 'dz-info'));
     panel.lastChild.setAttribute('data-dz-info', '');
     dzInfo(p);
+    panel.append(sizePicker(p, item.size, (v) => { item.size = v; dzStage(); dzInfo(p); }));
     if (item.kind === 'text') panel.append(textForm(p, item));
     const row = make('div', 'dz-choice');
     if (item.kind === 'upload') row.append(fileButton(T.replace, setItem));
@@ -464,26 +518,8 @@
       li.append(chips);
 
       POS.filter((p) => p.id in f.at).forEach((p) => {
-        const row = make('div', 'fz-size');
-        row.append(make('b', '', p.name));
-        const sel = make('select');
-        [['best', T.bestSize], ['specific', T.specificSize]].forEach(([v, t]) => {
-          const o = make('option', '', t);
-          o.value = v;
-          o.selected = (f.at[p.id] ? 'specific' : 'best') === v;
-          sel.append(o);
-        });
-        const w = Object.assign(make('input'), { type: 'number', min: 1, max: 20, step: 0.5, inputMode: 'decimal', value: f.at[p.id] || p.w });
-        w.setAttribute('aria-label', T.widthIn);
-        const wl = make('label', 'fz-w');
-        wl.append(w, make('span', '', T.widthIn));
-        wl.hidden = !f.at[p.id];
-        sel.addEventListener('change', () => {
-          f.at[p.id] = sel.value === 'specific' ? parseFloat(w.value) || p.w : null;
-          wl.hidden = sel.value !== 'specific';
-        });
-        w.addEventListener('input', () => { f.at[p.id] = parseFloat(w.value) || p.w; });
-        row.append(sel, wl);
+        const row = make('div', 'fz-row');
+        row.append(make('b', '', p.name), sizePicker(p, f.at[p.id], (v) => { f.at[p.id] = v === 'best' ? null : v; }));
         li.append(row);
       });
       list.append(li);
