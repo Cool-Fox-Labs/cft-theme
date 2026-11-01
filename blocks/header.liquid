@@ -43,6 +43,9 @@
         </button>
         <a href="{{ how_url }}">{{ 'header.how_it_works' | t }}</a>
         <a href="{{ showroom_url }}"><span class="dot" aria-hidden="true"></span>{{ 'header.visit_showroom' | t }}</a>
+        {%- if cart.item_count > 0 -%}
+          <a class="basket-link" href="{{ routes.cart_url }}">{{ 'header.basket' | t }} ({{ cart.item_count }})</a>
+        {%- endif -%}
         <a class="pill pill-o" href="{{ how_url }}">{{ 'header.get_quote' | t }}</a>
         <button class="burger" type="button" id="menu-btn" aria-expanded="false" aria-controls="drawer" data-open-label="{{ 'header.close' | t }}" data-closed-label="{{ 'header.menu' | t }}">
           {{- 'header.menu' | t -}}

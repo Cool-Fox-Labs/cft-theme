@@ -80,3 +80,27 @@
     update();
   });
 })();
+
+/**
+ * Basket page: "Send quote request" posts the basket to the Business Hub
+ * address in theme settings. Until that is set it says quote requests are
+ * not switched on yet.
+ */
+(() => {
+  const button = document.querySelector('[data-send-quote]');
+  if (!button) return;
+  const msg = document.querySelector('[data-quote-msg]');
+  button.addEventListener('click', async () => {
+    const endpoint = button.dataset.endpoint;
+    if (!endpoint) { msg.textContent = msg.dataset.off; return; }
+    try {
+      const form = button.closest('form');
+      await fetch(form.action + '/update.js', { method: 'POST', body: new FormData(form) });
+      const cart = await (await fetch(form.action + '.js')).json();
+      const res = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ cart }) });
+      msg.textContent = res.ok ? msg.dataset.ok : msg.dataset.fail;
+    } catch (e) {
+      msg.textContent = msg.dataset.fail;
+    }
+  });
+})();
