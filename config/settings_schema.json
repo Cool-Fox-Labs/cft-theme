@@ -114,6 +114,13 @@
         "type": "url",
         "id": "google_reviews_url",
         "label": "t:labels.google_reviews_url"
+      },
+      {
+        "type": "text",
+        "id": "full_catalogue_url",
+        "label": "t:labels.full_catalogue_url",
+        "info": "t:info.full_catalogue_url",
+        "default": "https://coolfoxtees.fullcollection.com/"
       }
     ]
   },
