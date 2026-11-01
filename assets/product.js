@@ -57,6 +57,7 @@
     colour: COLOURS.find((c) => c.name === D.selectedColour) || COLOURS[0],
     qty: {},
     view: 'front',
+    photo: null,
     design: null,
   };
 
@@ -193,7 +194,8 @@
       shirt.src = src;
     }
     shirt.alt = `${D.title}, ${c.name}`;
-    q('[data-back-note]', stage).hidden = view === 'front' || !!own;
+    const note = q('[data-back-note]', stage);
+    if (note) note.hidden = view === 'front' || !!own;
     placeAll(q('[data-placements]', stage), view, list, selUid, edit);
   }
 
@@ -227,7 +229,7 @@
       b.setAttribute('aria-pressed', String(c === st.colour));
       if (c.hex) b.style.setProperty('--c', c.hex);
       else if (c.thumb) b.style.backgroundImage = `url("${c.thumb}")`;
-      b.addEventListener('click', () => { st.colour = c; render(); });
+      b.addEventListener('click', () => { st.colour = c; st.photo = null; render(); });
       box.append(b);
     });
   }
@@ -322,15 +324,47 @@
 
   function render() {
     q('[data-colour-name]').textContent = st.colour.name;
-    qa('[data-view]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.view === st.view)));
     swatches();
     sizes();
     designCard();
-    drawStage(q('[data-stage="page"]'), st.view, placedOnPage(), null, false);
+    pagePhoto();
     totals();
   }
 
-  qa('[data-view]').forEach((b) => b.addEventListener('click', () => { st.view = b.dataset.view; render(); }));
+  // The main photo: the colour's own photo with the design on it, or one of
+  // the product's other photos (no design). Back photos stay in the designer.
+  const EXTRAS = D.extras || [];
+  function pagePhoto() {
+    const stage = q('[data-stage="page"]');
+    const extra = st.photo === null ? null : EXTRAS[st.photo];
+    if (extra) {
+      const shirt = q('[data-shirt]', stage);
+      shirt.removeAttribute('srcset');
+      shirt.src = extra.img;
+      shirt.alt = extra.alt || D.title;
+      q('[data-placements]', stage).innerHTML = '';
+    } else {
+      drawStage(stage, 'front', placedOnPage(), null, false);
+    }
+    const box = q('[data-g-thumbs]');
+    box.innerHTML = '';
+    box.hidden = !EXTRAS.length;
+    if (!EXTRAS.length) return;
+    [{ thumb: st.colour.thumb, alt: st.colour.name, i: null }, ...EXTRAS.map((x, i) => ({ ...x, i }))].forEach((x) => {
+      const b = make('button', 'g-thumb');
+      b.type = 'button';
+      b.setAttribute('aria-label', x.alt || D.title);
+      b.setAttribute('aria-pressed', String(x.i === st.photo));
+      if (x.thumb) {
+        const img = make('img');
+        img.src = x.thumb;
+        img.alt = '';
+        b.append(img);
+      }
+      b.addEventListener('click', () => { st.photo = x.i; pagePhoto(); });
+      box.append(b);
+    });
+  }
 
   /* ---------- reading uploads ---------- */
 
@@ -738,6 +772,7 @@
     const items = dzs.items.filter((it) => it.src && !it.placeholder);
     st.design = items.length ? { mode: 'designer', items } : null;
     st.view = dzs.view === 'back' ? 'back' : 'front';
+    st.photo = null;
     dz.close();
     render();
   }));

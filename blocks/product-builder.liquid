@@ -14,6 +14,9 @@
   Both say we check artwork, size and position before printing.
 
   Product data it reads:
+  - The main photo is the chosen colour's photo with the design on it.
+    Product photos not linked to a variant show as small thumbnails under
+    it (only when there is at least one). Back photos stay in the designer.
   - Variant images are the flat colour shots. Supplier lifestyle shots
     (file names containing _LS00_) are never shown, per the imagery terms.
   - A price of 0 or the tag "quote-only" makes it a quote item, because
@@ -77,11 +80,6 @@
   <div class="pdp" id="pdp">
     <div class="gallery">
       <div class="stage-p" data-stage="page">
-        <div class="view-tabs" role="group" aria-label="{{ 'product.view' | t }}">
-          <button type="button" data-view="front" aria-pressed="true">{{ 'product.front' | t }}</button>
-          <button type="button" data-view="back" aria-pressed="false">{{ 'product.back' | t }}</button>
-        </div>
-        <p class="back-note" data-back-note hidden>{{ 'product.back_note' | t }}</p>
         <div class="zoom" data-zoom>
           {%- if fallback_image -%}
             {{ fallback_image | image_url: width: 1000 | image_tag: class: 'shirt', data-shirt: '', alt: product.title, sizes: '(min-width: 900px) 50vw, 100vw' }}
@@ -90,8 +88,8 @@
           {%- endif -%}
           <div data-placements></div>
         </div>
-        <p class="ref-note">{{ 'product.ref_note' | t }}</p>
       </div>
+      <div class="g-thumbs" data-g-thumbs role="group" aria-label="{{ 'product.photos' | t }}" hidden></div>
     </div>
 
     <div class="info">
@@ -286,6 +284,16 @@
       {%- for value in product.options_with_values[colour_i].values -%}
         {%- if value.swatch.color -%}{%- assign hex = value.swatch.color | json -%}{%- else -%}{%- assign hex = 'null' -%}{%- endif -%}
         {"name": {{ value.name | json }}, "hex": {{ hex }}}{% unless forloop.last %},{% endunless %}
+      {%- endfor -%}
+    ],
+    "extras": [
+      {%- assign sep = '' -%}
+      {%- for image in product.images -%}
+        {%- assign src = image.src | downcase -%}
+        {%- if image.variants.size == 0 -%}{%- unless src contains '_ls00_' -%}
+          {{ sep }}{"img": {{ image | image_url: width: 1000 | json }}, "thumb": {{ image | image_url: width: 160 | json }}, "alt": {{ image.alt | default: product.title | json }}}
+          {%- assign sep = ',' -%}
+        {%- endunless -%}{%- endif -%}
       {%- endfor -%}
     ],
     "variants": [
