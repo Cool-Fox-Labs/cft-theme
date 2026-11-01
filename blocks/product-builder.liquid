@@ -144,6 +144,7 @@
       </section>
 
       <div class="nudge"><b data-nudge-pct>0%</b><div class="bar"><span data-nudge-bar></span></div><span data-nudge-text></span></div>
+      <p class="nudge-basket" data-nudge-basket hidden></p>
 
       <div class="cta-box">
         <div class="cta-sum"><span>{{ 'product.your_selection' | t }}</span><b data-sum></b></div>
@@ -244,6 +245,8 @@
 <script type="application/json" data-pdp-data>
   {
     "title": {{ product.title | json }},
+    "productId": {{ product.id | json }},
+    "cartJs": {{ routes.cart_url | append: '.js' | json }},
     "quoteOnly": {{ quote_only | json }},
     "cartAdd": {{ routes.cart_add_url | append: '.js' | json }},
     "cartUrl": {{ routes.cart_url | json }},
@@ -285,6 +288,7 @@
       "itemsOther": {{ 'product.items_other' | t: count: '%n' | json }},
       "addMore": {{ 'product.add_more' | t: n: '%n', pct: '%p' | json }},
       "top": {{ 'product.top_discount' | t | json }},
+      "inBasket": {{ 'product.in_basket' | t: n: '%n' | json }},
       "front": {{ 'product.front' | t | json }},
       "addDesign": {{ 'product.add_design' | t | json }},
       "addText": {{ 'product.add_text' | t | json }},
