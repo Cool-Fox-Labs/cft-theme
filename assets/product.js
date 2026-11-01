@@ -249,14 +249,31 @@
     q('[data-size-note]').textContent = st.colour.sizes.length < SIZES.length ? T.notMade : '';
   }
 
+  // The discount counts this garment in every colour, so items of it
+  // already in the basket count towards the meter too.
+  let inBasket = 0;
+  async function loadBasket() {
+    try {
+      const res = await fetch(D.cartJs, { headers: { Accept: 'application/json' } });
+      const cart = await res.json();
+      inBasket = (cart.items || []).filter((l) => l.product_id === D.productId).reduce((a, l) => a + l.quantity, 0);
+    } catch (e) {
+      inBasket = 0;
+    }
+    totals();
+  }
+
   function totals() {
-    const n = total();
+    const n = total() + inBasket;
     const next = nextTier(n);
-    q('[data-total]').textContent = items(n);
+    q('[data-total]').textContent = items(total());
     q('[data-nudge-pct]').textContent = rate(n) + '%';
     q('[data-nudge-bar]').style.width = Math.min(100, n * 2) + '%';
     q('[data-nudge-text]').textContent = next ? fill(T.addMore, { n: next - n, p: rate(next) }) : T.top;
-    const sum = `${items(n)} · ${st.colour.name}`;
+    const nb = q('[data-nudge-basket]');
+    nb.hidden = !inBasket;
+    nb.textContent = inBasket ? fill(T.inBasket, { n: inBasket }) : '';
+    const sum = `${items(total())} · ${st.colour.name}`;
     q('[data-sum]').textContent = sum;
     q('[data-mob-sum]').textContent = sum;
   }
@@ -848,6 +865,11 @@
         if (!res.ok) throw new Error(String(res.status));
       }
       msg.innerHTML = fill(T.added, { u: D.cartUrl });
+      // Clear the sizes so the next colour starts at 0; the meter now counts
+      // what was just added from the basket.
+      st.qty = {};
+      sizes();
+      loadBasket();
       document.dispatchEvent(new CustomEvent('cft:basket-changed'));
     } catch (e) {
       msg.textContent = T.addFail;
@@ -865,4 +887,5 @@
   }
 
   render();
+  loadBasket();
 })();

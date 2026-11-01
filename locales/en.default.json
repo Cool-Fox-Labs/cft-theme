@@ -185,7 +185,7 @@
     },
     "bulk": {
       "title": "Bulk pricing, up to 20% off.",
-      "intro": "The discount counts how many of the same item you order, the same garment with the same print, all sizes included. It comes off automatically.",
+      "intro": "The discount counts how many of the same item you order, the same garment with the same print, all sizes and colours included. It comes off automatically.",
       "items_label": "How many of one item:",
       "off": "off"
     },
@@ -334,7 +334,8 @@
     "know_artwork": "Artwork guide",
     "rotate": "Rotate",
     "rotated": "rotated {{ n }}°",
-    "save_files": "Save files"
+    "save_files": "Save files",
+    "in_basket": "Includes {{ n }} of this garment already in your basket, any colour"
   },
   "pages": {
     "faq": {
@@ -345,11 +346,11 @@
       "q_minimum": "Is there a minimum order?",
       "a_minimum": "No. We print one item or hundreds.",
       "q_bulk": "Do you give discounts for bigger orders?",
-      "a_bulk": "Yes, automatically by how many of the same item you order, meaning the same garment with the same print, any sizes: 10+ 5% off, 20+ 10%, 40+ 15%, 50+ 20%.",
+      "a_bulk": "Yes, automatically by how many of the same item you order, meaning the same garment with the same print, any sizes and colours: 10+ 5% off, 20+ 10%, 40+ 15%, 50+ 20%.",
       "q_price": "How do I get a price?",
       "a_price": "Choose your garment, add your sizes and print positions, and request a quote. It's free, with no obligation.",
       "q_mix": "Can I mix sizes and colours?",
-      "a_mix": "Yes, mixing sizes and colours is fine. All sizes of the same item count towards its discount, and your quote shows exactly what you get.",
+      "a_mix": "Yes, mixing sizes and colours is fine. All sizes and colours of the same garment with the same print count together towards the discount, and your quote shows exactly what you get.",
       "q_find": "I can't find the garment I want.",
       "a_find": "We can get thousands more styles from our suppliers. Ask us and we'll send you the full catalogue.",
       "q_business": "Do you work with schools, clubs and businesses?",
