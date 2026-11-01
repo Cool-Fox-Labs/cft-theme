@@ -430,13 +430,12 @@
     return lab;
   }
 
-  // Best size for me / left chest logo / I need a specific size + width box.
+  // Best size for me / I need a specific size + width box.
   function sizePicker(p, value, onChange) {
     const row = make('div', 'fz-size');
     const sel = make('select');
     sel.setAttribute('aria-label', T.sizeLabel);
     const opts = [['best', T.bestSize]];
-    if (p.chest) opts.push(['chest', T.chestLogo]);
     opts.push(['specific', T.specificSize]);
     const now = typeof value === 'number' ? 'specific' : sizeOf(value);
     opts.forEach(([v, t]) => {
