@@ -276,7 +276,6 @@
     "add_to_quote": "Add to quote",
     "add_to_order": "Add to order",
     "add_note": "We send you a proof before anything is printed.",
-    "save": "Save",
     "add_design": "+ Add design",
     "add_text": "+ Add text",
     "replace": "Replace",
@@ -334,7 +333,8 @@
     "know_faq": "Read our FAQs",
     "know_artwork": "Artwork guide",
     "rotate": "Rotate",
-    "rotated": "rotated {{ n }}°"
+    "rotated": "rotated {{ n }}°",
+    "save_files": "Save files"
   },
   "pages": {
     "faq": {
