@@ -235,6 +235,7 @@
   function sizes() {
     const box = q('[data-sizes]');
     box.innerHTML = '';
+    box.style.setProperty('--n', SIZES.length);
     SIZES.forEach((s) => {
       const ok = st.colour.sizes.includes(s);
       const label = make('label', ok ? '' : 'na');

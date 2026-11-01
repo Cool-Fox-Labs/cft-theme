@@ -328,7 +328,7 @@ input[type=range] { width: 100%; accent-color: var(--orange); height: 28px }
 .swatches button { aspect-ratio: 1; max-width: 100%; border-radius: 50%; border: 0; background: var(--c); box-shadow: inset 0 0 0 1px rgba(0,0,0,.14); cursor: pointer; position: relative; padding: 0 }
 .swatches button[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--ground), 0 0 0 4px var(--ink) }
 
-.sizes { display: grid; grid-template-columns: repeat(5, minmax(0, 72px)); gap: 8px }
+.sizes { display: grid; grid-template-columns: repeat(var(--n, 10), minmax(0, 64px)); gap: 6px }
 .sizes label { display: grid; gap: 4px; text-align: center; font: 500 12px/1 var(--f-m); color: var(--muted) }
 .sizes input { width: 100%; min-height: 40px; text-align: center; border: 0; border-radius: 10px; background: var(--card); box-shadow: inset 0 0 0 1px var(--line); font: 600 15px/1 var(--f-b); color: var(--ink); -moz-appearance: textfield }
 .sizes input::-webkit-outer-spin-button, .sizes input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0 }
@@ -393,7 +393,9 @@ input[type=range] { width: 100%; accent-color: var(--orange); height: 28px }
 @media (max-width: 560px) {
   .pos { grid-template-columns: 1fr 1fr }
   .trust { grid-template-columns: 1fr }
-  .sizes { gap: 6px }
+  .sizes { gap: 4px }
+  .sizes label { font-size: 10px }
+  .sizes input { min-height: 38px; padding: 0; border-radius: 8px; font-size: 14px }
   .mob-bar { display: flex; position: sticky; bottom: 0; z-index: 15; align-items: center; justify-content: space-between; gap: 12px; padding-block: 10px calc(10px + env(safe-area-inset-bottom, 0px)); padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); background: var(--ink); color: var(--cream); font-size: 14px }
   .mob-bar .pill { min-height: 44px }
 }
