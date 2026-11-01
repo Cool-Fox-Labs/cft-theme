@@ -4,10 +4,13 @@
   "Add to quote" on quote-only products and "Add to order" on priced ones;
   both put the sizes in the basket with the design as line item properties.
 
-  The design is added in one pop-up: upload files, tick Front / Back /
-  sleeve for each, and pick "best size for me", "left chest logo" or a
-  specific width. The files then show on the chosen colour as a guide, and
-  the studio sends a preview to approve.
+  The design is added in one of two pop-ups:
+  - Design it yourself: Front / Back / sleeve buttons on the canvas. Add a
+    logo or text, drag it to move it, drag its corner to resize it, inside
+    the dashed print area. Sleeves zoom into the front photo.
+  - Just send us your files: upload files, tick positions for each, and pick
+    the same size choices.
+  Both say we check artwork, size and position before printing.
 
   Product data it reads:
   - Variant images are the flat colour shots. Supplier lifestyle shots
@@ -119,7 +122,10 @@
 
       <section class="step" aria-labelledby="s-design">
         <div class="step-h"><i>3</i><h2 id="s-design">{{ 'product.step_design' | t }}</h2></div>
-        <div class="design-card one" data-design-empty>
+        <div class="design-card" data-design-empty>
+          <button type="button" class="route" data-open="designer">
+            <b>{{ 'product.route_designer' | t }}</b><span>{{ 'product.route_designer_text' | t }}</span>
+          </button>
           <button type="button" class="route" data-open="files">
             <b>{{ 'product.route_files' | t }}</b><span>{{ 'product.route_files_text' | t }}</span>
           </button>
@@ -169,6 +175,32 @@
   <div class="mob-bar"><span data-mob-sum></span><button type="button" class="pill pill-o" data-add>
     {%- if quote_only -%}{{ 'product.add_to_quote' | t }}{%- else -%}{{ 'product.add_to_order' | t }}{%- endif -%}
   </button></div>
+
+  <dialog class="dz" data-designer aria-labelledby="dz-h">
+    <div class="dz-bar">
+      <h2 id="dz-h">{{ 'product.route_designer' | t }}</h2>
+      <button type="button" class="pill pill-o" data-dz-save>{{ 'product.save' | t }}</button>
+      <button type="button" class="art-x" data-dz-close aria-label="{{ 'product.close' | t }}">&times;</button>
+    </div>
+    <div class="dz-body">
+      <div class="dz-left">
+      <div class="stage-p" data-stage="designer">
+        <div class="view-tabs dz-views" role="group" aria-label="{{ 'product.view' | t }}" data-dz-views></div>
+        <p class="back-note" data-back-note hidden>{{ 'product.back_note' | t }}</p>
+        <div class="zoom" data-zoom>
+          <img class="shirt" data-shirt src="{{ 'logo-fox-head.svg' | asset_url }}" width="500" height="600" alt="">
+          <div data-placements></div>
+        </div>
+        <p class="ref-note">{{ 'product.ref_note' | t }}</p>
+      </div>
+      <div class="dz-add" data-dz-add></div>
+      </div>
+      <div class="dz-side">
+        <div class="dz-panel" data-dz-panel></div>
+        <p class="check-note">{{ 'product.check_note' | t }}</p>
+      </div>
+    </div>
+  </dialog>
 
   <dialog class="dz fz" data-files aria-labelledby="fz-h">
     <div class="dz-bar">
@@ -235,19 +267,59 @@
       },
       "upTo": {{ 'product.up_to_size' | t: size: '%s' | json }},
       "notMade": {{ 'product.size_not_made' | t | json }},
+      "inWide": {{ 'product.in_wide' | t: w: '%w' | json }},
+      "wxh": {{ 'product.size_wxh' | t: w: '%w', h: '%h' | json }},
       "inches": {{ 'product.inches' | t: w: '%w' | json }},
       "itemsOne": {{ 'product.items_one' | t | json }},
       "itemsOther": {{ 'product.items_other' | t: count: '%n' | json }},
       "addMore": {{ 'product.add_more' | t: n: '%n', pct: '%p' | json }},
       "top": {{ 'product.top_discount' | t | json }},
+      "front": {{ 'product.front' | t | json }},
+      "addDesign": {{ 'product.add_design' | t | json }},
+      "addText": {{ 'product.add_text' | t | json }},
+      "replace": {{ 'product.replace' | t | json }},
+      "remove": {{ 'product.remove' | t | json }},
+      "emptyPos": {{ 'product.empty_position' | t | json }},
+      "line1": {{ 'product.text_line1' | t | json }},
+      "line2": {{ 'product.text_line2' | t | json }},
+      "font": {{ 'product.text_font' | t | json }},
+      "colour": {{ 'product.text_colour' | t | json }},
+      "fonts": [
+        ["font-display", {{ 'product.font_bold' | t | json }}],
+        ["font-primary--family", {{ 'product.font_clean' | t | json }}],
+        ["font-mono", {{ 'product.font_type' | t | json }}]
+      ],
+      "inks": [
+        ["#FFFFFF", {{ 'product.ink_white' | t | json }}],
+        ["#1D1D1B", {{ 'product.ink_black' | t | json }}],
+        ["#EB7024", {{ 'product.ink_orange' | t | json }}],
+        ["#1F2A44", {{ 'product.ink_navy' | t | json }}]
+      ],
+      "vector": {{ 'product.check_vector' | t | json }},
+      "good": {{ 'product.check_good' | t | json }},
+      "ok": {{ 'product.check_ok' | t | json }},
+      "low": {{ 'product.check_low' | t | json }},
       "bestSize": {{ 'product.best_size' | t | json }},
       "specificSize": {{ 'product.specific_size' | t | json }},
       "chestLogo": {{ 'product.chest_logo' | t | json }},
+      "chestTag": {{ 'product.chest_tag' | t | json }},
       "sizeLabel": {{ 'product.size_label' | t | json }},
+      "areaTag": {{ 'product.area_tag' | t | json }},
+      "addAnother": {{ 'product.add_another' | t | json }},
+      "placement": {{ 'product.placement' | t | json }},
+      "emptyView": {{ 'product.empty_view' | t | json }},
+      "tapToEdit": {{ 'product.tap_to_edit' | t | json }},
+      "dragHint": {{ 'product.drag_hint' | t | json }},
+      "where": {{ 'product.where' | t: down: '%d', side: '%s' | json }},
+      "centred": {{ 'product.centred' | t | json }},
+      "rightOf": {{ 'product.right_of' | t: n: '%n' | json }},
+      "leftOf": {{ 'product.left_of' | t: n: '%n' | json }},
       "widthIn": {{ 'product.width_in' | t | json }},
       "removeFile": {{ 'product.remove_file' | t | json }},
       "needPosition": {{ 'product.need_position' | t | json }},
+      "designedOnline": {{ 'product.designed_online' | t | json }},
       "filesSent": {{ 'product.files_sent' | t | json }},
+      "text": {{ 'product.text_design' | t | json }},
       "note": {{ 'product.note' | t | json }},
       "noDesign": {{ 'product.no_design' | t | json }},
       "needItems": {{ 'product.need_items' | t | json }},
