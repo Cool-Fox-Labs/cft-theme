@@ -5,10 +5,11 @@
   both put the sizes in the basket with the design as line item properties.
 
   The design is added in one of two pop-ups:
-  - Design it yourself: front/back, click a print position, add a design or
-    text to it (set width, height from the trimmed design, artwork check).
+  - Design it yourself: one front area, back and sleeves. Add a design or
+    text, then pick "best size for me", "left chest logo" or a specific width.
   - Just send us your files: upload files, tick positions for each, and pick
-    "best size for me" or a specific width.
+    the same size choices.
+  Both say we check artwork, size and position before printing.
 
   Product data it reads:
   - Variant images are the flat colour shots. Supplier lifestyle shots
@@ -18,9 +19,11 @@
   - Metafield cft.size_guide (rich text) fills the size guide. No metafield,
     no size guide link.
   - Metafield cft.print_positions (JSON) can replace the default positions:
-    {"inch": 2.4, "positions": [{"id": "lc", "name": "Left chest", "w": 4,
-    "x": 62, "y": 30, "view": "front"}]}. x and y are % of the photo, inch is
-    how much of the photo width one inch covers.
+    {"inch": 2.4, "positions": [{"id": "fr", "name": "Front", "w": 9,
+    "x": 50, "y": 30, "view": "front", "chest": {"w": 4, "x": 62, "y": 30}}]}.
+    x and y are % of the photo, inch is how much of the photo width one inch
+    covers, w is the widest print. "chest" is optional: it adds the left chest
+    logo choice. Use it for women's and kids' garments with a smaller w.
 
   @example
   {% block 'product-builder' %}{% endblock %}
@@ -191,6 +194,7 @@
         <h3>{{ 'product.pick_where' | t }}</h3>
         <div class="pos" role="group" aria-label="{{ 'product.positions' | t }}" data-dz-pos></div>
         <div class="dz-panel" data-dz-panel></div>
+        <p class="check-note">{{ 'product.check_note' | t }}</p>
       </div>
     </div>
   </dialog>
@@ -207,6 +211,7 @@
       <ul class="fz-list" data-fz-list></ul>
       <label class="fz-note">{{ 'product.files_note' | t }}<textarea data-fz-note rows="3"></textarea></label>
       <p class="fz-msg" data-fz-msg aria-live="polite"></p>
+      <p class="check-note">{{ 'product.check_note' | t }}</p>
     </div>
   </dialog>
 
@@ -254,8 +259,7 @@
     "print": {{ product.metafields.cft.print_positions.value | json }},
     "t": {
       "pos": {
-        "lc": {{ 'product.pos_lc' | t | json }}, "rc": {{ 'product.pos_rc' | t | json }},
-        "ff": {{ 'product.pos_ff' | t | json }}, "fb": {{ 'product.pos_fb' | t | json }},
+        "fr": {{ 'product.pos_fr' | t | json }}, "fb": {{ 'product.pos_fb' | t | json }},
         "ls": {{ 'product.pos_ls' | t | json }}, "rs": {{ 'product.pos_rs' | t | json }}
       },
       "upTo": {{ 'product.up_to_size' | t: size: '%s' | json }},
@@ -294,6 +298,9 @@
       "low": {{ 'product.check_low' | t | json }},
       "bestSize": {{ 'product.best_size' | t | json }},
       "specificSize": {{ 'product.specific_size' | t | json }},
+      "chestLogo": {{ 'product.chest_logo' | t | json }},
+      "chestTag": {{ 'product.chest_tag' | t | json }},
+      "sizeLabel": {{ 'product.size_label' | t | json }},
       "widthIn": {{ 'product.width_in' | t | json }},
       "removeFile": {{ 'product.remove_file' | t | json }},
       "needPosition": {{ 'product.need_position' | t | json }},
