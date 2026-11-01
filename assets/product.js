@@ -162,6 +162,7 @@
       const b = box(it);
       const el = make('div', 'ph' + (edit && it.uid === selUid ? ' sel' : ''));
       el.style.cssText = `left:${b.left}%;top:${b.top}%;width:${b.w}%;height:${b.h}%`;
+      if (it.rot) el.style.transform = `rotate(${it.rot}deg)`;
       const img = make('img');
       img.src = it.src;
       img.alt = '';
@@ -172,7 +173,10 @@
         if (it.uid === selUid) {
           const handle = make('span', 'ph-h');
           handle.dataset.handle = '';
-          el.append(handle);
+          const turn = make('span', 'ph-r');
+          turn.dataset.rotate = '';
+          turn.setAttribute('aria-label', T.rotate);
+          el.append(handle, turn);
         }
       }
       holder.append(el);
@@ -266,7 +270,7 @@
         name: VIEW_NAME[v],
         text: d.items.filter((it) => it.view === v).map(what).join('; '),
         // Studio only: hidden from the customer (underscore property).
-        detail: d.items.filter((it) => it.view === v).map((it) => `${what(it)} · ${sizeLabel(it)}, ${whereText(it)}`).join('; '),
+        detail: d.items.filter((it) => it.view === v).map((it) => `${what(it)} · ${sizeLabel(it)}, ${whereText(it)}${it.rot ? ', ' + fill(T.rotated, { n: it.rot }) : ''}`).join('; '),
       }));
     }
     const out = [];
@@ -658,21 +662,37 @@
     e.preventDefault();
     const it = dzs.items.find((x) => x.uid === el.dataset.uid);
     const resize = !!e.target.closest('[data-handle]');
+    const turn = !!e.target.closest('[data-rotate]');
     if (dzs.sel !== it.uid) { dzs.sel = it.uid; dzStage(); dzPanel(); }
     const rect = q('[data-stage="designer"] [data-zoom]', dz).getBoundingClientRect();
-    const start = { cx: e.clientX, cy: e.clientY, x: it.x, y: it.y, w: it.w };
     const node = () => q(`.ph[data-uid="${it.uid}"]`, dz);
-    const tag = make('span', 'ph-tag', dragSize(it));
+    const start = { cx: e.clientX, cy: e.clientY, x: it.x, y: it.y, w: it.w, rot: it.rot || 0 };
+    // Rotation turns around the design's centre and snaps to straight within 4 degrees.
+    const mid = () => { const r = node().getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; };
+    const angle = (x, y) => { const m = mid(); return (Math.atan2(y - m.y, x - m.x) * 180) / Math.PI; };
+    const a0 = turn ? angle(e.clientX, e.clientY) : 0;
+    const label = () => (turn ? `${it.rot || 0}°` : dragSize(it));
+    const tag = make('span', 'ph-tag', label());
     node().append(tag);
     const move = (ev) => {
       const dx = ((ev.clientX - start.cx) / rect.width) * 100;
       const dy = ((ev.clientY - start.cy) / rect.height) * 100;
+      if (turn) {
+        let r = Math.round(start.rot + angle(ev.clientX, ev.clientY) - a0);
+        r = ((r % 360) + 540) % 360 - 180;
+        const near = Math.round(r / 90) * 90;
+        if (Math.abs(r - near) <= 4) r = near;
+        it.rot = r === -180 ? 180 : r;
+        node().style.transform = it.rot ? `rotate(${it.rot}deg)` : '';
+        tag.textContent = label();
+        return;
+      }
       if (resize) it.w = start.w + Math.max((dx * 2) / INCH, ((dy * 2) / (INCH * ASPECT)) * it.ratio);
       else { it.x = start.x + dx; it.y = start.y + dy; }
       fit(it);
       const b = box(it);
       Object.assign(node().style, { left: b.left + '%', top: b.top + '%', width: b.w + '%', height: b.h + '%' });
-      tag.textContent = dragSize(it);
+      tag.textContent = label();
       dzInfo();
     };
     const up = () => {

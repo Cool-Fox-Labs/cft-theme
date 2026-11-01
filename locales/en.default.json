@@ -309,7 +309,7 @@
     "area_tag": "Print area",
     "empty_view": "Add your logo or some text, then drag it into place on the garment.",
     "tap_to_edit": "Tap a design on the garment to move it, resize it or remove it.",
-    "drag_hint": "Drag your design to move it. Drag the round corner to make it bigger or smaller.",
+    "drag_hint": "Drag your design to move it. Drag the round corner to make it bigger or smaller, and the top handle to turn it.",
     "where": "{{ down }}in from the top of the print area, {{ side }}",
     "centred": "centred",
     "right_of": "{{ n }}in right of centre as you look at it",
@@ -332,7 +332,9 @@
     "know_files_title": "Best files",
     "know_files": "PNG with a clear background, SVG or PDF. Not sure? Send what you have and we'll tell you if it works.",
     "know_faq": "Read our FAQs",
-    "know_artwork": "Artwork guide"
+    "know_artwork": "Artwork guide",
+    "rotate": "Rotate",
+    "rotated": "rotated {{ n }}°"
   },
   "pages": {
     "faq": {
