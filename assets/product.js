@@ -50,9 +50,6 @@
     const first = variants.find((v) => v.img) || {};
     return { ...c, variants, sizes: variants.map((v) => v.size), img: first.img, thumb: first.thumb };
   }).filter((c) => c.variants.length);
-  const biggest = SIZES[SIZES.length - 1];
-  const withBiggest = COLOURS.filter((c) => c.sizes.includes(biggest));
-  const markBiggest = withBiggest.length > 0 && withBiggest.length < COLOURS.length;
 
   // design: null, { mode: 'designer', items: { posId: item } }
   // or { mode: 'files', files: [{ file, name, thumb, at: { posId: width|null } }], note }
@@ -226,13 +223,9 @@
       b.setAttribute('aria-pressed', String(c === st.colour));
       if (c.hex) b.style.setProperty('--c', c.hex);
       else if (c.thumb) b.style.backgroundImage = `url("${c.thumb}")`;
-      if (markBiggest && c.sizes.includes(biggest)) b.classList.add('core');
       b.addEventListener('click', () => { st.colour = c; render(); });
       box.append(b);
     });
-    const key = q('[data-sw-key]');
-    key.hidden = !markBiggest;
-    key.textContent = fill(T.upTo, { s: biggest });
   }
 
   function sizes() {
@@ -842,7 +835,7 @@
   }
   qa('[data-add]').forEach((b) => b.addEventListener('click', addToBasket));
 
-  /* ---------- size guide and positions table ---------- */
+  /* ---------- size guide ---------- */
 
   const dlg = q('[data-size-dlg]');
   if (dlg) {
@@ -850,12 +843,6 @@
     q('[data-size-close]').addEventListener('click', () => dlg.close());
     dlg.addEventListener('click', (e) => { if (e.target === dlg) dlg.close(); });
   }
-
-  POS.forEach((p) => {
-    const tr = make('tr');
-    tr.append(make('td', '', p.name), make('td', '', fill(T.inches, { w: p.w })));
-    q('[data-pos-table]').append(tr);
-  });
 
   render();
 })();

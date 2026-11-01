@@ -111,29 +111,16 @@
       <section class="step" aria-labelledby="s-colour">
         <div class="step-h"><i>1</i><h2 id="s-colour">{{ 'product.step_colour' | t }}</h2><small data-colour-name></small></div>
         <div class="swatches" data-swatches></div>
-        <span class="sw-key" data-sw-key hidden></span>
-      </section>
-
-      <section class="step" aria-labelledby="s-sizes">
-        <div class="step-h"><i>2</i><h2 id="s-sizes">{{ 'product.step_sizes' | t }}</h2><small data-total></small></div>
-        <div class="sizes" data-sizes></div>
-        <div class="size-links">
-          {%- if size_guide != blank -%}
-            <button type="button" class="text-btn" data-size-open>{{ 'product.size_guide' | t }}</button>
-          {%- endif -%}
-          <span data-size-note></span>
-        </div>
-        <div class="nudge"><b data-nudge-pct>0%</b><div class="bar"><span data-nudge-bar></span></div><span data-nudge-text></span></div>
       </section>
 
       <section class="step" aria-labelledby="s-design">
-        <div class="step-h"><i>3</i><h2 id="s-design">{{ 'product.step_design' | t }}</h2></div>
+        <div class="step-h"><i>2</i><h2 id="s-design">{{ 'product.step_design' | t }}</h2></div>
         <div class="design-card" data-design-empty>
           <button type="button" class="route" data-open="designer">
-            <b>{{ 'product.route_designer' | t }}</b><span>{{ 'product.route_designer_text' | t }}</span>
+            <svg class="route-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l4.5-1 10-10a2.1 2.1 0 0 0-3-3l-10 10L4 20z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M14 7l3 3" stroke="currentColor" stroke-width="1.8"/></svg><b>{{ 'product.route_designer' | t }}</b><span>{{ 'product.route_designer_text' | t }}</span>
           </button>
           <button type="button" class="route" data-open="files">
-            <b>{{ 'product.route_files' | t }}</b><span>{{ 'product.route_files_text' | t }}</span>
+            <svg class="route-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11.5l-7.8 7.8a5 5 0 0 1-7.1-7.1l8.3-8.3a3.4 3.4 0 0 1 4.8 4.8l-8.2 8.2a1.7 1.7 0 0 1-2.4-2.4l7.5-7.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><b>{{ 'product.route_files' | t }}</b><span>{{ 'product.route_files_text' | t }}</span>
           </button>
         </div>
         <div class="design-card design-set" data-design-set hidden>
@@ -143,6 +130,18 @@
             <button type="button" class="text-btn" data-clear>{{ 'product.remove_design' | t }}</button>
           </div>
         </div>
+      </section>
+
+      <section class="step" aria-labelledby="s-sizes">
+        <div class="step-h"><i>3</i><h2 id="s-sizes">{{ 'product.step_sizes' | t }}</h2><small data-total></small></div>
+        <div class="sizes" data-sizes></div>
+        <div class="size-links">
+          {%- if size_guide != blank -%}
+            <button type="button" class="text-btn" data-size-open>{{ 'product.size_guide' | t }}</button>
+          {%- endif -%}
+          <span data-size-note></span>
+        </div>
+        <div class="nudge"><b data-nudge-pct>0%</b><div class="bar"><span data-nudge-bar></span></div><span data-nudge-text></span></div>
       </section>
 
       <div class="cta-box">
@@ -166,15 +165,21 @@
       <h2 id="d-h">{{ 'product.details' | t }}</h2>
       <div class="rte">{{ product.description }}</div>
     </section>
+    {%- assign faq_page = pages['faq'] -%}
+    {%- assign artwork_page = pages['artwork-guide'] -%}
     <section class="panel-c" aria-labelledby="p-h">
-      <h2 id="p-h">{{ 'product.positions' | t }}</h2>
-      <p>{{ 'product.positions_intro' | t }}</p>
-      <div class="table-scroll">
-        <table class="pos-table">
-          <thead><tr><th>{{ 'product.position' | t }}</th><th>{{ 'product.print_width' | t }}</th></tr></thead>
-          <tbody data-pos-table></tbody>
-        </table>
-      </div>
+      <h2 id="p-h">{{ 'product.know_title' | t }}</h2>
+      <ul class="know">
+        <li><b>{{ 'product.know_check_title' | t }}</b>{{ 'product.know_check' | t }}</li>
+        <li><b>{{ 'product.know_sizes_title' | t }}</b>{{ 'product.know_sizes' | t }}</li>
+        <li><b>{{ 'product.know_files_title' | t }}</b>{{ 'product.know_files' | t }}</li>
+      </ul>
+      {%- if faq_page or artwork_page -%}
+        <p class="know-links">
+          {%- if faq_page -%}<a class="text-btn" href="{{ faq_page.url }}">{{ 'product.know_faq' | t }}</a>{%- endif -%}
+          {%- if artwork_page -%}<a class="text-btn" href="{{ artwork_page.url }}">{{ 'product.know_artwork' | t }}</a>{%- endif -%}
+        </p>
+      {%- endif -%}
     </section>
   </div>
 
@@ -271,7 +276,6 @@
         "fr": {{ 'product.pos_fr' | t | json }}, "fb": {{ 'product.pos_fb' | t | json }},
         "ls": {{ 'product.pos_ls' | t | json }}, "rs": {{ 'product.pos_rs' | t | json }}
       },
-      "upTo": {{ 'product.up_to_size' | t: size: '%s' | json }},
       "notMade": {{ 'product.size_not_made' | t | json }},
       "inWide": {{ 'product.in_wide' | t: w: '%w' | json }},
       "wxh": {{ 'product.size_wxh' | t: w: '%w', h: '%h' | json }},
