@@ -319,7 +319,7 @@
     "size_label": "Print size",
     "check_note": "We'll check your artwork, size and position, and get back to you if anything needs a change. We print as close to your design as we can, and your proof shows the exact sizes. Questions? Just get in touch.",
     "area_tag": "Print area",
-    "empty_view": "Add your logo with the button under the photo.",
+    "empty_view": "Add your logo or some text, then drag it into place on the garment.",
     "tap_to_edit": "Tap a design on the garment to move it, resize it or remove it.",
     "drag_hint": "Drag your design to move it. Drag the round corner to make it bigger or smaller.",
     "where": "{{ down }}in from the top of the print area, {{ side }}",

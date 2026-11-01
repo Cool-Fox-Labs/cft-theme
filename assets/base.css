@@ -581,5 +581,5 @@ input[type=range] { width: 100%; accent-color: var(--orange); height: 28px }
   .dz-views button { padding: 0 10px; font-size: 12px }
 }
 .dz-left { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; min-width: 0; width: 100%; align-content: start }
-.dz-add { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center }
+.dz-add { display: flex; flex-wrap: wrap; gap: 10px }
 .dz-add .dz-add-main { min-width: 220px; justify-content: center }
