@@ -1,7 +1,7 @@
 /**
  * Product page: colour, size grid with the bulk discount nudge, a design
- * card that opens the upload pop-up (files, where each goes, what size),
- * a guide preview of the files on the chosen colour, and one button that puts the sizes in the basket with the design attached
+ * card that opens one of two pop-ups (designer, or just send your files),
+ * and one button that puts the sizes in the basket with the design attached
  * as line item properties. Reads its data from the JSON the
  * product-builder block writes.
  */
@@ -54,8 +54,8 @@
   const withBiggest = COLOURS.filter((c) => c.sizes.includes(biggest));
   const markBiggest = withBiggest.length > 0 && withBiggest.length < COLOURS.length;
 
-  // design: null or { files: [{ file, name, thumb, ratio, at: { posId: size } }], note }
-  // where size is null (best for me), 'chest' or a width in inches.
+  // design: null, { mode: 'designer', items: { posId: item } }
+  // or { mode: 'files', files: [{ file, name, thumb, at: { posId: width|null } }], note }
   const st = {
     colour: COLOURS.find((c) => c.name === D.selectedColour) || COLOURS[0],
     qty: {},
@@ -65,6 +65,7 @@
 
   const total = () => SIZES.reduce((n, s) => n + (st.colour.sizes.includes(s) ? st.qty[s] || 0 : 0), 0);
   const items = (n) => (n === 1 ? T.itemsOne : fill(T.itemsOther, { n }));
+  const height = (w, item) => (w / item.ratio).toFixed(1);
 
   // A print size is 'best' (we choose), 'chest' (left chest logo) or a
   // width in inches. geo() is where and how big it shows on the photo.
@@ -74,21 +75,70 @@
     if (typeof size === 'number') return { x: p.x, y: p.y, w: size };
     return { x: p.x, y: p.y, w: p.w };
   }
-  function sizeText(size) {
+  function sizeText(p, size, item) {
     if (size === 'chest') return T.chestLogo;
-    if (typeof size === 'number') return fill(T.inches, { w: size });
+    if (typeof size === 'number') return item && item.ratio ? fill(T.wxh, { w: size, h: height(size, item) }) : fill(T.inches, { w: size });
     return T.bestSize;
   }
 
-  /* ---------- stage: garment photo with the customer's files on it ---------- */
+  // Artwork check: compare the trimmed design's pixel width with the print width.
+  function check(w, item) {
+    if (!item || item.kind === 'text') return '';
+    if (item.vector) return T.vector;
+    const dpi = item.px / w;
+    return dpi >= 200 ? T.good : dpi >= 120 ? T.ok : T.low;
+  }
 
-  // A guide only: each file shows at the size picked for it, on the chosen
-  // colour. Back prints show on the front photo, as there is no back shot.
+  /* ---------- stage: garment photo with designs placed ---------- */
+
+  // Print areas, one per view. x is the centre and y the top, as % of the
+  // photo; w and h are the biggest print in inches. Sleeves have no photo of
+  // their own, so the designer zooms into the front photo for them. A
+  // product's cft.print_positions metafield can override any of these under
+  // "areas", e.g. a smaller front for women's and kids' garments.
   const ASPECT = 5 / 6; // stage width / height
   const pw = (inches) => inches * INCH; // inches to % of photo width
   const ph = (inches) => inches * INCH * ASPECT; // inches to % of photo height
+  const VIEWS = ['front', 'back', 'ls', 'rs'];
+  const BASE_AREAS = {
+    front: { w: 12, h: 14, x: 50, y: 25 },
+    back: { w: 12, h: 14, x: 50, y: 22 },
+    ls: { w: 4, h: 4, x: 85, y: 30, zoom: 2.6 },
+    rs: { w: 4, h: 4, x: 15, y: 30, zoom: 2.6 },
+  };
+  const AREAS = Object.fromEntries(VIEWS.map((v) => [v, { ...BASE_AREAS[v], ...((D.print && D.print.areas && D.print.areas[v]) || {}) }]));
+  const VIEW_NAME = { front: T.pos.fr, back: T.pos.fb, ls: T.pos.ls, rs: T.pos.rs };
+  const onPhoto = (view) => (view === 'back' ? 'back' : 'front');
+  const half = (n) => Math.round(n * 2) / 2;
 
-  function drawStage(stage, view) {
+  // A placed design: x and y are its centre as % of the photo, w its width in inches.
+  function box(it) {
+    const w = pw(it.w);
+    const h = ph(it.w / it.ratio);
+    return { left: it.x - w / 2, top: it.y - h / 2, w, h };
+  }
+  // Keep a design inside its print area.
+  function fit(it) {
+    const a = AREAS[it.view];
+    it.w = Math.max(1, Math.min(it.w, a.w, a.h * it.ratio));
+    const b = box(it);
+    const left = a.x - pw(a.w) / 2;
+    const right = a.x + pw(a.w) / 2;
+    it.x = Math.min(Math.max(it.x, left + b.w / 2), right - b.w / 2);
+    it.y = Math.min(Math.max(it.y, a.y + b.h / 2), a.y + ph(a.h) - b.h / 2);
+  }
+  const sizeLabel = (it) => fill(T.wxh, { w: half(it.w), h: half(it.w / it.ratio) });
+  function whereText(it) {
+    const a = AREAS[it.view];
+    const down = half((box(it).top - a.y) / (INCH * ASPECT));
+    const off = half((it.x - a.x) / INCH);
+    const side = Math.abs(off) < 0.5 ? T.centred : fill(off > 0 ? T.rightOf : T.leftOf, { n: Math.abs(off) });
+    return fill(T.where, { d: down, s: side });
+  }
+
+  // edit: the designer, which shows one view, its print area and handles.
+  // Otherwise the page stage, which shows everything on that photo.
+  function drawStage(stage, view, list, selUid, edit) {
     const c = st.colour;
     const shirt = q('[data-shirt]', stage);
     if (c.img) {
@@ -96,27 +146,59 @@
       shirt.src = c.img;
     }
     shirt.alt = `${D.title}, ${c.name}`;
-    q('[data-back-note]', stage).hidden = view !== 'back';
+    q('[data-back-note]', stage).hidden = onPhoto(view) !== 'back';
+    const a = AREAS[view];
+    const z = edit && a.zoom ? a.zoom : 1;
+    const zoom = q('[data-zoom]', stage);
+    // Zoom around the print area and bring it to the middle of the canvas.
+    const cy = a.y + ph(a.h) / 2;
+    zoom.style.transformOrigin = `${a.x}% ${cy}%`;
+    zoom.style.transform = z > 1 ? `translate(${50 - a.x}%, ${50 - cy}%) scale(${z})` : '';
+    zoom.style.setProperty('--z', z);
     const holder = q('[data-placements]', stage);
     holder.innerHTML = '';
-    const d = st.design;
-    if (!d) return;
-    const shown = new Set();
-    d.files.forEach((f) => Object.keys(f.at).forEach((id) => {
-      const p = posById(id);
-      if (!p || !f.thumb || shown.has(id) || (p.view === 'back') !== (view === 'back')) return;
-      shown.add(id);
-      const g = geo(p, sizeOf(f.at[id]));
-      const w = pw(g.w);
-      const h = ph(g.w / (f.ratio || 1));
-      const el = make('div', 'ph');
-      el.style.cssText = `left:${g.x - w / 2}%;top:${g.y}%;width:${w}%;height:${h}%`;
+    if (edit) {
+      const area = make('div', 'area');
+      area.style.cssText = `left:${a.x - pw(a.w) / 2}%;top:${a.y}%;width:${pw(a.w)}%;height:${ph(a.h)}%`;
+      area.append(make('span', 'ph-tag', fill(T.areaTag, { w: a.w, h: a.h })));
+      holder.append(area);
+    }
+    list.filter((it) => it.src && (edit ? it.view === view : onPhoto(it.view) === view)).forEach((it) => {
+      const b = box(it);
+      const el = make('div', 'ph' + (edit && it.uid === selUid ? ' sel' : ''));
+      el.style.cssText = `left:${b.left}%;top:${b.top}%;width:${b.w}%;height:${b.h}%`;
       const img = make('img');
-      img.src = f.thumb;
+      img.src = it.src;
       img.alt = '';
+      img.draggable = false;
       el.append(img);
+      if (edit) {
+        el.dataset.uid = it.uid;
+        if (it.uid === selUid) {
+          const handle = make('span', 'ph-h');
+          handle.dataset.handle = '';
+          el.append(handle);
+        }
+      }
       holder.append(el);
+    });
+  }
+
+  // What the page stage shows: designer items, or the files' thumbnails at
+  // the size picked for them.
+  function placedOnPage() {
+    const d = st.design;
+    if (!d) return [];
+    if (d.mode === 'designer') return d.items;
+    const out = [];
+    d.files.forEach((f) => Object.keys(f.at).forEach((id) => {
+      if (!f.thumb || out.some((o) => o.pos === id)) return;
+      const p = posById(id);
+      const g = geo(p, sizeOf(f.at[id]));
+      const ratio = f.ratio || 1;
+      out.push({ pos: id, view: p.view, src: f.thumb, ratio, w: g.w, x: g.x, y: g.y + ph(g.w / ratio) / 2 });
     }));
+    return out;
   }
 
   /* ---------- page ---------- */
@@ -173,9 +255,18 @@
   function describe() {
     const d = st.design;
     if (!d) return [];
+    if (d.mode === 'designer') {
+      const what = (it) => (it.kind === 'text' ? `${T.text}: "${it.lines.join(' / ')}" (${it.font}, ${it.ink})` : it.name);
+      return VIEWS.filter((v) => d.items.some((it) => it.view === v)).map((v) => ({
+        name: VIEW_NAME[v],
+        text: d.items.filter((it) => it.view === v).map(what).join('; '),
+        // Studio only: hidden from the customer (underscore property).
+        detail: d.items.filter((it) => it.view === v).map((it) => `${what(it)} · ${sizeLabel(it)}, ${whereText(it)}`).join('; '),
+      }));
+    }
     const out = [];
     POS.forEach((p) => {
-      const parts = d.files.filter((f) => p.id in f.at).map((f) => `${f.name} · ${sizeText(sizeOf(f.at[p.id]))}`);
+      const parts = d.files.filter((f) => p.id in f.at).map((f) => `${f.name} · ${sizeText(p, sizeOf(f.at[p.id]))}`);
       if (parts.length) out.push({ name: p.name, text: parts.join('; ') });
     });
     return out;
@@ -188,14 +279,14 @@
     const list = q('[data-design-summary]');
     list.innerHTML = '';
     if (!d) return;
-    const head = make('li', 'head', T.filesSent);
+    const head = make('li', 'head', d.mode === 'designer' ? T.designedOnline : T.filesSent);
     list.append(head);
     describe().forEach((row) => {
       const li = make('li');
       li.append(make('b', '', row.name), make('span', '', row.text));
       list.append(li);
     });
-    if (d.note) {
+    if (d.mode === 'files' && d.note) {
       const li = make('li');
       li.append(make('b', '', T.note), make('span', '', d.note));
       list.append(li);
@@ -208,7 +299,7 @@
     swatches();
     sizes();
     designCard();
-    drawStage(q('[data-stage="page"]'), st.view);
+    drawStage(q('[data-stage="page"]'), st.view, placedOnPage(), null, false);
     totals();
   }
 
@@ -263,6 +354,47 @@
     reader.readAsDataURL(file);
   });
 
+  /* ---------- designer pop-up ---------- */
+
+  const dz = q('[data-designer]');
+  const dzs = { view: 'front', sel: null, items: [] };
+
+  async function drawText(item) {
+    const lines = item.lines.filter(Boolean);
+    if (!lines.length) { item.src = null; return; }
+    const family = getComputedStyle(document.documentElement).getPropertyValue('--' + item.fontVar).trim() || 'sans-serif';
+    const font = `700 160px ${family}`;
+    try { await document.fonts.load(font); } catch (e) { /* draw with whatever has loaded */ }
+    const cv = make('canvas');
+    const cx = cv.getContext('2d');
+    cx.font = font;
+    cv.width = Math.ceil(Math.max(...lines.map((l) => cx.measureText(l).width))) + 40;
+    cv.height = lines.length * 190 + 40;
+    cx.font = font;
+    cx.fillStyle = item.inkHex;
+    cx.textAlign = 'center';
+    cx.textBaseline = 'top';
+    lines.forEach((l, i) => cx.fillText(l, cv.width / 2, 20 + i * 190));
+    const img = new Image();
+    await new Promise((r) => { img.onload = r; img.src = cv.toDataURL('image/png'); });
+    Object.assign(item, trim(img));
+  }
+
+  function fileButton(label, onFile) {
+    const lab = make('label', 'pill pill-l', label);
+    const input = make('input');
+    input.type = 'file';
+    input.accept = 'image/png,image/svg+xml,image/jpeg';
+    input.addEventListener('change', async () => {
+      const f = input.files[0];
+      if (!f) return;
+      const t = await readImage(f);
+      if (t) onFile({ ...t, kind: 'upload', name: f.name, file: f, vector: f.type === 'image/svg+xml' });
+    });
+    lab.append(input);
+    return lab;
+  }
+
   // Best size for me / left chest logo / I need a specific size + width box.
   function sizePicker(p, value, onChange) {
     const row = make('div', 'fz-size');
@@ -292,6 +424,202 @@
     row.append(sel, wl);
     return row;
   }
+
+  function textForm(item) {
+    const form = make('div', 'text-design');
+    const field = (label, el) => { const l = make('label', '', label); l.append(el); form.append(l); return el; };
+    const l1 = field(T.line1, Object.assign(make('input'), { type: 'text', maxLength: 30, value: item.lines[0] || '' }));
+    const l2 = field(T.line2, Object.assign(make('input'), { type: 'text', maxLength: 30, value: item.lines[1] || '' }));
+    const select = (opts, current) => {
+      const s = make('select');
+      opts.forEach(([v, t]) => { const o = make('option', '', t); o.value = v; o.selected = v === current; s.append(o); });
+      return s;
+    };
+    const fontSel = field(T.font, select(T.fonts, item.fontVar));
+    const inkSel = field(T.colour, select(T.inks, item.inkHex));
+    const update = async () => {
+      Object.assign(item, {
+        lines: [l1.value.trim(), l2.value.trim()].filter(Boolean),
+        fontVar: fontSel.value, font: fontSel.selectedOptions[0].text,
+        inkHex: inkSel.value, ink: inkSel.selectedOptions[0].text,
+      });
+      await drawText(item);
+      if (item.src) fit(item);
+      dzStage();
+      dzViews();
+      dzAdd();
+      dzInfo();
+    };
+    [l1, l2, fontSel, inkSel].forEach((el) => el.addEventListener('input', update));
+    return form;
+  }
+
+  const selected = () => dzs.items.find((it) => it.uid === dzs.sel);
+  let uidN = 0;
+  const uid = () => 'd' + Date.now().toString(36) + (uidN++);
+
+  // A new design starts in the middle of the print area at 60% of its width.
+  function place(it) {
+    const a = AREAS[dzs.view];
+    Object.assign(it, { uid: uid(), view: dzs.view, w: a.w * 0.6, x: a.x, y: a.y + ph(a.h) / 2 });
+    if (it.src) fit(it);
+    dzs.items.push(it);
+    dzs.sel = it.uid;
+    dzRender();
+  }
+
+  function dzInfo() {
+    const info = q('[data-dz-info]', dz);
+    if (!info) return;
+    const it = selected();
+    info.innerHTML = '';
+    if (!it || !it.src) return;
+    if (check(it.w, it) === T.low) info.append(make('span', 'low', T.low));
+  }
+
+  function dzPanel() {
+    const panel = q('[data-dz-panel]', dz);
+    panel.innerHTML = '';
+    const a = AREAS[dzs.view];
+    panel.append(make('h3', '', VIEW_NAME[dzs.view]));
+
+    const here = dzs.items.filter((it) => it.view === dzs.view);
+    if (!here.length) { panel.append(make('p', 'muted', T.emptyView)); return; }
+    if (here.length > 1) {
+      const chips = make('div', 'fz-pos');
+      here.forEach((it, i) => {
+        const b = make('button', '', it.kind === 'text' ? `${T.text} ${i + 1}` : it.name);
+        b.type = 'button';
+        b.setAttribute('aria-pressed', String(it.uid === dzs.sel));
+        b.addEventListener('click', () => { dzs.sel = it.uid; dzStage(); dzPanel(); });
+        chips.append(b);
+      });
+      panel.append(chips);
+    }
+    const it = selected();
+    if (!it || it.view !== dzs.view) { panel.append(make('p', 'muted', T.tapToEdit)); return; }
+    panel.append(make('p', 'muted', T.dragHint));
+    const info = make('div', 'dz-info');
+    info.setAttribute('data-dz-info', '');
+    panel.append(info);
+    dzInfo();
+    if (it.kind === 'text') panel.append(textForm(it));
+    const row = make('div', 'dz-choice');
+    if (it.kind === 'upload') {
+      row.append(fileButton(T.replace, (fresh) => {
+        Object.assign(it, { src: fresh.src, ratio: fresh.ratio, px: fresh.px, name: fresh.name, file: fresh.file, vector: fresh.vector });
+        fit(it);
+        dzRender();
+      }));
+    }
+    const rm = make('button', 'text-btn', T.remove);
+    rm.type = 'button';
+    rm.addEventListener('click', () => {
+      dzs.items = dzs.items.filter((x) => x !== it);
+      dzs.sel = null;
+      dzRender();
+    });
+    row.append(rm);
+    panel.append(row);
+  }
+
+  // The big add buttons under the photo.
+  function dzAdd() {
+    const box = q('[data-dz-add]', dz);
+    box.innerHTML = '';
+    const any = dzs.items.some((it) => it.src);
+    const up = fileButton(any ? T.addAnother : T.addDesign, (it) => place(it));
+    up.className = 'pill pill-o dz-add-main';
+    const textBtn = make('button', 'pill pill-l', T.addText);
+    textBtn.type = 'button';
+    textBtn.addEventListener('click', () => place({
+      kind: 'text', lines: [], ratio: 4, fontVar: T.fonts[0][0], font: T.fonts[0][1], inkHex: T.inks[0][0], ink: T.inks[0][1],
+    }));
+    box.append(up, textBtn);
+  }
+
+  // Front / Back / sleeve buttons in the corner of the canvas.
+  function dzViews() {
+    const box = q('[data-dz-views]', dz);
+    box.innerHTML = '';
+    VIEWS.forEach((v) => {
+      const b = make('button', '', VIEW_NAME[v]);
+      b.type = 'button';
+      b.setAttribute('aria-pressed', String(v === dzs.view));
+      if (dzs.items.some((it) => it.view === v && it.src)) b.classList.add('filled');
+      b.addEventListener('click', () => {
+        dzs.view = v;
+        if (selected() && selected().view !== v) dzs.sel = null;
+        dzRender();
+      });
+      box.append(b);
+    });
+  }
+
+  function dzStage() {
+    drawStage(q('[data-stage="designer"]', dz), dzs.view, dzs.items, dzs.sel, true);
+  }
+
+  function dzRender() {
+    dzViews();
+    dzAdd();
+    dzStage();
+    dzPanel();
+  }
+
+  // Drag a design to move it; drag its round corner to resize it.
+  q('[data-stage="designer"]', dz).addEventListener('pointerdown', (e) => {
+    if (e.target.closest('[data-dz-views]')) return;
+    const el = e.target.closest('.ph[data-uid]');
+    if (!el) {
+      if (dzs.sel) { dzs.sel = null; dzStage(); dzPanel(); }
+      return;
+    }
+    e.preventDefault();
+    const it = dzs.items.find((x) => x.uid === el.dataset.uid);
+    const resize = !!e.target.closest('[data-handle]');
+    if (dzs.sel !== it.uid) { dzs.sel = it.uid; dzStage(); dzPanel(); }
+    const rect = q('[data-stage="designer"] [data-zoom]', dz).getBoundingClientRect();
+    const start = { cx: e.clientX, cy: e.clientY, x: it.x, y: it.y, w: it.w };
+    const move = (ev) => {
+      const dx = ((ev.clientX - start.cx) / rect.width) * 100;
+      const dy = ((ev.clientY - start.cy) / rect.height) * 100;
+      if (resize) it.w = start.w + Math.max((dx * 2) / INCH, ((dy * 2) / (INCH * ASPECT)) * it.ratio);
+      else { it.x = start.x + dx; it.y = start.y + dy; }
+      fit(it);
+      const node = q(`.ph[data-uid="${it.uid}"]`, dz);
+      const b = box(it);
+      Object.assign(node.style, { left: b.left + '%', top: b.top + '%', width: b.w + '%', height: b.h + '%' });
+      const t = q('.ph-tag', node);
+      if (t) t.textContent = sizeLabel(it);
+      dzInfo();
+    };
+    const up = () => {
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+      window.removeEventListener('pointercancel', up);
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+    window.addEventListener('pointercancel', up);
+  });
+
+  function openDesigner() {
+    const d = st.design;
+    dzs.items = d && d.mode === 'designer' ? d.items.map((it) => ({ ...it })) : [];
+    dzs.view = st.view;
+    dzs.sel = null;
+    dzRender();
+    dz.showModal();
+  }
+  q('[data-dz-close]', dz).addEventListener('click', () => dz.close());
+  q('[data-dz-save]', dz).addEventListener('click', () => {
+    const items = dzs.items.filter((it) => it.src);
+    st.design = items.length ? { mode: 'designer', items } : null;
+    st.view = onPhoto(dzs.view);
+    dz.close();
+    render();
+  });
 
   /* ---------- just send us your files pop-up ---------- */
 
@@ -347,8 +675,8 @@
 
   function openFiles() {
     const d = st.design;
-    fzs.files = d ? d.files.map((f) => ({ ...f, at: { ...f.at } })) : [];
-    q('[data-fz-note]', fz).value = d ? d.note : '';
+    fzs.files = d && d.mode === 'files' ? d.files.map((f) => ({ ...f, at: { ...f.at } })) : [];
+    q('[data-fz-note]', fz).value = d && d.mode === 'files' ? d.note : '';
     q('[data-fz-msg]', fz).textContent = '';
     fzRender();
     fz.showModal();
@@ -360,21 +688,33 @@
       return;
     }
     const note = q('[data-fz-note]', fz).value.trim();
-    st.design = fzs.files.length ? { files: fzs.files, note } : null;
+    st.design = fzs.files.length ? { mode: 'files', files: fzs.files, note } : null;
     fz.close();
     render();
   });
 
   /* ---------- design card buttons ---------- */
 
-  qa('[data-open]').forEach((b) => b.addEventListener('click', openFiles));
-  q('[data-edit]').addEventListener('click', openFiles);
+  qa('[data-open]').forEach((b) => b.addEventListener('click', () => (b.dataset.open === 'designer' ? openDesigner() : openFiles())));
+  q('[data-edit]').addEventListener('click', () => (st.design && st.design.mode === 'files' ? openFiles() : openDesigner()));
   q('[data-clear]').addEventListener('click', () => { st.design = null; render(); });
 
   /* ---------- add to the basket ---------- */
 
+  const dataUrlToBlob = async (url) => (await fetch(url)).blob();
+
   // The artwork files, uploaded once with the first size of this garment.
-  const artworkFiles = () => (st.design ? st.design.files.map((f) => [f.file, f.name]) : []);
+  async function artworkFiles() {
+    const d = st.design;
+    if (!d) return [];
+    if (d.mode === 'files') return d.files.map((f) => [f.file, f.name]);
+    const out = [];
+    for (const it of d.items) {
+      if (it.kind === 'upload') out.push([it.file, it.name]);
+      else out.push([await dataUrlToBlob(it.src), `${it.view}-text.png`]);
+    }
+    return out;
+  }
 
   const msg = q('[data-add-msg]');
   async function addToBasket() {
@@ -393,9 +733,12 @@
         body.append('quantity', st.qty[lines[i]]);
         body.append('properties[_group]', group);
         if (!st.design) body.append(`properties[${T.printLabel}]`, T.noDesign);
-        else body.append(`properties[${T.printLabel}]`, T.filesSent);
-        rows.forEach((r) => body.append(`properties[${r.name}]`, r.text));
-        if (st.design && st.design.note) body.append(`properties[${T.note}]`, st.design.note);
+        else body.append(`properties[${T.printLabel}]`, st.design.mode === 'designer' ? T.designedOnline : T.filesSent);
+        rows.forEach((r) => {
+          body.append(`properties[${r.name}]`, r.text);
+          if (r.detail) body.append(`properties[_${r.name} ${T.placement}]`, r.detail);
+        });
+        if (st.design && st.design.mode === 'files' && st.design.note) body.append(`properties[${T.note}]`, st.design.note);
         if (i === 0) files.forEach(([blob, name], n) => body.append(`properties[${T.artwork} ${n + 1}]`, blob, name));
         const res = await fetch(D.cartAdd, { method: 'POST', body, headers: { Accept: 'application/json' } });
         if (!res.ok) throw new Error(String(res.status));
