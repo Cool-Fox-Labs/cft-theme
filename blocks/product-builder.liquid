@@ -5,9 +5,10 @@
   both put the sizes in the basket with the design as line item properties.
 
   The design is added in one of two pop-ups:
-  - Design it yourself: Front / Back / sleeve buttons on the canvas. Add a
-    logo or text, drag it to move it, drag its corner to resize it, inside
-    the dashed print area. Sleeves zoom into the front photo.
+  - Design it yourself: add a logo or text, drag it to move it, drag its
+    corner to resize it, inside the dashed print area. Mini thumbnails under
+    the canvas switch between Front and any other views the product has.
+    The print size shows only while dragging.
   - Just send us your files: upload files, tick positions for each, and pick
     the same size choices.
   Both say we check artwork, size and position before printing.
@@ -19,12 +20,17 @@
     Shopify stores a blank price as 0.00.
   - Metafield cft.size_guide (rich text) fills the size guide. No metafield,
     no size guide link.
-  - Metafield cft.print_positions (JSON) can change the print areas, e.g. a
-    smaller front for women's and kids' garments:
-    {"inch": 2.4, "areas": {"front": {"w": 9, "h": 12, "x": 50, "y": 25}}}.
-    x is the centre and y the top, as % of the photo; w and h are inches;
-    inch is how much of the photo width one inch covers. "positions" (the
-    send-your-files choices) can still be replaced as before.
+  - Metafield cft.print_positions (JSON) sets the views and print areas.
+    Front is always shown, on the colour's own photo. Back and sleeves show
+    only when listed under "views", each with its area and a photo per colour:
+    {"inch": 2.4, "views": [
+      {"id": "front", "area": {"w": 9, "h": 12, "x": 50, "y": 25}},
+      {"id": "back", "area": {"w": 12, "h": 14, "x": 50, "y": 22},
+       "images": {"Black": "https://...", "default": "https://..."}}]}
+    ids are front, back, ls and rs. x is the centre and y the top, as % of
+    the photo; w and h are inches; inch is how much of the photo width one
+    inch covers. "positions" (the send-your-files choices) can still be
+    replaced as before.
 
   @example
   {% block 'product-builder' %}{% endblock %}
@@ -179,13 +185,11 @@
   <dialog class="dz" data-designer aria-labelledby="dz-h">
     <div class="dz-bar">
       <h2 id="dz-h">{{ 'product.route_designer' | t }}</h2>
-      <button type="button" class="pill pill-o" data-dz-save>{{ 'product.save' | t }}</button>
       <button type="button" class="art-x" data-dz-close aria-label="{{ 'product.close' | t }}">&times;</button>
     </div>
     <div class="dz-body">
       <div class="dz-left">
       <div class="stage-p" data-stage="designer">
-        <div class="view-tabs dz-views" role="group" aria-label="{{ 'product.view' | t }}" data-dz-views></div>
         <p class="back-note" data-back-note hidden>{{ 'product.back_note' | t }}</p>
         <div class="zoom" data-zoom>
           <img class="shirt" data-shirt src="{{ 'logo-fox-head.svg' | asset_url }}" width="500" height="600" alt="">
@@ -193,11 +197,13 @@
         </div>
         <p class="ref-note">{{ 'product.ref_note' | t }}</p>
       </div>
+      <div class="dz-views" role="group" aria-label="{{ 'product.view' | t }}" data-dz-views></div>
       </div>
       <div class="dz-side">
         <div class="dz-add" data-dz-add></div>
         <div class="dz-panel" data-dz-panel></div>
         <p class="check-note">{{ 'product.check_note' | t }}</p>
+        <button type="button" class="pill pill-o dz-save-big" data-dz-save>{{ 'product.save_design' | t }}</button>
       </div>
     </div>
   </dialog>
@@ -284,17 +290,13 @@
       "line2": {{ 'product.text_line2' | t | json }},
       "font": {{ 'product.text_font' | t | json }},
       "colour": {{ 'product.text_colour' | t | json }},
-      "fonts": [
-        ["font-display", {{ 'product.font_bold' | t | json }}],
-        ["font-primary--family", {{ 'product.font_clean' | t | json }}],
-        ["font-mono", {{ 'product.font_type' | t | json }}]
-      ],
-      "inks": [
-        ["#FFFFFF", {{ 'product.ink_white' | t | json }}],
-        ["#1D1D1B", {{ 'product.ink_black' | t | json }}],
-        ["#EB7024", {{ 'product.ink_orange' | t | json }}],
-        ["#1F2A44", {{ 'product.ink_navy' | t | json }}]
-      ],
+      "line3": {{ 'product.text_line3' | t | json }},
+      "yourText": {{ 'product.your_text' | t | json }},
+      "align": {{ 'product.text_align' | t | json }},
+      "alignLeft": {{ 'product.align_left' | t | json }},
+      "alignCentre": {{ 'product.align_centre' | t | json }},
+      "alignRight": {{ 'product.align_right' | t | json }},
+      "customColour": {{ 'product.custom_colour' | t | json }},
       "vector": {{ 'product.check_vector' | t | json }},
       "good": {{ 'product.check_good' | t | json }},
       "ok": {{ 'product.check_ok' | t | json }},

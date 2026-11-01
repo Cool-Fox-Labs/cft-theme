@@ -91,25 +91,38 @@
 
   /* ---------- stage: garment photo with designs placed ---------- */
 
-  // Print areas, one per view. x is the centre and y the top, as % of the
-  // photo; w and h are the biggest print in inches. Sleeves have no photo of
-  // their own, so the designer zooms into the front photo for them. A
-  // product's cft.print_positions metafield can override any of these under
-  // "areas", e.g. a smaller front for women's and kids' garments.
+  // Views come from the product. Front is always there and uses the colour's
+  // own photo. Back and sleeves appear only when the product's
+  // cft.print_positions metafield lists them under "views", each with its
+  // print area and a photo per colour:
+  //   {"inch": 2.4, "views": [{"id": "back", "area": {"w": 12, "h": 14, "x": 50, "y": 22},
+  //     "images": {"Black": "https://…", "default": "https://…"}}]}
+  // x is the centre and y the top of the area, as % of the photo; w and h are inches.
   const ASPECT = 5 / 6; // stage width / height
   const pw = (inches) => inches * INCH; // inches to % of photo width
   const ph = (inches) => inches * INCH * ASPECT; // inches to % of photo height
-  const VIEWS = ['front', 'back', 'ls', 'rs'];
-  const BASE_AREAS = {
+  const half = (n) => Math.round(n * 2) / 2;
+  const BASE_AREA = {
     front: { w: 12, h: 14, x: 50, y: 25 },
     back: { w: 12, h: 14, x: 50, y: 22 },
-    ls: { w: 4, h: 4, x: 85, y: 30, zoom: 2.6 },
-    rs: { w: 4, h: 4, x: 15, y: 30, zoom: 2.6 },
+    ls: { w: 4, h: 4, x: 50, y: 35 },
+    rs: { w: 4, h: 4, x: 50, y: 35 },
   };
-  const AREAS = Object.fromEntries(VIEWS.map((v) => [v, { ...BASE_AREAS[v], ...((D.print && D.print.areas && D.print.areas[v]) || {}) }]));
-  const VIEW_NAME = { front: T.pos.fr, back: T.pos.fb, ls: T.pos.ls, rs: T.pos.rs };
-  const onPhoto = (view) => (view === 'back' ? 'back' : 'front');
-  const half = (n) => Math.round(n * 2) / 2;
+  const DEFAULT_NAME = { front: T.pos.fr, back: T.pos.fb, ls: T.pos.ls, rs: T.pos.rs };
+  const listed = D.print && Array.isArray(D.print.views) ? D.print.views.filter((v) => v && v.id) : [];
+  const VIEW_LIST = ['front', ...listed.map((v) => v.id).filter((id) => id !== 'front')].map((id) => {
+    const v = listed.find((x) => x.id === id) || {};
+    return { id, name: v.name || DEFAULT_NAME[id] || id, area: { ...(BASE_AREA[id] || BASE_AREA.front), ...(v.area || {}) }, images: v.images || null };
+  });
+  const VIEWS = VIEW_LIST.map((v) => v.id);
+  const AREAS = Object.fromEntries(VIEW_LIST.map((v) => [v.id, v.area]));
+  const VIEW_NAME = Object.fromEntries(VIEW_LIST.map((v) => [v.id, v.name]));
+  // The view's own photo for the chosen colour, or null to use the front photo.
+  function photoFor(id) {
+    const v = VIEW_LIST.find((x) => x.id === id);
+    if (id === 'front' || !v || !v.images) return null;
+    return v.images[st.colour.name] || v.images.default || null;
+  }
 
   // A placed design: x and y are its centre as % of the photo, w its width in inches.
   function box(it) {
@@ -128,6 +141,7 @@
     it.y = Math.min(Math.max(it.y, a.y + b.h / 2), a.y + ph(a.h) - b.h / 2);
   }
   const sizeLabel = (it) => fill(T.wxh, { w: half(it.w), h: half(it.w / it.ratio) });
+  const dragSize = (it) => `${half(it.w)} × ${half(it.w / it.ratio)}in`;
   function whereText(it) {
     const a = AREAS[it.view];
     const down = half((box(it).top - a.y) / (INCH * ASPECT));
@@ -136,34 +150,18 @@
     return fill(T.where, { d: down, s: side });
   }
 
-  // edit: the designer, which shows one view, its print area and handles.
-  // Otherwise the page stage, which shows everything on that photo.
-  function drawStage(stage, view, list, selUid, edit) {
-    const c = st.colour;
-    const shirt = q('[data-shirt]', stage);
-    if (c.img) {
-      shirt.removeAttribute('srcset');
-      shirt.src = c.img;
-    }
-    shirt.alt = `${D.title}, ${c.name}`;
-    q('[data-back-note]', stage).hidden = onPhoto(view) !== 'back';
-    const a = AREAS[view];
-    const z = edit && a.zoom ? a.zoom : 1;
-    const zoom = q('[data-zoom]', stage);
-    // Zoom around the print area and bring it to the middle of the canvas.
-    const cy = a.y + ph(a.h) / 2;
-    zoom.style.transformOrigin = `${a.x}% ${cy}%`;
-    zoom.style.transform = z > 1 ? `translate(${50 - a.x}%, ${50 - cy}%) scale(${z})` : '';
-    zoom.style.setProperty('--z', z);
-    const holder = q('[data-placements]', stage);
+  // Draws the designs of one view. edit: the designer canvas, with the print
+  // area and the selected design's handle.
+  function placeAll(holder, view, list, selUid, edit) {
     holder.innerHTML = '';
     if (edit) {
+      const a = AREAS[view];
       const area = make('div', 'area');
       area.style.cssText = `left:${a.x - pw(a.w) / 2}%;top:${a.y}%;width:${pw(a.w)}%;height:${ph(a.h)}%`;
-      area.append(make('span', 'ph-tag', fill(T.areaTag, { w: a.w, h: a.h })));
+      area.append(make('span', 'ph-tag', T.areaTag));
       holder.append(area);
     }
-    list.filter((it) => it.src && (edit ? it.view === view : onPhoto(it.view) === view)).forEach((it) => {
+    list.filter((it) => it.src && it.view === view).forEach((it) => {
       const b = box(it);
       const el = make('div', 'ph' + (edit && it.uid === selUid ? ' sel' : ''));
       el.style.cssText = `left:${b.left}%;top:${b.top}%;width:${b.w}%;height:${b.h}%`;
@@ -182,6 +180,20 @@
       }
       holder.append(el);
     });
+  }
+
+  function drawStage(stage, view, list, selUid, edit) {
+    const c = st.colour;
+    const shirt = q('[data-shirt]', stage);
+    const own = photoFor(view);
+    const src = own || c.img;
+    if (src) {
+      shirt.removeAttribute('srcset');
+      shirt.src = src;
+    }
+    shirt.alt = `${D.title}, ${c.name}`;
+    q('[data-back-note]', stage).hidden = view === 'front' || !!own;
+    placeAll(q('[data-placements]', stage), view, list, selUid, edit);
   }
 
   // What the page stage shows: designer items, or the files' thumbnails at
@@ -256,7 +268,7 @@
     const d = st.design;
     if (!d) return [];
     if (d.mode === 'designer') {
-      const what = (it) => (it.kind === 'text' ? `${T.text}: "${it.lines.join(' / ')}" (${it.font}, ${it.ink})` : it.name);
+      const what = (it) => (it.kind === 'text' ? `${T.text}: "${it.lines.join(' / ')}" (${it.font}, ${it.ink.toUpperCase()})` : it.name);
       return VIEWS.filter((v) => d.items.some((it) => it.view === v)).map((v) => ({
         name: VIEW_NAME[v],
         text: d.items.filter((it) => it.view === v).map(what).join('; '),
@@ -359,22 +371,47 @@
   const dz = q('[data-designer]');
   const dzs = { view: 'front', sel: null, items: [] };
 
+  // Text fonts (Google Fonts, free to print with), loaded the first time
+  // someone adds text. [family, weight]
+  const FONTS = [
+    ['Anton', 400], ['Bebas Neue', 400], ['Oswald', 700], ['Archivo Black', 400],
+    ['Graduate', 400], ['Black Ops One', 400], ['Permanent Marker', 400], ['Pacifico', 400],
+    ['Lobster', 400], ['Playfair Display', 700], ['Roboto Slab', 700], ['Montserrat', 700],
+  ];
+  const SWATCHES = ['#FFFFFF', '#1D1D1B', '#C8102E', '#1F2A44', '#0057B8', '#EB7024', '#FFD100', '#00843D', '#E56DB1', '#8A8D8F', '#B3A369', '#5F259F'];
+  let fontsReady;
+  function loadFonts() {
+    if (!fontsReady) {
+      const families = FONTS.map(([f, w]) => `family=${f.replace(/ /g, '+')}:wght@${w}`).join('&');
+      const link = make('link');
+      link.rel = 'stylesheet';
+      link.href = `https://fonts.googleapis.com/css2?${families}&display=swap`;
+      fontsReady = new Promise((r) => { link.onload = r; link.onerror = r; });
+      document.head.append(link);
+    }
+    return fontsReady;
+  }
+
+  // Draws a text design to an image. With no text yet it shows "Your text"
+  // so the customer sees it on the garment straight away.
   async function drawText(item) {
-    const lines = item.lines.filter(Boolean);
-    if (!lines.length) { item.src = null; return; }
-    const family = getComputedStyle(document.documentElement).getPropertyValue('--' + item.fontVar).trim() || 'sans-serif';
-    const font = `700 160px ${family}`;
-    try { await document.fonts.load(font); } catch (e) { /* draw with whatever has loaded */ }
+    item.placeholder = !item.lines.length;
+    const lines = item.placeholder ? [T.yourText] : item.lines;
+    await loadFonts();
+    const font = `${item.weight} 160px "${item.font}"`;
+    try { await document.fonts.load(font, lines.join('')); } catch (e) { /* draw with whatever has loaded */ }
     const cv = make('canvas');
     const cx = cv.getContext('2d');
     cx.font = font;
     cv.width = Math.ceil(Math.max(...lines.map((l) => cx.measureText(l).width))) + 40;
-    cv.height = lines.length * 190 + 40;
+    cv.height = lines.length * 200 + 40;
     cx.font = font;
-    cx.fillStyle = item.inkHex;
-    cx.textAlign = 'center';
+    cx.fillStyle = item.ink;
+    cx.globalAlpha = item.placeholder ? 0.6 : 1;
+    cx.textAlign = item.align;
     cx.textBaseline = 'top';
-    lines.forEach((l, i) => cx.fillText(l, cv.width / 2, 20 + i * 190));
+    const x = item.align === 'left' ? 20 : item.align === 'right' ? cv.width - 20 : cv.width / 2;
+    lines.forEach((l, i) => cx.fillText(l, x, 20 + i * 200));
     const img = new Image();
     await new Promise((r) => { img.onload = r; img.src = cv.toDataURL('image/png'); });
     Object.assign(item, trim(img));
@@ -427,30 +464,72 @@
 
   function textForm(item) {
     const form = make('div', 'text-design');
-    const field = (label, el) => { const l = make('label', '', label); l.append(el); form.append(l); return el; };
-    const l1 = field(T.line1, Object.assign(make('input'), { type: 'text', maxLength: 30, value: item.lines[0] || '' }));
-    const l2 = field(T.line2, Object.assign(make('input'), { type: 'text', maxLength: 30, value: item.lines[1] || '' }));
-    const select = (opts, current) => {
-      const s = make('select');
-      opts.forEach(([v, t]) => { const o = make('option', '', t); o.value = v; o.selected = v === current; s.append(o); });
-      return s;
-    };
-    const fontSel = field(T.font, select(T.fonts, item.fontVar));
-    const inkSel = field(T.colour, select(T.inks, item.inkHex));
-    const update = async () => {
+    const field = (label, el, cls) => { const l = make('label', cls || '', label); l.append(el); form.append(l); return el; };
+    const line = (label, i) => field(label, Object.assign(make('input'), { type: 'text', maxLength: 30, value: item.lines[i] || '', placeholder: i === 0 ? T.yourText : '' }), 'wide');
+    const l1 = line(T.line1, 0);
+    const l2 = line(T.line2, 1);
+    const l3 = line(T.line3, 2);
+    const fontSel = make('select');
+    FONTS.forEach(([f]) => {
+      const o = make('option', '', f);
+      o.value = f;
+      o.style.fontFamily = `"${f}"`;
+      o.selected = f === item.font;
+      fontSel.append(o);
+    });
+    field(T.font, fontSel, 'wide');
+
+    const colours = make('div', 'ink-row');
+    const picker = Object.assign(make('input'), { type: 'color', value: item.ink });
+    picker.setAttribute('aria-label', T.customColour);
+    SWATCHES.forEach((hex) => {
+      const b = make('button', 'ink');
+      b.type = 'button';
+      b.style.setProperty('--c', hex);
+      b.setAttribute('aria-label', hex);
+      b.setAttribute('aria-pressed', String(hex.toLowerCase() === item.ink.toLowerCase()));
+      b.addEventListener('click', () => { picker.value = hex; update(); });
+      colours.append(b);
+    });
+    const pl = make('label', 'ink-custom', T.customColour);
+    pl.prepend(picker);
+    colours.append(pl);
+    const cl = make('div', 'wide');
+    cl.append(make('span', 'field-label', T.colour), colours);
+    form.append(cl);
+
+    const align = make('div', 'align-row');
+    [['left', T.alignLeft], ['center', T.alignCentre], ['right', T.alignRight]].forEach(([v, t]) => {
+      const b = make('button', '', t);
+      b.type = 'button';
+      b.dataset.align = v;
+      b.setAttribute('aria-pressed', String(item.align === v));
+      b.addEventListener('click', () => { item.align = v; update(); });
+      align.append(b);
+    });
+    const al = make('div', 'wide');
+    al.append(make('span', 'field-label', T.align), align);
+    form.append(al);
+
+    let busy = Promise.resolve();
+    function update() {
       Object.assign(item, {
-        lines: [l1.value.trim(), l2.value.trim()].filter(Boolean),
-        fontVar: fontSel.value, font: fontSel.selectedOptions[0].text,
-        inkHex: inkSel.value, ink: inkSel.selectedOptions[0].text,
+        lines: [l1.value.trim(), l2.value.trim(), l3.value.trim()].filter(Boolean),
+        font: fontSel.value,
+        weight: (FONTS.find(([f]) => f === fontSel.value) || FONTS[0])[1],
+        ink: picker.value,
       });
-      await drawText(item);
-      if (item.src) fit(item);
-      dzStage();
-      dzViews();
-      dzAdd();
-      dzInfo();
-    };
-    [l1, l2, fontSel, inkSel].forEach((el) => el.addEventListener('input', update));
+      qa('.ink', colours).forEach((b) => b.setAttribute('aria-pressed', String(b.getAttribute('aria-label').toLowerCase() === item.ink.toLowerCase())));
+      qa('[data-align]', align).forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.align === item.align)));
+      busy = busy.then(async () => {
+        await drawText(item);
+        fit(item);
+        dzStage();
+        dzThumbs();
+        dzInfo();
+      });
+    }
+    [l1, l2, l3, fontSel, picker].forEach((el) => el.addEventListener('input', update));
     return form;
   }
 
@@ -459,10 +538,11 @@
   const uid = () => 'd' + Date.now().toString(36) + (uidN++);
 
   // A new design starts in the middle of the print area at 60% of its width.
-  function place(it) {
+  async function place(it) {
     const a = AREAS[dzs.view];
     Object.assign(it, { uid: uid(), view: dzs.view, w: a.w * 0.6, x: a.x, y: a.y + ph(a.h) / 2 });
-    if (it.src) fit(it);
+    if (it.kind === 'text') await drawText(it);
+    fit(it);
     dzs.items.push(it);
     dzs.sel = it.uid;
     dzRender();
@@ -480,7 +560,6 @@
   function dzPanel() {
     const panel = q('[data-dz-panel]', dz);
     panel.innerHTML = '';
-    const a = AREAS[dzs.view];
     panel.append(make('h3', '', VIEW_NAME[dzs.view]));
 
     const here = dzs.items.filter((it) => it.view === dzs.view);
@@ -523,7 +602,7 @@
     panel.append(row);
   }
 
-  // The big add buttons under the photo.
+  // The add buttons at the top of the side panel.
   function dzAdd() {
     const box = q('[data-dz-add]', dz);
     box.innerHTML = '';
@@ -532,27 +611,35 @@
     up.className = 'pill pill-o dz-add-main';
     const textBtn = make('button', 'pill pill-l', T.addText);
     textBtn.type = 'button';
-    textBtn.addEventListener('click', () => place({
-      kind: 'text', lines: [], ratio: 4, fontVar: T.fonts[0][0], font: T.fonts[0][1], inkHex: T.inks[0][0], ink: T.inks[0][1],
-    }));
+    textBtn.addEventListener('click', () => place({ kind: 'text', lines: [], font: FONTS[0][0], weight: FONTS[0][1], ink: '#1D1D1B', align: 'center' }));
     box.append(up, textBtn);
   }
 
-  // Front / Back / sleeve buttons in the corner of the canvas.
-  function dzViews() {
-    const box = q('[data-dz-views]', dz);
-    box.innerHTML = '';
+  // Mini thumbnails under the canvas, one per view, each with its designs.
+  function dzThumbs() {
+    const holder = q('[data-dz-views]', dz);
+    holder.innerHTML = '';
+    holder.hidden = VIEWS.length < 2;
     VIEWS.forEach((v) => {
-      const b = make('button', '', VIEW_NAME[v]);
+      const b = make('button', 'vthumb');
       b.type = 'button';
       b.setAttribute('aria-pressed', String(v === dzs.view));
-      if (dzs.items.some((it) => it.view === v && it.src)) b.classList.add('filled');
+      const pic = make('span', 'vt-pic');
+      const img = make('img');
+      img.src = photoFor(v) || st.colour.img || '';
+      img.alt = '';
+      const marks = make('span', 'vt-marks');
+      placeAll(marks, v, dzs.items, null, false);
+      pic.append(img, marks);
+      const label = make('span', 'vt-name', VIEW_NAME[v]);
+      if (dzs.items.some((it) => it.view === v && it.src)) label.classList.add('filled');
+      b.append(pic, label);
       b.addEventListener('click', () => {
         dzs.view = v;
         if (selected() && selected().view !== v) dzs.sel = null;
         dzRender();
       });
-      box.append(b);
+      holder.append(b);
     });
   }
 
@@ -561,15 +648,15 @@
   }
 
   function dzRender() {
-    dzViews();
+    dzThumbs();
     dzAdd();
     dzStage();
     dzPanel();
   }
 
-  // Drag a design to move it; drag its round corner to resize it.
+  // Drag a design to move it; drag its round corner to resize it. The print
+  // size shows on the design only while dragging.
   q('[data-stage="designer"]', dz).addEventListener('pointerdown', (e) => {
-    if (e.target.closest('[data-dz-views]')) return;
     const el = e.target.closest('.ph[data-uid]');
     if (!el) {
       if (dzs.sel) { dzs.sel = null; dzStage(); dzPanel(); }
@@ -581,20 +668,23 @@
     if (dzs.sel !== it.uid) { dzs.sel = it.uid; dzStage(); dzPanel(); }
     const rect = q('[data-stage="designer"] [data-zoom]', dz).getBoundingClientRect();
     const start = { cx: e.clientX, cy: e.clientY, x: it.x, y: it.y, w: it.w };
+    const node = () => q(`.ph[data-uid="${it.uid}"]`, dz);
+    const tag = make('span', 'ph-tag', dragSize(it));
+    node().append(tag);
     const move = (ev) => {
       const dx = ((ev.clientX - start.cx) / rect.width) * 100;
       const dy = ((ev.clientY - start.cy) / rect.height) * 100;
       if (resize) it.w = start.w + Math.max((dx * 2) / INCH, ((dy * 2) / (INCH * ASPECT)) * it.ratio);
       else { it.x = start.x + dx; it.y = start.y + dy; }
       fit(it);
-      const node = q(`.ph[data-uid="${it.uid}"]`, dz);
       const b = box(it);
-      Object.assign(node.style, { left: b.left + '%', top: b.top + '%', width: b.w + '%', height: b.h + '%' });
-      const t = q('.ph-tag', node);
-      if (t) t.textContent = sizeLabel(it);
+      Object.assign(node().style, { left: b.left + '%', top: b.top + '%', width: b.w + '%', height: b.h + '%' });
+      tag.textContent = dragSize(it);
       dzInfo();
     };
     const up = () => {
+      tag.remove();
+      dzThumbs();
       window.removeEventListener('pointermove', move);
       window.removeEventListener('pointerup', up);
       window.removeEventListener('pointercancel', up);
@@ -607,19 +697,20 @@
   function openDesigner() {
     const d = st.design;
     dzs.items = d && d.mode === 'designer' ? d.items.map((it) => ({ ...it })) : [];
-    dzs.view = st.view;
+    dzs.view = VIEWS.includes(st.view) ? st.view : 'front';
     dzs.sel = null;
     dzRender();
     dz.showModal();
   }
   q('[data-dz-close]', dz).addEventListener('click', () => dz.close());
-  q('[data-dz-save]', dz).addEventListener('click', () => {
-    const items = dzs.items.filter((it) => it.src);
+  qa('[data-dz-save]', dz).forEach((b) => b.addEventListener('click', () => {
+    // Text that was never typed is left out.
+    const items = dzs.items.filter((it) => it.src && !it.placeholder);
     st.design = items.length ? { mode: 'designer', items } : null;
-    st.view = onPhoto(dzs.view);
+    st.view = dzs.view === 'back' ? 'back' : 'front';
     dz.close();
     render();
-  });
+  }));
 
   /* ---------- just send us your files pop-up ---------- */
 

@@ -484,7 +484,7 @@ input[type=range] { width: 100%; accent-color: var(--orange); height: 28px }
 .dz-bar h2 { font-size: 20px; font-weight: 700; letter-spacing: -.01em; margin-right: auto }
 .dz-bar .view-tabs { position: static }
 .dz-body { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(300px, 1fr); gap: clamp(16px, 3vw, 40px); padding: 20px max(16px, 2.5vw); overflow: auto; align-items: start }
-.dz-body .stage-p { max-height: calc(100dvh - 120px); aspect-ratio: 5 / 6; margin-inline: auto; width: 100% }
+.dz-body .stage-p { aspect-ratio: 5 / 6; margin-inline: auto; width: min(100%, calc((100dvh - 250px) * 5 / 6)) }
 .dz-side { display: grid; gap: 14px; min-width: 0 }
 .dz-side h3 { font-size: 18px; font-weight: 600 }
 .dz-panel { display: grid; gap: 12px; padding: 16px; border-radius: 18px; background: var(--card) }
@@ -550,7 +550,7 @@ input[type=range] { width: 100%; accent-color: var(--orange); height: 28px }
   .basket-item { grid-template-columns: 64px minmax(0, 1fr) }
   .basket-img { width: 64px }
   .basket-qty { grid-column: 2; justify-items: start; grid-auto-flow: column; align-items: end }
-  .dz-bar h2 { font-size: 17px; width: 100%; order: -1 }
+  .dz-bar h2 { font-size: 17px }
 }
 .cta-box a { color: var(--cream) }
 
@@ -560,7 +560,7 @@ input[type=range] { width: 100%; accent-color: var(--orange); height: 28px }
 .check-note { margin: 0; padding: 12px 14px; border-radius: 12px; background: var(--ground); box-shadow: inset 0 0 0 1px var(--line); font-size: 13px; line-height: 1.5; color: var(--muted) }
 
 /* designer canvas: drag to move, drag the corner to resize */
-.zoom { position: absolute; inset: 0; transition: transform .3s ease }
+.zoom { position: absolute; inset: 0 }
 .area { position: absolute; border: 1.5px dashed var(--orange); border-radius: 4px; pointer-events: none }
 .area .ph-tag { top: calc(100% + 6px); background: var(--orange); color: var(--ink) }
 .ph img { pointer-events: none; user-select: none }
@@ -570,16 +570,35 @@ input[type=range] { width: 100%; accent-color: var(--orange); height: 28px }
 [data-stage="designer"] .ph.sel { border-color: var(--ink); border-style: solid }
 .ph-h { position: absolute; right: -11px; bottom: -11px; width: 22px; height: 22px; border-radius: 50%; background: var(--card); border: 2px solid var(--ink); cursor: nwse-resize; touch-action: none }
 .ph-h::after { content: ""; position: absolute; inset: -12px }
-.zoom .ph-tag { transform: translateX(-50%) scale(calc(1 / var(--z, 1))); transform-origin: 50% 100% }
-.zoom .area .ph-tag { transform-origin: 50% 0 }
-.zoom .ph-h { transform: scale(calc(1 / var(--z, 1))); transform-origin: 100% 100% }
-.zoom .area { border-width: calc(1.5px / var(--z, 1)) }
-.dz-views { flex-wrap: wrap; max-width: calc(100% - 32px) }
-.dz-views button.filled::after { content: ""; display: inline-block; width: 6px; height: 6px; margin-left: 6px; border-radius: 50%; background: var(--orange); vertical-align: middle }
 .dz .back-note { top: auto; bottom: 48px; left: 16px; right: 16px; max-width: none; text-align: left }
-@media (max-width: 600px) {
-  .dz-views button { padding: 0 10px; font-size: 12px }
-}
 .dz-left { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; min-width: 0; width: 100%; align-content: start }
 .dz-add { display: flex; flex-wrap: wrap; gap: 10px }
 .dz-add .dz-add-main { min-width: 220px; justify-content: center }
+
+/* designer: view thumbnails under the canvas, text tools, big save */
+.dz-views { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center }
+.dz-views[hidden] { display: none }
+.vthumb { display: grid; gap: 4px; justify-items: center; padding: 4px; border: 0; border-radius: 10px; background: none; cursor: pointer; font: inherit; color: var(--ink) }
+.vt-pic { position: relative; display: block; width: 64px; aspect-ratio: 5 / 6; overflow: hidden; border-radius: 8px; background: var(--card); box-shadow: inset 0 0 0 1px var(--line) }
+.vt-pic img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover }
+.vt-marks { position: absolute; inset: 0 }
+.vt-marks .ph { position: absolute }
+.vt-marks .ph img { position: static; width: 100%; height: 100%; object-fit: contain }
+.vthumb[aria-pressed="true"] .vt-pic { box-shadow: inset 0 0 0 2px var(--ink) }
+.vt-name { font-size: 12px; line-height: 1.2 }
+.vt-name.filled::after { content: ""; display: inline-block; width: 6px; height: 6px; margin-left: 5px; border-radius: 50%; background: var(--orange); vertical-align: middle }
+.text-design .wide { grid-column: 1 / -1 }
+.field-label { display: block; margin-bottom: 6px; font-size: 13px; color: var(--muted) }
+.ink-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center }
+.ink-row .ink { width: 28px; height: 28px; padding: 0; border-radius: 50%; border: 0; background: var(--c); box-shadow: inset 0 0 0 1px var(--line); cursor: pointer }
+.ink-row .ink[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--card), 0 0 0 4px var(--ink) }
+.ink-custom { display: inline-flex; gap: 6px; align-items: center; font-size: 13px }
+.ink-custom input[type="color"] { width: 32px; height: 32px; padding: 0; border: 0; background: none; cursor: pointer }
+.align-row { display: flex; gap: 6px }
+.align-row button { flex: 1; min-height: 36px; border-radius: 999px; border: 1px solid var(--line); background: var(--card); font: inherit; font-size: 13px; cursor: pointer }
+.align-row button[aria-pressed="true"] { background: var(--ink); color: var(--card); border-color: var(--ink) }
+.dz-save-big { width: 100%; min-height: 52px; justify-content: center; font-size: 16px }
+@media (max-width: 600px) {
+  .dz-save-big { position: sticky; bottom: 0; z-index: 3; box-shadow: 0 -10px 16px var(--ground) }
+  .vt-pic { width: 54px }
+}
