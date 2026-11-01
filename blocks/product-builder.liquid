@@ -113,8 +113,19 @@
         <div class="swatches" data-swatches></div>
       </section>
 
+      <section class="step" aria-labelledby="s-sizes">
+        <div class="step-h"><i>2</i><h2 id="s-sizes">{{ 'product.step_sizes' | t }}</h2><small data-total></small></div>
+        <div class="sizes" data-sizes></div>
+        <div class="size-links">
+          {%- if size_guide != blank -%}
+            <button type="button" class="text-btn" data-size-open>{{ 'product.size_guide' | t }}</button>
+          {%- endif -%}
+          <span data-size-note></span>
+        </div>
+      </section>
+
       <section class="step" aria-labelledby="s-design">
-        <div class="step-h"><i>2</i><h2 id="s-design">{{ 'product.step_design' | t }}</h2></div>
+        <div class="step-h"><i>3</i><h2 id="s-design">{{ 'product.step_design' | t }}</h2></div>
         <div class="design-card" data-design-empty>
           <button type="button" class="route" data-open="designer">
             <svg class="route-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l4.5-1 10-10a2.1 2.1 0 0 0-3-3l-10 10L4 20z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M14 7l3 3" stroke="currentColor" stroke-width="1.8"/></svg><b>{{ 'product.route_designer' | t }}</b><span>{{ 'product.route_designer_text' | t }}</span>
@@ -132,17 +143,7 @@
         </div>
       </section>
 
-      <section class="step" aria-labelledby="s-sizes">
-        <div class="step-h"><i>3</i><h2 id="s-sizes">{{ 'product.step_sizes' | t }}</h2><small data-total></small></div>
-        <div class="sizes" data-sizes></div>
-        <div class="size-links">
-          {%- if size_guide != blank -%}
-            <button type="button" class="text-btn" data-size-open>{{ 'product.size_guide' | t }}</button>
-          {%- endif -%}
-          <span data-size-note></span>
-        </div>
-        <div class="nudge"><b data-nudge-pct>0%</b><div class="bar"><span data-nudge-bar></span></div><span data-nudge-text></span></div>
-      </section>
+      <div class="nudge"><b data-nudge-pct>0%</b><div class="bar"><span data-nudge-bar></span></div><span data-nudge-text></span></div>
 
       <div class="cta-box">
         <div class="cta-sum"><span>{{ 'product.your_selection' | t }}</span><b data-sum></b></div>

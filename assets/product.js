@@ -235,6 +235,7 @@
   function sizes() {
     const box = q('[data-sizes]');
     box.innerHTML = '';
+    box.style.setProperty('--n', SIZES.length);
     SIZES.forEach((s) => {
       const ok = st.colour.sizes.includes(s);
       const label = make('label', ok ? '' : 'na');
@@ -429,13 +430,12 @@
     return lab;
   }
 
-  // Best size for me / left chest logo / I need a specific size + width box.
+  // Best size for me / I need a specific size + width box.
   function sizePicker(p, value, onChange) {
     const row = make('div', 'fz-size');
     const sel = make('select');
     sel.setAttribute('aria-label', T.sizeLabel);
     const opts = [['best', T.bestSize]];
-    if (p.chest) opts.push(['chest', T.chestLogo]);
     opts.push(['specific', T.specificSize]);
     const now = typeof value === 'number' ? 'specific' : sizeOf(value);
     opts.forEach(([v, t]) => {
