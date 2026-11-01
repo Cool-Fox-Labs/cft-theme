@@ -75,11 +75,6 @@
     if (typeof size === 'number') return { x: p.x, y: p.y, w: size };
     return { x: p.x, y: p.y, w: p.w };
   }
-  function tag(p, size) {
-    if (size === 'chest') return `${T.chestTag} ${geo(p, size).w}in`;
-    if (typeof size === 'number') return `${p.name} ${size}in`;
-    return p.name;
-  }
   function sizeText(p, size, item) {
     if (size === 'chest') return T.chestLogo;
     if (typeof size === 'number') return item && item.ratio ? fill(T.wxh, { w: size, h: height(size, item) }) : fill(T.inches, { w: size });
@@ -96,42 +91,114 @@
 
   /* ---------- stage: garment photo with designs placed ---------- */
 
-  function drawStage(stage, view, placed, selected) {
+  // Print areas, one per view. x is the centre and y the top, as % of the
+  // photo; w and h are the biggest print in inches. Sleeves have no photo of
+  // their own, so the designer zooms into the front photo for them. A
+  // product's cft.print_positions metafield can override any of these under
+  // "areas", e.g. a smaller front for women's and kids' garments.
+  const ASPECT = 5 / 6; // stage width / height
+  const pw = (inches) => inches * INCH; // inches to % of photo width
+  const ph = (inches) => inches * INCH * ASPECT; // inches to % of photo height
+  const VIEWS = ['front', 'back', 'ls', 'rs'];
+  const BASE_AREAS = {
+    front: { w: 12, h: 14, x: 50, y: 25 },
+    back: { w: 12, h: 14, x: 50, y: 22 },
+    ls: { w: 4, h: 4, x: 85, y: 30, zoom: 2.6 },
+    rs: { w: 4, h: 4, x: 15, y: 30, zoom: 2.6 },
+  };
+  const AREAS = Object.fromEntries(VIEWS.map((v) => [v, { ...BASE_AREAS[v], ...((D.print && D.print.areas && D.print.areas[v]) || {}) }]));
+  const VIEW_NAME = { front: T.pos.fr, back: T.pos.fb, ls: T.pos.ls, rs: T.pos.rs };
+  const onPhoto = (view) => (view === 'back' ? 'back' : 'front');
+  const half = (n) => Math.round(n * 2) / 2;
+
+  // A placed design: x and y are its centre as % of the photo, w its width in inches.
+  function box(it) {
+    const w = pw(it.w);
+    const h = ph(it.w / it.ratio);
+    return { left: it.x - w / 2, top: it.y - h / 2, w, h };
+  }
+  // Keep a design inside its print area.
+  function fit(it) {
+    const a = AREAS[it.view];
+    it.w = Math.max(1, Math.min(it.w, a.w, a.h * it.ratio));
+    const b = box(it);
+    const left = a.x - pw(a.w) / 2;
+    const right = a.x + pw(a.w) / 2;
+    it.x = Math.min(Math.max(it.x, left + b.w / 2), right - b.w / 2);
+    it.y = Math.min(Math.max(it.y, a.y + b.h / 2), a.y + ph(a.h) - b.h / 2);
+  }
+  const sizeLabel = (it) => fill(T.wxh, { w: half(it.w), h: half(it.w / it.ratio) });
+  function whereText(it) {
+    const a = AREAS[it.view];
+    const down = half((box(it).top - a.y) / (INCH * ASPECT));
+    const off = half((it.x - a.x) / INCH);
+    const side = Math.abs(off) < 0.5 ? T.centred : fill(off > 0 ? T.rightOf : T.leftOf, { n: Math.abs(off) });
+    return fill(T.where, { d: down, s: side });
+  }
+
+  // edit: the designer, which shows one view, its print area and handles.
+  // Otherwise the page stage, which shows everything on that photo.
+  function drawStage(stage, view, list, selUid, edit) {
     const c = st.colour;
     const shirt = q('[data-shirt]', stage);
     if (c.img) {
       shirt.removeAttribute('srcset');
       shirt.src = c.img;
     }
-    shirt.alt = `${D.title}, ${c.name}, ${T.front}`;
-    q('[data-back-note]', stage).hidden = view !== 'back';
-    const box = q('[data-placements]', stage);
-    box.innerHTML = '';
-    POS.filter((p) => p.view === view && (placed[p.id] !== undefined || p.id === selected)).forEach((p) => {
-      const item = placed[p.id];
-      const size = sizeOf(item && item.size);
-      const g = geo(p, size);
-      const w = g.w * INCH;
-      const el = make('div', 'ph' + (item && item.src ? '' : ' empty') + (p.id === selected ? ' sel' : ''));
-      el.style.cssText = `left:${g.x - w / 2}%;top:${g.y}%;width:${w}%`;
-      el.append(make('span', 'ph-tag', tag(p, size)));
-      if (item && item.src) {
-        const img = make('img');
-        img.src = item.src;
-        img.alt = '';
-        el.append(img);
+    shirt.alt = `${D.title}, ${c.name}`;
+    q('[data-back-note]', stage).hidden = onPhoto(view) !== 'back';
+    const a = AREAS[view];
+    const z = edit && a.zoom ? a.zoom : 1;
+    const zoom = q('[data-zoom]', stage);
+    // Zoom around the print area and bring it to the middle of the canvas.
+    const cy = a.y + ph(a.h) / 2;
+    zoom.style.transformOrigin = `${a.x}% ${cy}%`;
+    zoom.style.transform = z > 1 ? `translate(${50 - a.x}%, ${50 - cy}%) scale(${z})` : '';
+    zoom.style.setProperty('--z', z);
+    const holder = q('[data-placements]', stage);
+    holder.innerHTML = '';
+    if (edit) {
+      const area = make('div', 'area');
+      area.style.cssText = `left:${a.x - pw(a.w) / 2}%;top:${a.y}%;width:${pw(a.w)}%;height:${ph(a.h)}%`;
+      area.append(make('span', 'ph-tag', fill(T.areaTag, { w: a.w, h: a.h })));
+      holder.append(area);
+    }
+    list.filter((it) => it.src && (edit ? it.view === view : onPhoto(it.view) === view)).forEach((it) => {
+      const b = box(it);
+      const el = make('div', 'ph' + (edit && it.uid === selUid ? ' sel' : ''));
+      el.style.cssText = `left:${b.left}%;top:${b.top}%;width:${b.w}%;height:${b.h}%`;
+      const img = make('img');
+      img.src = it.src;
+      img.alt = '';
+      img.draggable = false;
+      el.append(img);
+      if (edit) {
+        el.dataset.uid = it.uid;
+        if (it.uid === selUid) {
+          el.append(make('span', 'ph-tag', sizeLabel(it)));
+          const handle = make('span', 'ph-h');
+          handle.dataset.handle = '';
+          el.append(handle);
+        }
       }
-      box.append(el);
+      holder.append(el);
     });
   }
 
-  // What the page stage shows: designer items, or the files' thumbnails.
+  // What the page stage shows: designer items, or the files' thumbnails at
+  // the size picked for them.
   function placedOnPage() {
     const d = st.design;
-    if (!d) return {};
+    if (!d) return [];
     if (d.mode === 'designer') return d.items;
-    const out = {};
-    d.files.forEach((f) => Object.keys(f.at).forEach((id) => { out[id] = out[id] || { src: f.thumb, size: f.at[id] }; }));
+    const out = [];
+    d.files.forEach((f) => Object.keys(f.at).forEach((id) => {
+      if (!f.thumb || out.some((o) => o.pos === id)) return;
+      const p = posById(id);
+      const g = geo(p, sizeOf(f.at[id]));
+      const ratio = f.ratio || 1;
+      out.push({ pos: id, view: p.view, src: f.thumb, ratio, w: g.w, x: g.x, y: g.y + ph(g.w / ratio) / 2 });
+    }));
     return out;
   }
 
@@ -190,11 +257,11 @@
     const d = st.design;
     if (!d) return [];
     if (d.mode === 'designer') {
-      return POS.filter((p) => d.items[p.id]).map((p) => {
-        const item = d.items[p.id];
-        const what = item.kind === 'text' ? `${T.text}: "${item.lines.join(' / ')}" (${item.font}, ${item.ink})` : item.name;
-        return { name: p.name, text: `${what} · ${sizeText(p, sizeOf(item.size), item)}` };
-      });
+      const what = (it) => (it.kind === 'text' ? `${T.text}: "${it.lines.join(' / ')}" (${it.font}, ${it.ink})` : it.name);
+      return VIEWS.filter((v) => d.items.some((it) => it.view === v)).map((v) => ({
+        name: VIEW_NAME[v],
+        text: d.items.filter((it) => it.view === v).map((it) => `${what(it)} · ${sizeLabel(it)}, ${whereText(it)}`).join('; '),
+      }));
     }
     const out = [];
     POS.forEach((p) => {
@@ -231,7 +298,7 @@
     swatches();
     sizes();
     designCard();
-    drawStage(q('[data-stage="page"]'), st.view, placedOnPage(), null);
+    drawStage(q('[data-stage="page"]'), st.view, placedOnPage(), null, false);
     totals();
   }
 
@@ -289,7 +356,7 @@
   /* ---------- designer pop-up ---------- */
 
   const dz = q('[data-designer]');
-  const dzs = { view: 'front', sel: null, items: {} };
+  const dzs = { view: 'front', sel: null, items: [] };
 
   async function drawText(item) {
     const lines = item.lines.filter(Boolean);
@@ -357,7 +424,7 @@
     return row;
   }
 
-  function textForm(p, item) {
+  function textForm(item) {
     const form = make('div', 'text-design');
     const field = (label, el) => { const l = make('label', '', label); l.append(el); form.append(l); return el; };
     const l1 = field(T.line1, Object.assign(make('input'), { type: 'text', maxLength: 30, value: item.lines[0] || '' }));
@@ -376,110 +443,173 @@
         inkHex: inkSel.value, ink: inkSel.selectedOptions[0].text,
       });
       await drawText(item);
-      if (item.src) dzs.items[p.id] = item; else delete dzs.items[p.id];
+      if (item.src) fit(item);
       dzStage();
-      dzPosButtons();
-      dzInfo(p);
+      dzViews();
+      dzInfo();
     };
     [l1, l2, fontSel, inkSel].forEach((el) => el.addEventListener('input', update));
     return form;
   }
 
-  function dzInfo(p) {
+  const selected = () => dzs.items.find((it) => it.uid === dzs.sel);
+  let uidN = 0;
+  const uid = () => 'd' + Date.now().toString(36) + (uidN++);
+
+  // A new design starts in the middle of the print area at 60% of its width.
+  function place(it) {
+    const a = AREAS[dzs.view];
+    Object.assign(it, { uid: uid(), view: dzs.view, w: a.w * 0.6, x: a.x, y: a.y + ph(a.h) / 2 });
+    if (it.src) fit(it);
+    dzs.items.push(it);
+    dzs.sel = it.uid;
+    dzRender();
+  }
+
+  function dzInfo() {
     const info = q('[data-dz-info]', dz);
     if (!info) return;
-    const item = dzs.items[p.id];
+    const it = selected();
     info.innerHTML = '';
-    if (!item) return;
-    const size = sizeOf(item.size);
-    info.append(make('b', '', sizeText(p, size, item)));
-    const note = check(geo(p, size).w, item);
+    if (!it || !it.src) return;
+    info.append(make('b', '', sizeLabel(it)), make('span', '', whereText(it)));
+    const note = check(it.w, it);
     if (note) info.append(make('span', note === T.low ? 'low' : '', note));
   }
 
   function dzPanel() {
     const panel = q('[data-dz-panel]', dz);
     panel.innerHTML = '';
-    const p = posById(dzs.sel);
-    if (!p) return;
-    const item = dzs.items[p.id];
-    panel.append(make('h3', '', `${p.name} · ${fill(T.inWide, { w: p.w })}`));
-    const setItem = (it) => { it.size = item ? item.size : 'best'; dzs.items[p.id] = it; dzRender(); };
-    if (!item) {
-      panel.append(make('p', 'muted', T.emptyPos));
-      const row = make('div', 'dz-choice');
-      row.append(fileButton(T.addDesign, setItem));
-      const textBtn = make('button', 'pill pill-l', T.addText);
-      textBtn.type = 'button';
-      textBtn.addEventListener('click', () => {
-        const fresh = { kind: 'text', size: 'best', lines: [], fontVar: T.fonts[0][0], font: T.fonts[0][1], inkHex: T.inks[0][0], ink: T.inks[0][1] };
-        q('p.muted', panel).remove();
-        const info = make('div', 'dz-info');
-        info.setAttribute('data-dz-info', '');
-        panel.lastChild.replaceWith(info, sizePicker(p, fresh.size, (v) => { fresh.size = v; dzStage(); dzInfo(p); }), textForm(p, fresh));
+    const a = AREAS[dzs.view];
+    panel.append(make('h3', '', fill(T.areaHead, { v: VIEW_NAME[dzs.view], w: a.w, h: a.h })));
+    const add = make('div', 'dz-choice');
+    add.append(fileButton(T.addDesign, (it) => place(it)));
+    const textBtn = make('button', 'pill pill-l', T.addText);
+    textBtn.type = 'button';
+    textBtn.addEventListener('click', () => place({
+      kind: 'text', lines: [], ratio: 4, fontVar: T.fonts[0][0], font: T.fonts[0][1], inkHex: T.inks[0][0], ink: T.inks[0][1],
+    }));
+    add.append(textBtn);
+    panel.append(add);
+
+    const here = dzs.items.filter((it) => it.view === dzs.view);
+    if (!here.length) { panel.append(make('p', 'muted', T.emptyView)); return; }
+    if (here.length > 1) {
+      const chips = make('div', 'fz-pos');
+      here.forEach((it, i) => {
+        const b = make('button', '', it.kind === 'text' ? `${T.text} ${i + 1}` : it.name);
+        b.type = 'button';
+        b.setAttribute('aria-pressed', String(it.uid === dzs.sel));
+        b.addEventListener('click', () => { dzs.sel = it.uid; dzStage(); dzPanel(); });
+        chips.append(b);
       });
-      row.append(textBtn);
-      panel.append(row);
-      return;
+      panel.append(chips);
     }
-    panel.append(make('div', 'dz-info'));
-    panel.lastChild.setAttribute('data-dz-info', '');
-    dzInfo(p);
-    panel.append(sizePicker(p, item.size, (v) => { item.size = v; dzStage(); dzInfo(p); }));
-    if (item.kind === 'text') panel.append(textForm(p, item));
+    const it = selected();
+    if (!it || it.view !== dzs.view) { panel.append(make('p', 'muted', T.tapToEdit)); return; }
+    panel.append(make('p', 'muted', T.dragHint));
+    const info = make('div', 'dz-info');
+    info.setAttribute('data-dz-info', '');
+    panel.append(info);
+    dzInfo();
+    if (it.kind === 'text') panel.append(textForm(it));
     const row = make('div', 'dz-choice');
-    if (item.kind === 'upload') row.append(fileButton(T.replace, setItem));
+    if (it.kind === 'upload') {
+      row.append(fileButton(T.replace, (fresh) => {
+        Object.assign(it, { src: fresh.src, ratio: fresh.ratio, px: fresh.px, name: fresh.name, file: fresh.file, vector: fresh.vector });
+        fit(it);
+        dzRender();
+      }));
+    }
     const rm = make('button', 'text-btn', T.remove);
     rm.type = 'button';
-    rm.addEventListener('click', () => { delete dzs.items[p.id]; dzRender(); });
+    rm.addEventListener('click', () => {
+      dzs.items = dzs.items.filter((x) => x !== it);
+      dzs.sel = null;
+      dzRender();
+    });
     row.append(rm);
     panel.append(row);
   }
 
-  function dzPosButtons() {
-    const box = q('[data-dz-pos]', dz);
+  // Front / Back / sleeve buttons in the corner of the canvas.
+  function dzViews() {
+    const box = q('[data-dz-views]', dz);
     box.innerHTML = '';
-    POS.forEach((p) => {
-      const b = make('button');
+    VIEWS.forEach((v) => {
+      const b = make('button', '', VIEW_NAME[v]);
       b.type = 'button';
-      b.setAttribute('aria-pressed', String(dzs.sel === p.id));
-      if (dzs.items[p.id]) b.classList.add('filled');
-      b.append(make('b', '', p.name), make('span', '', fill(T.inWide, { w: p.w })));
-      b.addEventListener('click', () => { dzs.sel = p.id; dzs.view = p.view; dzRender(); });
+      b.setAttribute('aria-pressed', String(v === dzs.view));
+      if (dzs.items.some((it) => it.view === v && it.src)) b.classList.add('filled');
+      b.addEventListener('click', () => {
+        dzs.view = v;
+        if (selected() && selected().view !== v) dzs.sel = null;
+        dzRender();
+      });
       box.append(b);
     });
   }
 
   function dzStage() {
-    qa('[data-dz-view]', dz).forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.dzView === dzs.view)));
-    drawStage(q('[data-stage="designer"]', dz), dzs.view, dzs.items, dzs.sel);
+    drawStage(q('[data-stage="designer"]', dz), dzs.view, dzs.items, dzs.sel, true);
   }
 
   function dzRender() {
+    dzViews();
     dzStage();
-    dzPosButtons();
     dzPanel();
   }
 
-  qa('[data-dz-view]', dz).forEach((b) => b.addEventListener('click', () => {
-    dzs.view = b.dataset.dzView;
-    if (posById(dzs.sel)?.view !== dzs.view) dzs.sel = null;
-    dzRender();
-  }));
+  // Drag a design to move it; drag its round corner to resize it.
+  q('[data-stage="designer"]', dz).addEventListener('pointerdown', (e) => {
+    if (e.target.closest('[data-dz-views]')) return;
+    const el = e.target.closest('.ph[data-uid]');
+    if (!el) {
+      if (dzs.sel) { dzs.sel = null; dzStage(); dzPanel(); }
+      return;
+    }
+    e.preventDefault();
+    const it = dzs.items.find((x) => x.uid === el.dataset.uid);
+    const resize = !!e.target.closest('[data-handle]');
+    if (dzs.sel !== it.uid) { dzs.sel = it.uid; dzStage(); dzPanel(); }
+    const rect = q('[data-stage="designer"] [data-zoom]', dz).getBoundingClientRect();
+    const start = { cx: e.clientX, cy: e.clientY, x: it.x, y: it.y, w: it.w };
+    const move = (ev) => {
+      const dx = ((ev.clientX - start.cx) / rect.width) * 100;
+      const dy = ((ev.clientY - start.cy) / rect.height) * 100;
+      if (resize) it.w = start.w + Math.max((dx * 2) / INCH, ((dy * 2) / (INCH * ASPECT)) * it.ratio);
+      else { it.x = start.x + dx; it.y = start.y + dy; }
+      fit(it);
+      const node = q(`.ph[data-uid="${it.uid}"]`, dz);
+      const b = box(it);
+      Object.assign(node.style, { left: b.left + '%', top: b.top + '%', width: b.w + '%', height: b.h + '%' });
+      const t = q('.ph-tag', node);
+      if (t) t.textContent = sizeLabel(it);
+      dzInfo();
+    };
+    const up = () => {
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+      window.removeEventListener('pointercancel', up);
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+    window.addEventListener('pointercancel', up);
+  });
 
   function openDesigner() {
     const d = st.design;
-    dzs.items = d && d.mode === 'designer' ? { ...d.items } : {};
+    dzs.items = d && d.mode === 'designer' ? d.items.map((it) => ({ ...it })) : [];
     dzs.view = st.view;
-    dzs.sel = Object.keys(dzs.items)[0] || (POS.find((p) => p.view === dzs.view) || POS[0]).id;
-    dzs.view = posById(dzs.sel).view;
+    dzs.sel = null;
     dzRender();
     dz.showModal();
   }
   q('[data-dz-close]', dz).addEventListener('click', () => dz.close());
   q('[data-dz-save]', dz).addEventListener('click', () => {
-    st.design = Object.keys(dzs.items).length ? { mode: 'designer', items: { ...dzs.items } } : null;
-    st.view = dzs.view;
+    const items = dzs.items.filter((it) => it.src);
+    st.design = items.length ? { mode: 'designer', items } : null;
+    st.view = onPhoto(dzs.view);
     dz.close();
     render();
   });
@@ -529,7 +659,7 @@
   q('[data-fz-input]', fz).addEventListener('change', async (e) => {
     for (const file of [...e.target.files]) {
       const t = await readImage(file);
-      fzs.files.push({ file, name: file.name, thumb: t ? t.src : null, at: {} });
+      fzs.files.push({ file, name: file.name, thumb: t ? t.src : null, ratio: t ? t.ratio : 1, at: {} });
     }
     e.target.value = '';
     q('[data-fz-msg]', fz).textContent = '';
@@ -572,11 +702,9 @@
     if (!d) return [];
     if (d.mode === 'files') return d.files.map((f) => [f.file, f.name]);
     const out = [];
-    for (const p of POS) {
-      const item = d.items[p.id];
-      if (!item) continue;
-      if (item.kind === 'upload') out.push([item.file, item.name]);
-      else out.push([await dataUrlToBlob(item.src), `${p.id}-text.png`]);
+    for (const it of d.items) {
+      if (it.kind === 'upload') out.push([it.file, it.name]);
+      else out.push([await dataUrlToBlob(it.src), `${it.view}-text.png`]);
     }
     return out;
   }
