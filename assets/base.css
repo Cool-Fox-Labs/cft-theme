@@ -580,3 +580,4 @@ input[type=range] { width: 100%; accent-color: var(--orange); height: 28px }
 @media (max-width: 600px) {
   .dz-views button { padding: 0 10px; font-size: 12px }
 }
+.design-card.one { grid-template-columns: 1fr }
