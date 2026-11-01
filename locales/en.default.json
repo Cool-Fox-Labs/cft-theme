@@ -314,7 +314,7 @@
     "area_tag": "Print area",
     "empty_view": "Add your logo or some text, then drag it into place on the garment.",
     "tap_to_edit": "Tap a design on the garment to move it, resize it or remove it.",
-    "drag_hint": "Drag your design to move it. Drag the round corner to make it bigger or smaller.",
+    "drag_hint": "Drag your design to move it. Drag the round corner to make it bigger or smaller, and the top handle to turn it.",
     "where": "{{ down }}in from the top of the print area, {{ side }}",
     "centred": "centred",
     "right_of": "{{ n }}in right of centre as you look at it",
@@ -328,7 +328,9 @@
     "align_centre": "Centre",
     "align_right": "Right",
     "custom_colour": "Any colour",
-    "save_design": "Save design"
+    "save_design": "Save design",
+    "rotate": "Rotate",
+    "rotated": "rotated {{ n }}°"
   },
   "pages": {
     "faq": {

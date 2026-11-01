@@ -6,7 +6,7 @@
 
   The design is added in one of two pop-ups:
   - Design it yourself: add a logo or text, drag it to move it, drag its
-    corner to resize it, inside the dashed print area. Mini thumbnails under
+    corner to resize it, drag the top handle to rotate it, inside the dashed print area. Mini thumbnails under
     the canvas switch between Front and any other views the product has.
     The print size shows only while dragging.
   - Just send us your files: upload files, tick positions for each, and pick
@@ -297,6 +297,8 @@
       "alignCentre": {{ 'product.align_centre' | t | json }},
       "alignRight": {{ 'product.align_right' | t | json }},
       "customColour": {{ 'product.custom_colour' | t | json }},
+      "rotate": {{ 'product.rotate' | t | json }},
+      "rotated": {{ 'product.rotated' | t: n: '%n' | json }},
       "vector": {{ 'product.check_vector' | t | json }},
       "good": {{ 'product.check_good' | t | json }},
       "ok": {{ 'product.check_ok' | t | json }},
