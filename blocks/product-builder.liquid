@@ -5,8 +5,9 @@
   both put the sizes in the basket with the design as line item properties.
 
   The design is added in one of two pop-ups:
-  - Design it yourself: one front area, back and sleeves. Add a design or
-    text, then pick "best size for me", "left chest logo" or a specific width.
+  - Design it yourself: Front / Back / sleeve buttons on the canvas. Add a
+    logo or text, drag it to move it, drag its corner to resize it, inside
+    the dashed print area. Sleeves zoom into the front photo.
   - Just send us your files: upload files, tick positions for each, and pick
     the same size choices.
   Both say we check artwork, size and position before printing.
@@ -18,12 +19,12 @@
     Shopify stores a blank price as 0.00.
   - Metafield cft.size_guide (rich text) fills the size guide. No metafield,
     no size guide link.
-  - Metafield cft.print_positions (JSON) can replace the default positions:
-    {"inch": 2.4, "positions": [{"id": "fr", "name": "Front", "w": 9,
-    "x": 50, "y": 30, "view": "front", "chest": {"w": 4, "x": 62, "y": 30}}]}.
-    x and y are % of the photo, inch is how much of the photo width one inch
-    covers, w is the widest print. "chest" is optional: it adds the left chest
-    logo choice. Use it for women's and kids' garments with a smaller w.
+  - Metafield cft.print_positions (JSON) can change the print areas, e.g. a
+    smaller front for women's and kids' garments:
+    {"inch": 2.4, "areas": {"front": {"w": 9, "h": 12, "x": 50, "y": 25}}}.
+    x is the centre and y the top, as % of the photo; w and h are inches;
+    inch is how much of the photo width one inch covers. "positions" (the
+    send-your-files choices) can still be replaced as before.
 
   @example
   {% block 'product-builder' %}{% endblock %}
@@ -73,12 +74,14 @@
           <button type="button" data-view="back" aria-pressed="false">{{ 'product.back' | t }}</button>
         </div>
         <p class="back-note" data-back-note hidden>{{ 'product.back_note' | t }}</p>
-        {%- if fallback_image -%}
-          {{ fallback_image | image_url: width: 1000 | image_tag: class: 'shirt', data-shirt: '', alt: product.title, sizes: '(min-width: 900px) 50vw, 100vw' }}
-        {%- else -%}
-          <img class="shirt" data-shirt src="{{ 'logo-fox-head.svg' | asset_url }}" width="500" height="600" alt="">
-        {%- endif -%}
-        <div data-placements></div>
+        <div class="zoom" data-zoom>
+          {%- if fallback_image -%}
+            {{ fallback_image | image_url: width: 1000 | image_tag: class: 'shirt', data-shirt: '', alt: product.title, sizes: '(min-width: 900px) 50vw, 100vw' }}
+          {%- else -%}
+            <img class="shirt" data-shirt src="{{ 'logo-fox-head.svg' | asset_url }}" width="500" height="600" alt="">
+          {%- endif -%}
+          <div data-placements></div>
+        </div>
         <p class="ref-note">{{ 'product.ref_note' | t }}</p>
       </div>
     </div>
@@ -176,23 +179,20 @@
   <dialog class="dz" data-designer aria-labelledby="dz-h">
     <div class="dz-bar">
       <h2 id="dz-h">{{ 'product.route_designer' | t }}</h2>
-      <div class="view-tabs" role="group" aria-label="{{ 'product.view' | t }}">
-        <button type="button" data-dz-view="front" aria-pressed="true">{{ 'product.front' | t }}</button>
-        <button type="button" data-dz-view="back" aria-pressed="false">{{ 'product.back' | t }}</button>
-      </div>
       <button type="button" class="pill pill-o" data-dz-save>{{ 'product.save' | t }}</button>
       <button type="button" class="art-x" data-dz-close aria-label="{{ 'product.close' | t }}">&times;</button>
     </div>
     <div class="dz-body">
       <div class="stage-p" data-stage="designer">
+        <div class="view-tabs dz-views" role="group" aria-label="{{ 'product.view' | t }}" data-dz-views></div>
         <p class="back-note" data-back-note hidden>{{ 'product.back_note' | t }}</p>
-        <img class="shirt" data-shirt src="{{ 'logo-fox-head.svg' | asset_url }}" width="500" height="600" alt="">
-        <div data-placements></div>
+        <div class="zoom" data-zoom>
+          <img class="shirt" data-shirt src="{{ 'logo-fox-head.svg' | asset_url }}" width="500" height="600" alt="">
+          <div data-placements></div>
+        </div>
         <p class="ref-note">{{ 'product.ref_note' | t }}</p>
       </div>
       <div class="dz-side">
-        <h3>{{ 'product.pick_where' | t }}</h3>
-        <div class="pos" role="group" aria-label="{{ 'product.positions' | t }}" data-dz-pos></div>
         <div class="dz-panel" data-dz-panel></div>
         <p class="check-note">{{ 'product.check_note' | t }}</p>
       </div>
@@ -301,6 +301,15 @@
       "chestLogo": {{ 'product.chest_logo' | t | json }},
       "chestTag": {{ 'product.chest_tag' | t | json }},
       "sizeLabel": {{ 'product.size_label' | t | json }},
+      "areaTag": {{ 'product.area_tag' | t: w: '%w', h: '%h' | json }},
+      "areaHead": {{ 'product.area_head' | t: view: '%v', w: '%w', h: '%h' | json }},
+      "emptyView": {{ 'product.empty_view' | t | json }},
+      "tapToEdit": {{ 'product.tap_to_edit' | t | json }},
+      "dragHint": {{ 'product.drag_hint' | t | json }},
+      "where": {{ 'product.where' | t: down: '%d', side: '%s' | json }},
+      "centred": {{ 'product.centred' | t | json }},
+      "rightOf": {{ 'product.right_of' | t: n: '%n' | json }},
+      "leftOf": {{ 'product.left_of' | t: n: '%n' | json }},
       "widthIn": {{ 'product.width_in' | t | json }},
       "removeFile": {{ 'product.remove_file' | t | json }},
       "needPosition": {{ 'product.need_position' | t | json }},

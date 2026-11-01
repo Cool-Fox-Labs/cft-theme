@@ -289,7 +289,6 @@
     "add_to_order": "Add to order",
     "add_note": "We send you a proof before anything is printed.",
     "save": "Save",
-    "pick_where": "Where should it go?",
     "add_design": "Add design",
     "add_text": "Add text",
     "replace": "Replace",
@@ -318,7 +317,16 @@
     "chest_logo": "Left chest logo (about 4in wide)",
     "chest_tag": "Left chest",
     "size_label": "Print size",
-    "check_note": "We'll check your artwork, size and position, and get back to you if anything needs a change. We print as close to your design as we can, and your proof shows the exact sizes. Questions? Just get in touch."
+    "check_note": "We'll check your artwork, size and position, and get back to you if anything needs a change. We print as close to your design as we can, and your proof shows the exact sizes. Questions? Just get in touch.",
+    "area_tag": "Print area · up to {{ w }} × {{ h }}in",
+    "area_head": "{{ view }} · up to {{ w }}in × {{ h }}in",
+    "empty_view": "Nothing here yet. Add your logo or some text.",
+    "tap_to_edit": "Tap a design on the garment to change it.",
+    "drag_hint": "Drag your design to move it. Drag the round corner to make it bigger or smaller.",
+    "where": "{{ down }}in from the top of the print area, {{ side }}",
+    "centred": "centred",
+    "right_of": "{{ n }}in right of centre as you look at it",
+    "left_of": "{{ n }}in left of centre as you look at it"
   },
   "pages": {
     "faq": {
