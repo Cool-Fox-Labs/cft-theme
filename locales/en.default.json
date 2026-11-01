@@ -96,6 +96,10 @@
       "totes": {
         "title": "Tote bags",
         "text": "Cotton and canvas bags"
+      },
+      "full_catalogue": {
+        "title": "Full catalogue",
+        "text": "Every brand we can get"
       }
     },
     "services": {
@@ -368,6 +372,14 @@
       "rights_text": "Only send artwork you own or have permission to use.",
       "terms_link": "Terms and conditions",
       "cta": "Start a quote"
+    },
+    "catalogue": {
+      "eyebrow": "Full catalogue",
+      "title": "Every brand we can print on",
+      "intro": "Browse our supplier's wider range of brands and styles. Add what you like to the quote basket and we'll come back to you with a price.",
+      "new_tab": "Open in a new tab",
+      "frame_title": "Full garment catalogue",
+      "missing": "The full catalogue isn't set up yet. Get in touch and we'll find the garment for you."
     }
   }
 }
