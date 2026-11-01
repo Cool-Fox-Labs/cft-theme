@@ -79,7 +79,7 @@
     "promo_showroom_title": "See it in person",
     "promo_showroom_text": "Feel the fabric in our showroom first.",
     "promo_bulk_title": "Bulk discount",
-    "promo_bulk_text": "From 5% off at 10 of the same item, up to 20% off at 50.",
+    "promo_bulk_text": "From 5% off at 10 of the same garment, up to 20% off at 50.",
     "promo_no_minimum_title": "No minimum order",
     "promo_no_minimum_text": "One shirt is fine. So is two hundred.",
     "basket": "Basket"
@@ -152,7 +152,7 @@
       "browse": "Browse garments",
       "fact_printing": "DTG and DTF printing",
       "fact_turnaround": "Quick turnaround",
-      "fact_bulk": "Bulk discounts from 10 of the same item",
+      "fact_bulk": "Bulk discounts from 10 of the same garment",
       "image_alt": "A printed black t-shirt reading Your design, with a hoodie, sweatshirt, cap and polo each carrying a small fox logo"
     },
     "garments": {
@@ -185,8 +185,8 @@
     },
     "bulk": {
       "title": "Bulk pricing, up to 20% off.",
-      "intro": "The discount counts how many of the same item you order, the same garment with the same print, all sizes and colours included. It comes off automatically.",
-      "items_label": "How many of one item:",
+      "intro": "The discount counts how many of the same garment you order, all sizes and colours included, whatever the print. It comes off automatically.",
+      "items_label": "How many of one garment:",
       "off": "off"
     },
     "how": {
@@ -233,7 +233,7 @@
     "ref_note": "For guidance only. Your proof shows the exact size and position before anything is printed.",
     "price_on_quote": "Price on quote",
     "price_from_html": "From <b>{{ price }}</b> each, before printing",
-    "bulk_line": "Bulk discount from 10 of the same item, up to 20% off at 50",
+    "bulk_line": "Bulk discount from 10 of the same garment, up to 20% off at 50",
     "step_colour": "Colour",
     "step_sizes": "Sizes",
     "step_design": "Your design",
@@ -264,7 +264,7 @@
     "pos_rs": "Right sleeve",
     "items_one": "1 item",
     "items_other": "{{ count }} items",
-    "add_more": "Add {{ n }} more of this item for {{ pct }}% off",
+    "add_more": "Add {{ n }} more of this garment for {{ pct }}% off",
     "top_discount": "Top discount reached",
     "route_designer": "Design it yourself",
     "route_designer_text": "Add your logo or text and drag it into place on the garment",
@@ -346,11 +346,11 @@
       "q_minimum": "Is there a minimum order?",
       "a_minimum": "No. We print one item or hundreds.",
       "q_bulk": "Do you give discounts for bigger orders?",
-      "a_bulk": "Yes, automatically by how many of the same item you order, meaning the same garment with the same print, any sizes and colours: 10+ 5% off, 20+ 10%, 40+ 15%, 50+ 20%.",
+      "a_bulk": "Yes, automatically by how many of the same garment you order, any sizes and colours: 10+ 5% off, 20+ 10%, 40+ 15%, 50+ 20%.",
       "q_price": "How do I get a price?",
       "a_price": "Choose your garment, add your sizes and print positions, and request a quote. It's free, with no obligation.",
       "q_mix": "Can I mix sizes and colours?",
-      "a_mix": "Yes, mixing sizes and colours is fine. All sizes and colours of the same garment with the same print count together towards the discount, and your quote shows exactly what you get.",
+      "a_mix": "Yes, mixing sizes and colours is fine. All sizes and colours of the same garment count together towards the discount, and your quote shows exactly what you get.",
       "q_find": "I can't find the garment I want.",
       "a_find": "We can get thousands more styles from our suppliers. Ask us and we'll send you the full catalogue.",
       "q_business": "Do you work with schools, clubs and businesses?",
