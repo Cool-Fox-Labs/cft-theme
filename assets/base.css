@@ -609,3 +609,7 @@ input[type=range] { width: 100%; accent-color: var(--orange); height: 28px }
 .ph-r::after { content: ""; position: absolute; inset: -12px }
 .fz-body .dz-save-big { position: sticky; bottom: 0; z-index: 3; box-shadow: 0 -10px 16px var(--ground) }
 .nudge-basket { margin: 6px 2px 0; font-size: 13px; color: var(--muted) }
+.sg-table { width: 100%; border-collapse: collapse; font-size: 14px; font-variant-numeric: tabular-nums; white-space: nowrap }
+.sg-table th, .sg-table td { padding: 8px 10px; text-align: center; border-bottom: 1px solid var(--line) }
+.sg-table thead th { font: 500 12px/1.2 var(--f-m); color: var(--muted) }
+.sg-table tbody th { text-align: left; font-weight: 600 }

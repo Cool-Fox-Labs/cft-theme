@@ -18,7 +18,9 @@
     (file names containing _LS00_) are never shown, per the imagery terms.
   - A price of 0 or the tag "quote-only" makes it a quote item, because
     Shopify stores a blank price as 0.00.
-  - Metafield cft.size_guide (rich text) fills the size guide. No metafield,
+  - Metafield cft.size_guide (JSON) fills the size guide as a table:
+    {"unit": "in", "sizes": ["S", "M"], "rows": [{"label": "Chest", "values": ["36/38", "38/40"]}]}.
+    Rich text still works too (shown as it is). No metafield,
     no size guide link.
   - Metafield cft.print_positions (JSON) sets the views and print areas.
     Front is always shown, on the colour's own photo. Back and sleeves show
@@ -237,7 +239,31 @@
         <h2 id="sg-h">{{ 'product.size_guide_title' | t }}</h2>
         <button type="button" class="art-x" data-size-close aria-label="{{ 'product.close' | t }}">&times;</button>
       </div>
-      <div class="rte">{{ size_guide | metafield_tag }}</div>
+      <div class="rte">
+        {%- assign sg = size_guide.value -%}
+        {%- if size_guide.type == 'json' and sg.sizes -%}
+          <div class="table-scroll">
+            <table class="sg-table">
+              <thead>
+                <tr>
+                  <th>{%- if sg.unit != blank -%}{{ sg.unit | escape }}{%- endif -%}</th>
+                  {%- for sz in sg.sizes -%}<th>{{ sz | escape }}</th>{%- endfor -%}
+                </tr>
+              </thead>
+              <tbody>
+                {%- for row in sg.rows -%}
+                  <tr>
+                    <th>{{ row.label | escape }}</th>
+                    {%- for v in row.values -%}<td>{{ v | escape }}</td>{%- endfor -%}
+                  </tr>
+                {%- endfor -%}
+              </tbody>
+            </table>
+          </div>
+        {%- else -%}
+          {{ size_guide | metafield_tag }}
+        {%- endif -%}
+      </div>
     </dialog>
   {%- endif -%}
 </div>
