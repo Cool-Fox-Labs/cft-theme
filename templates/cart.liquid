@@ -1,25 +1,70 @@
-{% block 'container' %}
-  <h1>{{ 'cart.title' | t }}</h1>
+{%- liquid
+  assign is_quote = false
+  for item in cart.items
+    if item.final_price == 0 or item.product.tags contains 'quote-only'
+      assign is_quote = true
+    endif
+  endfor
+-%}
 
-  <form action="{{ routes.cart_url }}" method="post">
-    <table>
-      {% for item in cart.items %}
-        <tr>
-          <td>
-            {% render 'image', image: item.image, url: item.url %}
-          </td>
-          <td>
-            <p>{{ item.product.title }}</p>
-            {{ 'cart.remove' | t | link_to: item.url_to_remove }}
-          </td>
-          <td>
-            <input type="text" name="updates[]" value="{{ item.quantity }}">
-            <input type="submit" value="{{ 'cart.update' | t }}">
-          </td>
-        </tr>
-      {% endfor %}
-    </table>
+{% block 'container', tag: 'div' %}
+  <div class="basket">
+    <h1>{{ 'cart.title' | t }}</h1>
 
-    <input type="submit" name="checkout" value="{{ 'cart.checkout' | t }}">
-  </form>
+    {%- if cart.item_count == 0 -%}
+      <p>{{ 'cart.empty' | t }}</p>
+      <a class="pill pill-l" href="{{ routes.collections_url }}">{{ 'cart.browse' | t }}</a>
+    {%- else -%}
+      <form action="{{ routes.cart_url }}" method="post" class="basket-grid" data-basket>
+        <ul class="basket-items">
+          {%- for item in cart.items -%}
+            <li class="basket-item">
+              {%- if item.image -%}
+                {{ item.image | image_url: width: 240 | image_tag: class: 'basket-img', alt: item.product.title, loading: 'lazy' }}
+              {%- endif -%}
+              <div class="basket-info">
+                <a href="{{ item.url }}"><b>{{ item.product.title | escape }}</b></a>
+                <span>{{ item.variant.title | escape }}</span>
+                {%- unless is_quote -%}<span>{{ item.final_line_price | money }}</span>{%- endunless -%}
+                <dl class="basket-props">
+                  {%- for p in item.properties -%}
+                    {%- assign first = p.first | slice: 0 -%}
+                    {%- if p.last != blank and first != '_' -%}
+                      <dt>{{ p.first | escape }}</dt>
+                      <dd>
+                        {%- if p.last contains '/uploads/' -%}
+                          <a href="{{ p.last }}" target="_blank" rel="noopener">{{ 'cart.view_file' | t }}</a>
+                        {%- else -%}
+                          {{ p.last | escape }}
+                        {%- endif -%}
+                      </dd>
+                    {%- endif -%}
+                  {%- endfor -%}
+                </dl>
+              </div>
+              <div class="basket-qty">
+                <label>{{ 'cart.qty' | t }}<input type="number" name="updates[]" min="0" value="{{ item.quantity }}"></label>
+                <a href="{{ item.url_to_remove }}">{{ 'cart.remove' | t }}</a>
+              </div>
+            </li>
+          {%- endfor -%}
+        </ul>
+
+        <div class="basket-side">
+          <button type="submit" class="text-btn" name="update">{{ 'cart.update' | t }}</button>
+          <label class="fz-note">{{ 'cart.note' | t }}<textarea name="note" rows="3">{{ cart.note }}</textarea></label>
+          {%- if is_quote -%}
+            <h2>{{ 'cart.quote_title' | t }}</h2>
+            <p>{{ 'cart.quote_text' | t }}</p>
+            <button type="button" class="pill pill-o" data-send-quote data-endpoint="{{ settings.quote_endpoint | escape }}">{{ 'cart.send_quote' | t }}</button>
+            <p aria-live="polite" data-quote-msg data-off="{{ 'cart.quote_off' | t | escape }}" data-fail="{{ 'product.add_fail' | t | escape }}" data-ok="{{ 'product.send_ok' | t | escape }}"></p>
+          {%- else -%}
+            <p class="basket-total"><span>{{ 'cart.subtotal' | t }}</span><b>{{ cart.total_price | money }}</b></p>
+            <button type="submit" class="pill pill-o" name="checkout">{{ 'cart.checkout' | t }}</button>
+            <p>{{ 'cart.checkout_text' | t }}</p>
+          {%- endif -%}
+        </div>
+      </form>
+    {%- endif -%}
+  </div>
 {% endblock %}

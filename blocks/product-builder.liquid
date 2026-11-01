@@ -1,14 +1,19 @@
 {% doc %}
-  Renders the product page as a quote builder: a photo stage with the
-  customer's design on it, then colour, a size grid with the bulk discount
-  nudge, and the design step (upload or text, click a print position).
-  Nothing is added to a cart; "Send for quote" posts the request to the
-  address in theme settings once the Business Hub app is installed.
+  Renders the product page: a photo stage, colour, a size grid with the bulk
+  discount nudge, a "Your design" card and one button. The button reads
+  "Add to quote" on quote-only products and "Add to order" on priced ones;
+  both put the sizes in the basket with the design as line item properties.
+
+  The design is added in one of two pop-ups:
+  - Design it yourself: front/back, click a print position, add a design or
+    text to it (set width, height from the trimmed design, artwork check).
+  - Just send us your files: upload files, tick positions for each, and pick
+    "best size for me" or a specific width.
 
   Product data it reads:
   - Variant images are the flat colour shots. Supplier lifestyle shots
     (file names containing _LS00_) are never shown, per the imagery terms.
-  - A price of 0 or the tag "quote-only" shows "Price on quote", because
+  - A price of 0 or the tag "quote-only" makes it a quote item, because
     Shopify stores a blank price as 0.00.
   - Metafield cft.size_guide (rich text) fills the size guide. No metafield,
     no size guide link.
@@ -59,7 +64,7 @@
 
   <div class="pdp" id="pdp">
     <div class="gallery">
-      <div class="stage-p">
+      <div class="stage-p" data-stage="page">
         <div class="view-tabs" role="group" aria-label="{{ 'product.view' | t }}">
           <button type="button" data-view="front" aria-pressed="true">{{ 'product.front' | t }}</button>
           <button type="button" data-view="back" aria-pressed="false">{{ 'product.back' | t }}</button>
@@ -110,43 +115,30 @@
       </section>
 
       <section class="step" aria-labelledby="s-design">
-        <div class="step-h"><i>3</i><h2 id="s-design">{{ 'product.step_design' | t }}</h2><small data-pos-count></small></div>
-        <div class="sw-filter" role="group" aria-label="{{ 'product.step_design' | t }}">
-          <button type="button" data-mode="logo" aria-pressed="true">{{ 'product.design_logo' | t }}</button>
-          <button type="button" data-mode="text" aria-pressed="false">{{ 'product.design_text' | t }}</button>
+        <div class="step-h"><i>3</i><h2 id="s-design">{{ 'product.step_design' | t }}</h2></div>
+        <div class="design-card" data-design-empty>
+          <button type="button" class="route" data-open="designer">
+            <b>{{ 'product.route_designer' | t }}</b><span>{{ 'product.route_designer_text' | t }}</span>
+          </button>
+          <button type="button" class="route" data-open="files">
+            <b>{{ 'product.route_files' | t }}</b><span>{{ 'product.route_files_text' | t }}</span>
+          </button>
         </div>
-        <div class="upload" data-upload>
-          <span class="thumb" data-thumb></span>
-          <div><b data-up-name>{{ 'product.upload_none' | t }}</b><span data-up-meta>{{ 'product.upload_hint' | t }}</span></div>
-          <label class="pill pill-l">{{ 'product.upload' | t }}<input type="file" data-file accept="image/png,image/svg+xml,image/jpeg"></label>
+        <div class="design-card design-set" data-design-set hidden>
+          <ul class="chosen" data-design-summary></ul>
+          <div class="design-actions">
+            <button type="button" class="text-btn" data-edit>{{ 'product.edit_design' | t }}</button>
+            <button type="button" class="text-btn" data-clear>{{ 'product.remove_design' | t }}</button>
+          </div>
         </div>
-        <div class="text-design" data-text-design hidden>
-          <label>{{ 'product.text_line1' | t }}<input type="text" data-text="1" maxlength="30"></label>
-          <label>{{ 'product.text_line2' | t }}<input type="text" data-text="2" maxlength="30"></label>
-          <label>{{ 'product.text_font' | t }}
-            <select data-font>
-              <option value="font-display">{{ 'product.font_bold' | t }}</option>
-              <option value="font-primary--family">{{ 'product.font_clean' | t }}</option>
-              <option value="font-mono">{{ 'product.font_type' | t }}</option>
-            </select>
-          </label>
-          <label>{{ 'product.text_colour' | t }}
-            <select data-ink>
-              <option value="#FFFFFF">{{ 'product.ink_white' | t }}</option>
-              <option value="#1D1D1B">{{ 'product.ink_black' | t }}</option>
-              <option value="#EB7024">{{ 'product.ink_orange' | t }}</option>
-              <option value="#1F2A44">{{ 'product.ink_navy' | t }}</option>
-            </select>
-          </label>
-        </div>
-        <div class="pos" role="group" aria-label="{{ 'product.positions' | t }}" data-pos></div>
-        <ul class="chosen" data-chosen></ul>
       </section>
 
       <div class="cta-box">
-        <div class="cta-sum"><span>{{ 'product.your_quote' | t }}</span><b data-sum></b></div>
-        <button type="button" class="pill pill-o" data-send>{{ 'product.send' | t }}</button>
-        <p data-send-msg aria-live="polite">{{ 'product.send_note' | t }}</p>
+        <div class="cta-sum"><span>{{ 'product.your_selection' | t }}</span><b data-sum></b></div>
+        <button type="button" class="pill pill-o" data-add>
+          {%- if quote_only -%}{{ 'product.add_to_quote' | t }}{%- else -%}{{ 'product.add_to_order' | t }}{%- endif -%}
+        </button>
+        <p data-add-msg aria-live="polite">{{ 'product.add_note' | t }}</p>
       </div>
 
       <div class="trust">
@@ -174,7 +166,49 @@
     </section>
   </div>
 
-  <div class="mob-bar"><span data-mob-sum></span><button type="button" class="pill pill-o" data-send>{{ 'product.send' | t }}</button></div>
+  <div class="mob-bar"><span data-mob-sum></span><button type="button" class="pill pill-o" data-add>
+    {%- if quote_only -%}{{ 'product.add_to_quote' | t }}{%- else -%}{{ 'product.add_to_order' | t }}{%- endif -%}
+  </button></div>
+
+  <dialog class="dz" data-designer aria-labelledby="dz-h">
+    <div class="dz-bar">
+      <h2 id="dz-h">{{ 'product.route_designer' | t }}</h2>
+      <div class="view-tabs" role="group" aria-label="{{ 'product.view' | t }}">
+        <button type="button" data-dz-view="front" aria-pressed="true">{{ 'product.front' | t }}</button>
+        <button type="button" data-dz-view="back" aria-pressed="false">{{ 'product.back' | t }}</button>
+      </div>
+      <button type="button" class="pill pill-o" data-dz-save>{{ 'product.save' | t }}</button>
+      <button type="button" class="art-x" data-dz-close aria-label="{{ 'product.close' | t }}">&times;</button>
+    </div>
+    <div class="dz-body">
+      <div class="stage-p" data-stage="designer">
+        <p class="back-note" data-back-note hidden>{{ 'product.back_note' | t }}</p>
+        <img class="shirt" data-shirt src="{{ 'logo-fox-head.svg' | asset_url }}" width="500" height="600" alt="">
+        <div data-placements></div>
+        <p class="ref-note">{{ 'product.ref_note' | t }}</p>
+      </div>
+      <div class="dz-side">
+        <h3>{{ 'product.pick_where' | t }}</h3>
+        <div class="pos" role="group" aria-label="{{ 'product.positions' | t }}" data-dz-pos></div>
+        <div class="dz-panel" data-dz-panel></div>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog class="dz fz" data-files aria-labelledby="fz-h">
+    <div class="dz-bar">
+      <h2 id="fz-h">{{ 'product.route_files' | t }}</h2>
+      <button type="button" class="pill pill-o" data-fz-save>{{ 'product.save' | t }}</button>
+      <button type="button" class="art-x" data-fz-close aria-label="{{ 'product.close' | t }}">&times;</button>
+    </div>
+    <div class="fz-body">
+      <p>{{ 'product.files_intro' | t }}</p>
+      <label class="pill pill-l">{{ 'product.upload_files' | t }}<input type="file" data-fz-input multiple accept="image/*,application/pdf,.ai,.eps,.svg"></label>
+      <ul class="fz-list" data-fz-list></ul>
+      <label class="fz-note">{{ 'product.files_note' | t }}<textarea data-fz-note rows="3"></textarea></label>
+      <p class="fz-msg" data-fz-msg aria-live="polite"></p>
+    </div>
+  </dialog>
 
   {%- if size_guide != blank -%}
     <dialog class="size-dlg" data-size-dlg aria-labelledby="sg-h">
@@ -189,10 +223,10 @@
 
 <script type="application/json" data-pdp-data>
   {
-    "productId": {{ product.id | json }},
-    "handle": {{ product.handle | json }},
     "title": {{ product.title | json }},
-    "endpoint": {{ settings.quote_endpoint | json }},
+    "quoteOnly": {{ quote_only | json }},
+    "cartAdd": {{ routes.cart_add_url | append: '.js' | json }},
+    "cartUrl": {{ routes.cart_url | json }},
     "selectedColour": {{ product.selected_or_first_available_variant.options[colour_i] | json }},
     "sizes": [
       {%- for value in product.options_with_values[size_i].values -%}
@@ -210,7 +244,6 @@
         {%- assign img = variant.featured_image | default: fallback_image -%}
         {
           "id": {{ variant.id | json }},
-          "sku": {{ variant.sku | json }},
           "colour": {{ variant.options[colour_i] | json }},
           "size": {{ variant.options[size_i] | json }},
           "img": {% if img %}{{ img | image_url: width: 1000 | json }}{% else %}null{% endif %},
@@ -230,24 +263,51 @@
       "inWide": {{ 'product.in_wide' | t: w: '%w' | json }},
       "wxh": {{ 'product.size_wxh' | t: w: '%w', h: '%h' | json }},
       "inches": {{ 'product.inches' | t: w: '%w' | json }},
-      "pick": {{ 'product.pick_position' | t | json }},
       "itemsOne": {{ 'product.items_one' | t | json }},
       "itemsOther": {{ 'product.items_other' | t: count: '%n' | json }},
-      "posOne": {{ 'product.positions_one' | t | json }},
-      "posOther": {{ 'product.positions_other' | t: count: '%n' | json }},
       "addMore": {{ 'product.add_more' | t: n: '%n', pct: '%p' | json }},
       "top": {{ 'product.top_discount' | t | json }},
-      "uploadDone": {{ 'product.upload_done' | t | json }},
+      "front": {{ 'product.front' | t | json }},
+      "addDesign": {{ 'product.add_design' | t | json }},
+      "addText": {{ 'product.add_text' | t | json }},
+      "replace": {{ 'product.replace' | t | json }},
+      "remove": {{ 'product.remove' | t | json }},
+      "emptyPos": {{ 'product.empty_position' | t | json }},
+      "line1": {{ 'product.text_line1' | t | json }},
+      "line2": {{ 'product.text_line2' | t | json }},
+      "font": {{ 'product.text_font' | t | json }},
+      "colour": {{ 'product.text_colour' | t | json }},
+      "fonts": [
+        ["font-display", {{ 'product.font_bold' | t | json }}],
+        ["font-primary--family", {{ 'product.font_clean' | t | json }}],
+        ["font-mono", {{ 'product.font_type' | t | json }}]
+      ],
+      "inks": [
+        ["#FFFFFF", {{ 'product.ink_white' | t | json }}],
+        ["#1D1D1B", {{ 'product.ink_black' | t | json }}],
+        ["#EB7024", {{ 'product.ink_orange' | t | json }}],
+        ["#1F2A44", {{ 'product.ink_navy' | t | json }}]
+      ],
       "vector": {{ 'product.check_vector' | t | json }},
       "good": {{ 'product.check_good' | t | json }},
       "ok": {{ 'product.check_ok' | t | json }},
       "low": {{ 'product.check_low' | t | json }},
-      "missing": {{ 'product.send_missing' | t | json }},
-      "off": {{ 'product.send_off' | t | json }},
-      "busy": {{ 'product.send_busy' | t | json }},
-      "sent": {{ 'product.send_ok' | t | json }},
-      "fail": {{ 'product.send_fail' | t | json }},
-      "front": {{ 'product.front' | t | json }}
+      "bestSize": {{ 'product.best_size' | t | json }},
+      "specificSize": {{ 'product.specific_size' | t | json }},
+      "widthIn": {{ 'product.width_in' | t | json }},
+      "removeFile": {{ 'product.remove_file' | t | json }},
+      "needPosition": {{ 'product.need_position' | t | json }},
+      "designedOnline": {{ 'product.designed_online' | t | json }},
+      "filesSent": {{ 'product.files_sent' | t | json }},
+      "text": {{ 'product.text_design' | t | json }},
+      "note": {{ 'product.note' | t | json }},
+      "noDesign": {{ 'product.no_design' | t | json }},
+      "needItems": {{ 'product.need_items' | t | json }},
+      "adding": {{ 'product.adding' | t | json }},
+      "added": {{ 'product.added_html' | t: url: '%u' | json }},
+      "addFail": {{ 'product.add_fail' | t | json }},
+      "artwork": {{ 'product.artwork' | t | json }},
+      "printLabel": {{ 'product.print_label' | t | json }}
     }
   }
 </script>
