@@ -602,3 +602,6 @@ input[type=range] { width: 100%; accent-color: var(--orange); height: 28px }
   .dz-save-big { position: sticky; bottom: 0; z-index: 3; box-shadow: 0 -10px 16px var(--ground) }
   .vt-pic { width: 54px }
 }
+.ph-r { position: absolute; left: 50%; top: -38px; width: 26px; height: 26px; margin-left: -13px; border-radius: 50%; background: var(--card); border: 2px solid var(--ink); cursor: grab; touch-action: none }
+.ph-r::before { content: "\21BB"; position: absolute; inset: 0; display: grid; place-items: center; font-size: 15px; line-height: 1; color: var(--ink) }
+.ph-r::after { content: ""; position: absolute; inset: -12px }
