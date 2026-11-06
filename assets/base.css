@@ -449,15 +449,6 @@ input[type=range] { width: 100%; accent-color: var(--orange); height: 28px }
 .faq p { color: var(--muted) }
 @media (max-width: 600px) { .info-cards { grid-template-columns: 1fr } }
 
-/* full catalogue page (PenCarrie site in a frame) */
-.cat-page { padding-block: clamp(24px, 4vw, 48px); display: grid; gap: 20px }
-.cat-head { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 16px 24px }
-.cat-head > div { display: grid; gap: 10px }
-.cat-head h1 { font-weight: 700; font-size: clamp(32px, 4.5vw, 52px); line-height: 1; letter-spacing: -.03em }
-.cat-head p { margin: 0; color: var(--muted); max-width: 56ch }
-.cat-frame { display: block; width: 100%; height: max(640px, calc(100vh - 180px)); height: max(640px, calc(100dvh - 180px)); border: 0; border-radius: var(--r); background: var(--card); box-shadow: 0 0 0 1px var(--line) }
-@media (max-width: 560px) { .cat-frame { border-radius: 0; margin-inline: calc(-1 * var(--page-margin)); width: calc(100% + var(--page-margin) * 2) } }
-
 /* ---- Design pop-ups and basket ---- */
 .nav > a.basket-link { color: var(--cream); text-decoration: none; font: 600 15px/1 var(--f-b); padding: 0 12px; min-height: 44px; display: inline-flex; align-items: center; border-radius: 999px }
 .nav > a.basket-link:hover { background: var(--ink-2) }
