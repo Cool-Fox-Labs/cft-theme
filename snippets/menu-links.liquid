@@ -5,7 +5,8 @@
   Garment links point at collections by handle; the collections themselves
   are created later. Service links point at the homepage How it works
   section until each service has its own page. The Garments list ends with
-  a Full catalogue link once a page with the handle "full-catalogue" exists.
+  a Full catalogue link to the supplier catalogue site, opened in a new tab
+  (its quote basket fails inside a frame, so it is not embedded).
 
   @param {string} list - Either 'garments' or 'services'.
 
@@ -38,8 +39,9 @@
       <span>{{ text_key | t }}</span>
     </a>
   {%- endfor -%}
-  {%- if list == 'garments' and pages['full-catalogue'] != blank -%}
-    <a href="{{ pages['full-catalogue'].url }}">
+  {%- assign catalogue_url = settings.full_catalogue_url | strip -%}
+  {%- if list == 'garments' and catalogue_url != blank -%}
+    <a href="{{ catalogue_url | escape }}" target="_blank" rel="noopener">
       <b>{{ 'menu.garments.full_catalogue.title' | t }}</b>
       <span>{{ 'menu.garments.full_catalogue.text' | t }}</span>
     </a>
