@@ -219,22 +219,35 @@
     });
   }
 
+  // A size can be picked when this colour is made in it and it is in stock.
+  const variantOf = (s) => st.colour.variants.find((v) => v.size === s);
+  const canPick = (s) => { const v = variantOf(s); return !!v && v.available !== false; };
+
   function sizes() {
     const box = q('[data-sizes]');
     box.innerHTML = '';
     box.style.setProperty('--n', SIZES.length);
     SIZES.forEach((s) => {
-      const ok = st.colour.sizes.includes(s);
-      const cell = make('div', ok ? 'sz' : 'sz na');
+      const v = variantOf(s);
+      const ok = canPick(s);
+      const sold = !!v && !ok;
+      const cell = make('div', ok ? 'sz' : sold ? 'sz na sold' : 'sz na');
       const input = make('input');
       Object.assign(input, { type: 'number', inputMode: 'numeric', min: 0, placeholder: '0', disabled: !ok });
+      if (ok && v.max != null) input.max = v.max;
       input.setAttribute('aria-label', fill(T.qtyFor, { s }));
       if (ok && st.qty[s]) input.value = st.qty[s];
       const set = (n) => {
-        st.qty[s] = Math.max(0, n);
-        input.value = st.qty[s] || '';
+        let k = Math.max(0, n);
+        if (ok && v.max != null && k > v.max) {
+          k = v.max;
+          popup(T.maxTitle, fill(T.maxText, { n: v.max, s }));
+        }
+        st.qty[s] = k;
+        input.value = k || '';
         totals();
       };
+      input.addEventListener('change', () => set(parseInt(input.value, 10) || 0));
       input.addEventListener('input', () => { st.qty[s] = Math.max(0, parseInt(input.value, 10) || 0); totals(); });
       const minus = make('button', 'sz-b', '\u2212');
       const plus = make('button', 'sz-b', '+');
@@ -246,6 +259,7 @@
       const row = make('div', 'sz-row');
       row.append(minus, input, plus);
       cell.append(make('span', 'sz-name', s), row);
+      if (sold) cell.append(make('span', 'sz-out', T.outOfStock));
       box.append(cell);
     });
     q('[data-size-note]').textContent = st.colour.sizes.length < SIZES.length ? T.notMade : '';
@@ -901,7 +915,9 @@
 
   const msg = q('[data-add-msg]');
   async function addToBasket() {
-    const lines = SIZES.filter((s) => st.colour.sizes.includes(s) && st.qty[s]);
+    // A typed number above the stock is capped before anything is added.
+    SIZES.forEach((s) => { const v = variantOf(s); if (v && v.max != null && st.qty[s] > v.max) st.qty[s] = v.max; });
+    const lines = SIZES.filter((s) => canPick(s) && st.qty[s]);
     if (!lines.length) { popup(T.needItemsTitle, T.needItems, goTo('[data-sizes]')); return; }
     const later = !st.design && emailArt && emailArt.checked;
     if (!st.design && !later) { popup(T.needDesignTitle, T.needDesign, goTo('[data-design-empty]')); return; }
