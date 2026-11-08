@@ -90,6 +90,22 @@ h1, h2, h3 { font-family: var(--f-d); text-wrap: balance; margin: 0 }
 .cats a:hover { background: var(--ground) }
 .cats b { font: 600 17px/1.2 var(--f-d) }
 .cats span { font-size: 13px; color: var(--muted) }
+.panel-mega { grid-template-columns: 1fr; gap: 0; padding: 26px 30px 24px }
+.mega { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 20px }
+.mega-img { display: block; aspect-ratio: 3 / 2; border-radius: 14px; overflow: hidden; background: var(--tint, var(--ground)) }
+.mega-img img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .4s }
+.mega-col:hover .mega-img img { transform: scale(1.04) }
+.mega-title { display: block; margin-top: 12px; font: 600 18px/1.2 var(--f-d); color: var(--ink); text-decoration: none }
+.mega-title:hover { color: var(--orange) }
+.mega ul { list-style: none; margin: 6px 0 0; padding: 0 }
+.mega li a { display: block; padding: 4px 0; font-size: 14px; color: var(--muted); text-decoration: none }
+.mega li a:hover { color: var(--ink); text-decoration: underline }
+.mega li a.mega-all { color: var(--orange); font-weight: 600 }
+.mega-strip { display: flex; align-items: center; gap: 16px; margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--line) }
+.mega-strip > div { display: grid; gap: 2px }
+.mega-strip b { font: 600 18px/1.2 var(--f-d) }
+.mega-strip span { font-size: 14px; color: var(--muted) }
+.mega-strip .pill { margin-left: auto; flex: none }
 .promo { position: relative; overflow: hidden; border-radius: 18px; padding: 18px; display: grid; align-content: end; min-height: 220px; text-decoration: none; color: var(--ink) }
 .promo b { font: 700 22px/1.1 var(--f-d); letter-spacing: -.02em; position: relative; z-index: 1 }
 .promo span { font-size: 14px; position: relative; z-index: 1 }
@@ -256,7 +272,7 @@ input[type=range] { width: 100%; accent-color: var(--orange); height: 28px }
   .tiers b { font-size: 15px }
 }
 @media (prefers-reduced-motion: reduce) {
-  .pill, .cat, .cat-img img, .tiers span, .promo img { transition: none }
+  .pill, .cat, .cat-img img, .tiers span, .promo img, .mega-img img { transition: none }
   .panel-in, .hero-set img { animation: none }
 }
 .visit a { color: inherit; text-underline-offset: 4px }

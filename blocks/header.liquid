@@ -65,19 +65,9 @@
   </div>
 
   <div class="panel" id="panel-garments" hidden>
-    <div class="panel-in">
-      <div>
-        <h3>{{ 'header.choose_garment' | t }}</h3>
-        {% render 'menu-links', list: 'garments' %}
-      </div>
-      <a class="promo promo-o" href="{{ showroom_url }}">
-        <b>{{ 'header.promo_hand_picked_title' | t }}</b>
-        <span>{{ 'header.promo_hand_picked_text' | t }}</span>
-      </a>
-      <a class="promo promo-d" href="{{ showroom_url }}">
-        <b>{{ 'header.promo_showroom_title' | t }}</b>
-        <span>{{ 'header.promo_showroom_text' | t }}</span>
-      </a>
+    <div class="panel-in panel-mega">
+      <h3>{{ 'header.choose_garment' | t }}</h3>
+      {% render 'menu-mega' %}
     </div>
   </div>
 
