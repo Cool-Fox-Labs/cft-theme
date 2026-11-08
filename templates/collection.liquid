@@ -4,7 +4,9 @@
   admin; without one, a general line is used.
 
   Sections: tag a product "group:Heavyweight" (any name) and the page splits
-  into headed sections, A to Z, with jump buttons at the top. Untagged
+  into headed sections with jump buttons at the top. Sections follow the
+  collection's product order in the admin (the first product of each group
+  decides where its section sits), so dragging products reorders them. Untagged
   products go under "More styles" at the end. With no group tags at all the
   page is one grid. The groups "Classic" (in-house stock) and "Premium"
   (5-7 working days) also get a lead-time line, and their cards a badge.
@@ -48,7 +50,7 @@
             endif
           endfor
         endfor
-        assign groups = group_list | split: '|' | uniq | sort_natural
+        assign groups = group_list | split: '|' | uniq
       -%}
 
       <div class="coll-bar">
