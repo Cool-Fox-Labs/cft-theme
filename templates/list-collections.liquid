@@ -1,7 +1,6 @@
 {% comment %}
   All categories. Each tile uses the collection's own image when one is set
-  in the admin, otherwise the first garment's flat colour shot (never a
-  supplier lifestyle shot).
+  in the admin, otherwise the first garment's main image.
 {% endcomment %}
 
 {% block 'container', tag: 'div' %}
@@ -20,20 +19,7 @@
         {%- liquid
           assign photo = collection.image
           if photo == null
-            for product in collection.products limit: 8
-              for variant in product.variants
-                if variant.featured_image
-                  assign src = variant.featured_image.src | downcase
-                  unless src contains '_ls00_'
-                    assign photo = variant.featured_image
-                    break
-                  endunless
-                endif
-              endfor
-              if photo
-                break
-              endif
-            endfor
+            assign photo = collection.products.first.featured_image
           endif
         -%}
         <a class="gcard" href="{{ collection.url }}">

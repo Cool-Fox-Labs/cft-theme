@@ -1,8 +1,8 @@
 {% doc %}
-  Renders one garment card in a collection grid: a flat colour shot on a
-  white card, brand and style code, the name, colour dots and the price
-  line. Supplier lifestyle shots (file names containing _LS00_) are never
-  used, per the imagery terms; the first variant photo is preferred.
+  Renders one garment card in a collection grid: the product's main image
+  (as set in the admin, usually the model shot), brand and style code, the
+  name, colour dots and the price line. Model shots are kept on purpose
+  (Eddie, 01/11/2026: CFT sells to trade).
 
   @param {product} product - The product to show.
 
@@ -11,23 +11,13 @@
 {% enddoc %}
 
 {%- liquid
-  assign photo = null
-  for variant in product.variants
-    if variant.featured_image
-      assign src = variant.featured_image.src | downcase
-      unless src contains '_ls00_'
+  assign photo = product.featured_image
+  if photo == null
+    for variant in product.variants
+      if variant.featured_image
         assign photo = variant.featured_image
         break
-      endunless
-    endif
-  endfor
-  if photo == null
-    for image in product.images
-      assign src = image.src | downcase
-      unless src contains '_ls00_'
-        assign photo = image
-        break
-      endunless
+      endif
     endfor
   endif
 
