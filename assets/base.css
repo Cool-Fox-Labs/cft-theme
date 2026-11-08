@@ -428,6 +428,7 @@ input[type=range] { width: 100%; accent-color: var(--orange); height: 28px }
 /* ---- Design pop-ups and basket ---- */
 .nav > a.basket-link { color: var(--cream); text-decoration: none; font: 600 15px/1 var(--f-b); padding: 0 12px; min-height: 44px; display: inline-flex; align-items: center; border-radius: 999px }
 .nav > a.basket-link:hover { background: var(--ink-2) }
+@media (max-width: 520px) { .nav > a.acc-link { display: none } }
 .design-card { display: grid; grid-template-columns: 1fr 1fr; gap: 10px }
 .design-card[hidden] { display: none }
 .route { position: relative; display: grid; gap: 4px; text-align: left; padding: 16px 16px 16px 66px; min-height: 96px; border: 0; border-radius: 16px; background: var(--card); box-shadow: inset 0 0 0 2px var(--ink); color: var(--ink); cursor: pointer; font: inherit; align-content: start }
