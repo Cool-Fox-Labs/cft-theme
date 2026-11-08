@@ -15,7 +15,7 @@
 
     <div class="coll-grid coll-grid-cats">
       {%- for collection in collections -%}
-        {%- if collection.products_count == 0 -%}{%- continue -%}{%- endif -%}
+        {%- if collection.products_count == 0 or collection.handle == 'frontpage' -%}{%- continue -%}{%- endif -%}
         {%- liquid
           assign photo = collection.image
           if photo == null
