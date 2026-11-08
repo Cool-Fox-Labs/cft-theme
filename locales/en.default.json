@@ -175,6 +175,10 @@
       "uniforms": {
         "title": "Workwear",
         "text": "Uniforms with your logo"
+      },
+      "sports": {
+        "title": "Sports clubs and gyms",
+        "text": "Team kit, gym and class tees"
       }
     }
   },
