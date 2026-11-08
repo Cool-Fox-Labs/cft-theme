@@ -112,7 +112,9 @@
     "promo_bulk_text": "From 5% off at 10 of the same garment, up to 20% off at 50.",
     "promo_no_minimum_title": "No minimum order",
     "promo_no_minimum_text": "One shirt is fine. So is two hundred.",
-    "basket": "Basket"
+    "basket": "Basket",
+    "log_in": "Log in",
+    "account": "Account"
   },
   "menu": {
     "garments": {
