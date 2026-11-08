@@ -6,6 +6,9 @@
 {% enddoc %}
 
 {%- assign how_url = routes.root_url | append: '#how' -%}
+{%- comment -%} Sign-in lands on the Print Studio dashboard (/apps/account). {%- endcomment -%}
+{%- assign login_base = routes.storefront_login_url | split: '?' | first -%}
+{%- assign login_url = login_base | append: '?return_to=%2Fapps%2Faccount' -%}
 {%- assign quote_url = how_url -%}
 {%- if pages['get-a-quote'].url -%}{%- assign quote_url = pages['get-a-quote'].url -%}{%- endif -%}
 {%- assign showroom_url = routes.root_url | append: '#showroom' -%}
@@ -49,7 +52,7 @@
           {%- if customer -%}
             <a class="basket-link acc-link" href="/apps/account">{{ 'header.account' | t }}</a>
           {%- else -%}
-            <a class="basket-link acc-link" href="{{ routes.account_login_url }}?return_url=/apps/account">{{ 'header.log_in' | t }}</a>
+            <a class="basket-link acc-link" href="{{ login_url }}">{{ 'header.log_in' | t }}</a>
           {%- endif -%}
         {%- endif -%}
         {%- if cart.item_count > 0 -%}
@@ -114,7 +117,7 @@
         {%- if customer -%}
           <a href="/apps/account">{{ 'header.account' | t }}</a>
         {%- else -%}
-          <a href="{{ routes.account_login_url }}?return_url=/apps/account">{{ 'header.log_in' | t }}</a>
+          <a href="{{ login_url }}">{{ 'header.log_in' | t }}</a>
         {%- endif -%}
       {%- endif -%}
       <a class="pill pill-o" href="{{ quote_url }}">{{ 'header.get_quote' | t }}</a>
