@@ -10,7 +10,10 @@
   const dataEl = document.querySelector('[data-pdp-data]');
   if (!root || !dataEl) return;
   const D = JSON.parse(dataEl.textContent);
-  const T = D.t;
+  // Shopify's t filter HTML-escapes text (' becomes &#39;), and these
+  // strings are shown with textContent, so turn the entities back first.
+  const unescape = (v) => { const el = document.createElement('textarea'); el.innerHTML = v; return el.value; };
+  const T = Object.fromEntries(Object.entries(D.t || {}).map(([k, v]) => [k, typeof v === 'string' ? unescape(v) : v]));
   const q = (sel, el = document) => el.querySelector(sel);
   const qa = (sel, el = document) => [...el.querySelectorAll(sel)];
   const fill = (s, map) => Object.entries(map).reduce((out, [k, v]) => out.split('%' + k).join(v), s);
