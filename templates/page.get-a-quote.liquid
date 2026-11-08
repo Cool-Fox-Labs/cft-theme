@@ -31,6 +31,7 @@
         <p>{{ 'pages.quote.form_text' | t }}</p>
         <form class="gq-form" data-quote-form action="{{ endpoint | escape }}" method="post" enctype="multipart/form-data" novalidate>
           <input type="hidden" name="source" value="form">
+          <label class="gq-hp" aria-hidden="true">Website<input name="website" tabindex="-1" autocomplete="off"></label>
           <label>{{ 'pages.quote.f_name' | t }} *<input name="name" autocomplete="name" required value="{{ customer.name | escape }}"></label>
           <div class="gq-two">
             <label>{{ 'pages.quote.f_email' | t }}<input type="email" name="email" autocomplete="email" value="{{ customer.email | escape }}"></label>

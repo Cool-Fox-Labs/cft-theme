@@ -129,13 +129,17 @@
     const name = String(data.get('name') || '').trim();
     if (!name || !(String(data.get('email') || '').trim() || String(data.get('phone') || '').trim())) { msg.textContent = msg.dataset.need; return; }
     const files = data.getAll('files[]').filter((f) => f && f.size);
-    if (files.length > 5 || files.some((f) => f.size > 20 * 1024 * 1024)) { msg.textContent = msg.dataset.big; return; }
+    if (files.length > 5 || files.reduce((n, f) => n + f.size, 0) > 10 * 1024 * 1024) { msg.textContent = msg.dataset.big; return; }
     const button = form.querySelector('button[type="submit"]');
     button.disabled = true;
     msg.textContent = msg.dataset.sending;
     try {
       const res = await fetch(form.action, { method: 'POST', body: data, headers: { Accept: 'application/json' } });
-      if (!res.ok) throw new Error(String(res.status));
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({}));
+        if (j.error && res.status < 500) { msg.textContent = j.error; button.disabled = false; return; }
+        throw new Error(String(res.status));
+      }
       msg.textContent = msg.dataset.ok;
       form.replaceChildren(msg);
     } catch (err) {

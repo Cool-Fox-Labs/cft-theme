@@ -666,6 +666,7 @@ input[type=range] { width: 100%; accent-color: var(--orange); height: 28px }
 .gq-hint { margin: -4px 0 0; font-size: 13px; color: var(--muted) }
 .gq-form .pill { justify-self: start; margin-top: 4px }
 .gq-msg { margin: 0; font-weight: 600 }
+.gq-form .gq-hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden }
 .quote-contact { border: 0; padding: 0; margin-block: 8px 12px }
 .quote-contact legend { font: 700 18px/1.2 var(--f-d); padding: 0; margin-bottom: 4px }
 @media (max-width: 860px) { .gq-grid { grid-template-columns: minmax(0, 1fr) } }
