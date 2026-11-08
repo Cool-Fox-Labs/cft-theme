@@ -45,9 +45,9 @@
         <a href="{{ showroom_url }}"><span class="dot" aria-hidden="true"></span>{{ 'header.visit_showroom' | t }}</a>
         {%- if shop.customer_accounts_enabled -%}
           {%- if customer -%}
-            <a class="basket-link acc-link" href="{{ routes.account_url }}">{{ 'header.account' | t }}</a>
+            <a class="basket-link acc-link" href="/apps/account">{{ 'header.account' | t }}</a>
           {%- else -%}
-            <a class="basket-link acc-link" href="{{ routes.account_login_url }}">{{ 'header.log_in' | t }}</a>
+            <a class="basket-link acc-link" href="{{ routes.account_login_url }}?return_url=/apps/account">{{ 'header.log_in' | t }}</a>
           {%- endif -%}
         {%- endif -%}
         {%- if cart.item_count > 0 -%}
@@ -110,9 +110,9 @@
       <a href="{{ showroom_url }}">{{ 'header.visit_showroom' | t }}</a>
       {%- if shop.customer_accounts_enabled -%}
         {%- if customer -%}
-          <a href="{{ routes.account_url }}">{{ 'header.account' | t }}</a>
+          <a href="/apps/account">{{ 'header.account' | t }}</a>
         {%- else -%}
-          <a href="{{ routes.account_login_url }}">{{ 'header.log_in' | t }}</a>
+          <a href="{{ routes.account_login_url }}?return_url=/apps/account">{{ 'header.log_in' | t }}</a>
         {%- endif -%}
       {%- endif -%}
       <a class="pill pill-o" href="{{ how_url }}">{{ 'header.get_quote' | t }}</a>
