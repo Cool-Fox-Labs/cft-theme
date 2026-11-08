@@ -79,7 +79,7 @@
               <label>{{ 'cart.f_company' | t }}<input name="q_company" autocomplete="organization" value="{{ a.company | escape }}"></label>
               <p class="gq-hint">{{ 'cart.contact_hint' | t }}</p>
             </fieldset>
-            <fieldset class="quote-contact quote-ship" data-quote-ship data-note-company="{{ 'cart.note_company' | t }}" data-note-collect="{{ 'cart.note_collect' | t }}" data-note-deliver="{{ 'cart.note_deliver' | t }}">
+            <fieldset class="quote-contact quote-ship" data-quote-ship>
               <legend>{{ 'cart.ship_title' | t }}</legend>
               <label class="ship-opt"><input type="radio" name="q_ship" value="collect" checked>
                 <span><b>{{ 'cart.ship_collect' | t }}</b>{%- if settings.showroom_address != blank -%}<small>{{ settings.showroom_address | escape }}</small>{%- endif -%}</span></label>
