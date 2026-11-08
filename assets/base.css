@@ -657,6 +657,9 @@ input[type=range] { width: 100%; accent-color: var(--orange); height: 28px }
 .coll-help div { display: grid; gap: 4px }
 .coll-help b { font: 700 clamp(19px, 2vw, 24px)/1.15 var(--f-d) }
 .coll-help span { color: var(--sand); font-size: 15px }
+.coll-help .coll-help-cta { display: flex; flex-wrap: wrap; gap: 10px }
+.coll-help .pill-l { color: var(--cream); box-shadow: inset 0 0 0 1.5px var(--cream) }
+.coll-help .pill-l:hover { background: var(--cream); color: var(--ink) }
 @media (max-width: 1100px) { .coll-grid { grid-template-columns: repeat(3, minmax(0, 1fr)) } }
 @media (max-width: 760px) {
   .coll-head { grid-template-columns: minmax(0, 1fr); align-items: start }
@@ -673,6 +676,9 @@ input[type=range] { width: 100%; accent-color: var(--orange); height: 28px }
 /* ---------- get a quote page ---------- */
 .gq { padding-block: clamp(28px, 5vw, 56px) }
 .gq-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 20px; align-items: start }
+.gq-grid.gq-solo { grid-template-columns: minmax(0, 1fr); max-width: 760px }
+.gq-back { margin: 0; padding: 12px 16px; border-radius: 14px; background: var(--ground); color: var(--muted); font-size: 15px }
+.gq-back a { color: var(--ink); font-weight: 600 }
 .gq-card { position: relative; background: var(--card); border-radius: 24px; box-shadow: 0 0 0 1px var(--line); padding: clamp(20px, 3vw, 32px); display: grid; gap: 12px }
 .gq-card h2 { font: 700 clamp(22px, 2.4vw, 30px)/1.1 var(--f-d); letter-spacing: -.02em; padding-right: 48px }
 .gq-card > p { margin: 0; color: var(--muted) }

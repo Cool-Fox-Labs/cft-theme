@@ -40,5 +40,25 @@
         </a>
       {%- endfor -%}
     </div>
+
+    {%- comment -%} The way into the "tell us what you need" form (Get a quote page), plus the supplier's full catalogue when the theme setting is filled in. {%- endcomment -%}
+    {%- assign quote_page = pages['get-a-quote'] -%}
+    {%- assign catalogue_url = settings.full_catalogue_url | strip -%}
+    {%- if quote_page.url or catalogue_url != blank -%}
+      <aside class="coll-help">
+        <div>
+          <b>{{ 'collections.help_title_all' | t }}</b>
+          <span>{{ 'collections.help_text_all' | t }}</span>
+        </div>
+        <div class="coll-help-cta">
+          {%- if catalogue_url != blank -%}
+            <a class="pill pill-l" href="{{ catalogue_url | escape }}" target="_blank" rel="noopener">{{ 'collections.help_cta_catalogue' | t }} &#8599;</a>
+          {%- endif -%}
+          {%- if quote_page.url -%}
+            <a class="pill pill-o" href="{{ quote_page.url }}">{{ 'collections.help_cta_tell' | t }}</a>
+          {%- endif -%}
+        </div>
+      </aside>
+    {%- endif -%}
   </div>
 {% endblock %}
