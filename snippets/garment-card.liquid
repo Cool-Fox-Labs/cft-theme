@@ -1,0 +1,81 @@
+{% doc %}
+  Renders one garment card in a collection grid: a flat colour shot on a
+  white card, brand and style code, the name, colour dots and the price
+  line. Supplier lifestyle shots (file names containing _LS00_) are never
+  used, per the imagery terms; the first variant photo is preferred.
+
+  @param {product} product - The product to show.
+
+  @example
+  {% render 'garment-card', product: product %}
+{% enddoc %}
+
+{%- liquid
+  assign photo = null
+  for variant in product.variants
+    if variant.featured_image
+      assign src = variant.featured_image.src | downcase
+      unless src contains '_ls00_'
+        assign photo = variant.featured_image
+        break
+      endunless
+    endif
+  endfor
+  if photo == null
+    for image in product.images
+      assign src = image.src | downcase
+      unless src contains '_ls00_'
+        assign photo = image
+        break
+      endunless
+    endfor
+  endif
+
+  assign colours = null
+  for option in product.options_with_values
+    assign n = option.name | downcase
+    if n == 'colour' or n == 'color'
+      assign colours = option.values
+    endif
+  endfor
+
+  assign quote_only = false
+  if product.price == 0 or product.tags contains 'quote-only'
+    assign quote_only = true
+  endif
+-%}
+
+<a class="gcard" href="{{ product.url }}">
+  <div class="gcard-img">
+    {%- if photo -%}
+      {{ photo | image_url: width: 600 | image_tag: widths: '300, 450, 600', sizes: '(min-width: 1100px) 22vw, (min-width: 760px) 30vw, 46vw', alt: product.title, loading: 'lazy' }}
+    {%- else -%}
+      <img src="{{ 'logo-fox-head.svg' | asset_url }}" width="500" height="600" alt="" loading="lazy" class="gcard-ph">
+    {%- endif -%}
+  </div>
+  <div class="gcard-body">
+    <span class="gcard-meta">{{ product.vendor | escape }} · {{ product.handle | upcase }}</span>
+    <b>{{ product.title | escape }}</b>
+    {%- if colours and colours.size > 0 -%}
+      {%- assign with_hex = 0 -%}
+      {%- for c in colours -%}{%- if c.swatch.color -%}{%- assign with_hex = with_hex | plus: 1 -%}{%- endif -%}{%- endfor -%}
+      <span class="gcard-cols">
+        {%- if with_hex > 0 -%}
+          {%- for c in colours limit: 6 -%}
+            {%- if c.swatch.color -%}<i style="--c: {{ c.swatch.color }}" title="{{ c.name | escape }}"></i>{%- endif -%}
+          {%- endfor -%}
+        {%- endif -%}
+        {%- if colours.size == 1 -%}{{ 'collections.colour_one' | t }}{%- else -%}{{ 'collections.colours' | t: n: colours.size }}{%- endif -%}
+      </span>
+    {%- endif -%}
+    <span class="gcard-price">
+      {%- if quote_only -%}
+        {{ 'collections.price_on_quote' | t }}
+      {%- else -%}
+        {%- assign price_min = product.price_min | money -%}
+        {{ 'collections.price_from_html' | t: price: price_min }}
+      {%- endif -%}
+    </span>
+  </div>
+  <i class="gcard-go" aria-hidden="true">&rarr;</i>
+</a>
