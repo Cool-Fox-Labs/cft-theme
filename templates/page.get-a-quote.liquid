@@ -46,18 +46,9 @@
       <p>{{ 'pages.quote.intro' | t }}</p>
     </header>
 
-    <div class="gq-grid">
-      <section class="gq-card">
-        <span class="gq-num">1</span>
-        <h2>{{ 'pages.quote.pick_title' | t }}</h2>
-        <p>{{ 'pages.quote.pick_text' | t }}</p>
-        {% render 'menu-links', list: 'garments' %}
-      </section>
-
+    <div class="gq-grid gq-solo">
       <section class="gq-card gq-form-card">
-        <span class="gq-num">2</span>
-        <h2>{{ 'pages.quote.form_title' | t }}</h2>
-        <p>{{ 'pages.quote.form_text' | t }}</p>
+        <p class="gq-back">{{ 'pages.quote.back_text' | t }} <a href="{{ routes.collections_url }}">{{ 'pages.quote.back_link' | t }} &rarr;</a></p>
         <form class="gq-form" data-quote-form action="{{ endpoint | escape }}" method="post" enctype="multipart/form-data" novalidate>
           <input type="hidden" name="source" value="form">
           <label class="gq-hp" aria-hidden="true">Website<input name="website" tabindex="-1" autocomplete="off"></label>

@@ -92,7 +92,10 @@
     "range_premium": "5–7 working days · organic and designer brands",
     "badge_classic": "In stock",
     "badge_premium": "5–7 days",
-    "price_buy_html": "<b>{{ price }}</b> each, printed"
+    "price_buy_html": "<b>{{ price }}</b> each, printed",
+    "help_title_all": "Can't find what you need?",
+    "help_text_all": "Tell us what it's for and we'll find the garment for you, or browse thousands more in our full catalogue.",
+    "help_cta_tell": "Tell us what you need"
   },
   "gift_card": {
     "add_to_apple_wallet": "Add to Apple Wallet",
@@ -121,7 +124,7 @@
     "services": "Services",
     "how_it_works": "How it works",
     "visit_showroom": "Visit the showroom",
-    "get_quote": "Get a quote",
+    "get_quote": "Build your quote",
     "menu": "Menu",
     "close": "Close",
     "choose_garment": "Choose your garment",
@@ -204,7 +207,7 @@
     "hero": {
       "title": "Your design, printed in Leamington.",
       "intro": "Custom T-shirts, hoodies, sportswear and workwear, printed in our Leamington Spa studio. One item or two hundred.",
-      "start_quote": "Start a quote",
+      "start_quote": "Build your quote",
       "browse": "Browse garments",
       "fact_printing": "DTG and DTF printing",
       "fact_turnaround": "Quick turnaround",
@@ -501,12 +504,8 @@
     },
     "quote": {
       "eyebrow": "Get a quote",
-      "title": "Start your quote",
-      "intro": "Two ways to start. We check every design and send you a price and a proof before anything is printed. Nothing is charged now.",
-      "pick_title": "Choose a garment",
-      "pick_text": "Pick the garment, colours and sizes, add your design, then send it from Your quote.",
-      "form_title": "Not sure? Tell us what you need, and we'll find the garment",
-      "form_text": "Describe what you're after in your own words. We'll come back with options, a price and a proof.",
+      "title": "Tell us what you need",
+      "intro": "Can't find the right garment? Describe what you're after and we'll come back with options, a price and a proof. Nothing is charged now.",
       "f_name": "Your name",
       "f_email": "Email",
       "f_phone": "Phone",
@@ -553,7 +552,9 @@
       "next_3": "Nothing is printed or charged until you say yes. Most orders are ready in 5–7 working days.",
       "sent_help": "Questions in the meantime? Email hello@coolfoxtees.com or call 07706 949932.",
       "sent_browse": "Browse garments",
-      "sent_home": "Back to home"
+      "sent_home": "Back to home",
+      "back_text": "Know what you want?",
+      "back_link": "Choose a garment and build your quote"
     }
   }
 }

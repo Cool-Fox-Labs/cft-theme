@@ -3,8 +3,7 @@
     <h1 id="hero-title">{{ 'home.hero.title' | t }}</h1>
     <p>{{ 'home.hero.intro' | t }}</p>
     <div class="cta">
-      {%- assign quote_page = pages['get-a-quote'] -%}
-      <a class="pill pill-d" href="{% if quote_page.url %}{{ quote_page.url }}{% else %}#how{% endif %}">{{ 'home.hero.start_quote' | t }}</a>
+      <a class="pill pill-d" href="{{ routes.collections_url }}">{{ 'home.hero.start_quote' | t }}</a>
       <a class="pill pill-l" href="#garments">{{ 'home.hero.browse' | t }}</a>
     </div>
     <div class="big-facts">
