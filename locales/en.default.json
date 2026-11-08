@@ -15,26 +15,28 @@
   },
   "cart": {
     "checkout": "Checkout",
-    "title": "Your basket",
+    "title": "Your quote",
     "update": "Update",
     "remove": "Remove",
-    "empty": "Your basket is empty.",
+    "empty": "Your quote is empty.",
     "browse": "Browse garments",
     "qty": "Qty",
     "view_file": "View file",
     "note": "Anything else we should know? (optional)",
     "quote_title": "Send your quote request",
-    "quote_text": "Some items are priced on quote, so we check everything and email you a price and a proof. Nothing is charged now.",
+    "quote_text": "We check everything and email you a price and a proof. Nothing is charged now.",
     "send_quote": "Send quote request",
     "quote_off": "Quote requests are not switched on yet. Call or email us and we will help.",
     "subtotal": "Subtotal",
-    "checkout_text": "We send you a proof before anything is printed.",
     "price_on_quote": "Price on quote",
     "contact_title": "Your details",
     "contact_hint": "Name, and an email or phone so we can send your quote.",
     "need_contact": "Please add your name and an email or phone number.",
     "quote_fail": "Sorry, that didn't send. Please email hello@coolfoxtees.com or call 07706 949932.",
-    "quote_ok": "Thanks, your quote request is in. We'll email or call you within one working day."
+    "quote_ok": "Thanks, your quote request is in. We'll email or call you within one working day.",
+    "buy_title": "Ready to buy",
+    "buy_text": "These items are priced, so you can pay for them now. We still send a proof before printing.",
+    "buy_after_quote": "Send your quote request first. Your buy-now items stay here, ready for checkout."
   },
   "customers": {
     "login": {
@@ -60,7 +62,6 @@
     "colour_one": "1 colour",
     "colours": "{{ n }} colours",
     "price_on_quote": "Price on quote",
-    "price_from_html": "From <b>{{ price }}</b>",
     "empty": "No garments in this category yet.",
     "empty_cta": "See all garments",
     "pages": "Pages",
@@ -75,7 +76,8 @@
     "range_classic": "In stock with us · our fastest turnaround",
     "range_premium": "5–7 working days · organic and designer brands",
     "badge_classic": "In stock",
-    "badge_premium": "5–7 days"
+    "badge_premium": "5–7 days",
+    "price_buy_html": "<b>{{ price }}</b> each, printed"
   },
   "gift_card": {
     "add_to_apple_wallet": "Add to Apple Wallet",
@@ -117,7 +119,7 @@
     "promo_bulk_text": "From 5% off at 10 of the same garment, up to 20% off at 50.",
     "promo_no_minimum_title": "No minimum order",
     "promo_no_minimum_text": "One shirt is fine. So is two hundred.",
-    "basket": "Basket",
+    "basket": "Your quote",
     "log_in": "Log in",
     "account": "Account"
   },
@@ -270,7 +272,6 @@
     "back_note": "Shown on the front photo, for size only",
     "ref_note": "For guidance only. Your proof shows the exact size and position before anything is printed.",
     "price_on_quote": "Price on quote",
-    "price_from_html": "From <b>{{ price }}</b> each, before printing",
     "bulk_line": "Bulk discount from 10 of the same garment, up to 20% off at 50",
     "step_colour": "Colour",
     "step_sizes": "Sizes",
@@ -312,8 +313,6 @@
     "remove_design": "Remove",
     "your_selection": "Your selection",
     "add_to_quote": "Add to quote",
-    "add_to_order": "Add to order",
-    "add_note": "We send you a proof before anything is printed.",
     "add_design": "+ Add design",
     "add_text": "+ Add text",
     "replace": "Replace",
@@ -328,7 +327,7 @@
     "remove_file": "Remove",
     "need_position": "Tick at least one position for each file.",
     "designed_online": "Designed online",
-    "files_sent": "Files sent, studio to place",
+    "files_sent": "Files received, we'll place them for you",
     "text_design": "Text",
     "note": "Note",
     "no_design": "No design yet",
@@ -336,7 +335,7 @@
     "artwork": "Artwork",
     "need_items": "Add at least one item in the size grid first.",
     "adding": "Adding...",
-    "added_html": "Added. <a href=\"{{ url }}\">View your basket</a> or add another garment.",
+    "added_html": "Added to your quote. <a href=\"{{ url }}\">View your quote</a> or add another garment.",
     "add_fail": "Sorry, that didn't work. Please try again, or call or email us.",
     "send_ok": "Thanks, your quote request is in. We will email you a proof and a price.",
     "chest_logo": "Left chest logo (about 4in wide)",
@@ -373,7 +372,12 @@
     "rotate": "Rotate",
     "rotated": "rotated {{ n }}°",
     "save_files": "Save files",
-    "in_basket": "Includes {{ n }} of this garment already in your basket, any colour"
+    "in_basket": "Includes {{ n }} of this garment already in your basket, any colour",
+    "price_buy_html": "<b>{{ price }}</b> each, printing included",
+    "buy_now": "Buy now",
+    "quote_note": "Nothing is charged now. We reply with a price and a proof.",
+    "buy_note": "Pay now. We still send you a proof before anything is printed.",
+    "to_checkout": "Added. Taking you to checkout…"
   },
   "pages": {
     "faq": {

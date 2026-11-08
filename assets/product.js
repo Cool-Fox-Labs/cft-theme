@@ -66,13 +66,8 @@
   const height = (w, item) => (w / item.ratio).toFixed(1);
 
   // A print size is 'best' (we choose), 'chest' (left chest logo) or a
-  // width in inches. geo() is where and how big it shows on the photo.
+  // width in inches.
   const sizeOf = (v) => (v === 'chest' || typeof v === 'number' ? v : 'best');
-  function geo(p, size) {
-    if (size === 'chest' && p.chest) return { ...p.chest };
-    if (typeof size === 'number') return { x: p.x, y: p.y, w: size };
-    return { x: p.x, y: p.y, w: p.w };
-  }
   function sizeText(p, size, item) {
     if (size === 'chest') return T.chestLogo;
     if (typeof size === 'number') return item && item.ratio ? fill(T.wxh, { w: size, h: height(size, item) }) : fill(T.inches, { w: size });
@@ -199,21 +194,11 @@
     placeAll(q('[data-placements]', stage), view, list, selUid, edit);
   }
 
-  // What the page stage shows: designer items, or the files' thumbnails at
-  // the size picked for them.
+  // What the page stage shows: designer items only. Sent files are placed
+  // by the studio, so the garment stays plain and the design card says so.
   function placedOnPage() {
     const d = st.design;
-    if (!d) return [];
-    if (d.mode === 'designer') return d.items;
-    const out = [];
-    d.files.forEach((f) => Object.keys(f.at).forEach((id) => {
-      if (!f.thumb || out.some((o) => o.pos === id)) return;
-      const p = posById(id);
-      const g = geo(p, sizeOf(f.at[id]));
-      const ratio = f.ratio || 1;
-      out.push({ pos: id, view: p.view, src: f.thumb, ratio, w: g.w, x: g.x, y: g.y + ph(g.w / ratio) / 2 });
-    }));
-    return out;
+    return d && d.mode === 'designer' ? d.items : [];
   }
 
   /* ---------- page ---------- */
@@ -888,6 +873,7 @@
         body.append('id', v.id);
         body.append('quantity', st.qty[lines[i]]);
         body.append('properties[_group]', group);
+        if (!D.quoteOnly) body.append('properties[_buy]', '1');
         if (!st.design) body.append(`properties[${T.printLabel}]`, T.noDesign);
         else body.append(`properties[${T.printLabel}]`, st.design.mode === 'designer' ? T.designedOnline : T.filesSent);
         rows.forEach((r) => {
@@ -898,6 +884,15 @@
         if (i === 0) files.forEach(([blob, name], n) => body.append(`properties[${T.artwork} ${n + 1}]`, blob, name));
         const res = await fetch(D.cartAdd, { method: 'POST', body, headers: { Accept: 'application/json' } });
         if (!res.ok) throw new Error(String(res.status));
+      }
+      if (!D.quoteOnly) {
+        // Buy now: straight to checkout, unless quote items are also in the
+        // basket (checkout takes the whole basket), then the basket page.
+        msg.textContent = T.toCheckout;
+        const cart = await (await fetch(D.cartJs)).json();
+        const onlyBuy = cart.items.every((it) => it.properties && it.properties._buy);
+        window.location.href = onlyBuy ? D.checkoutUrl : D.cartUrl;
+        return;
       }
       msg.innerHTML = fill(T.added, { u: D.cartUrl });
       // Clear the sizes so the next colour starts at 0; the meter now counts

@@ -1,8 +1,17 @@
+{%- comment -%}
+  The basket is a quote basket. Only items from products tagged buy-online
+  (with a price) can go to checkout; everything else is sent as a quote
+  request. Checkout takes the whole basket, so it only shows once no quote
+  items are left.
+{%- endcomment -%}
 {%- liquid
-  assign is_quote = false
+  assign has_quote = false
+  assign has_buy = false
   for item in cart.items
-    if item.final_price == 0 or item.product.tags contains 'quote-only'
-      assign is_quote = true
+    if item.final_price > 0 and item.product.tags contains 'buy-online'
+      assign has_buy = true
+    else
+      assign has_quote = true
     endif
   endfor
 -%}
@@ -18,14 +27,16 @@
       <form action="{{ routes.cart_url }}" method="post" class="basket-grid" data-basket>
         <ul class="basket-items">
           {%- for item in cart.items -%}
-            <li class="basket-item">
+            {%- assign buy = false -%}
+            {%- if item.final_price > 0 and item.product.tags contains 'buy-online' -%}{%- assign buy = true -%}{%- endif -%}
+            <li class="basket-item"{% unless buy %} data-quote-key="{{ item.key }}"{% endunless %}>
               {%- if item.image -%}
                 {{ item.image | image_url: width: 240 | image_tag: class: 'basket-img', alt: item.product.title, loading: 'lazy' }}
               {%- endif -%}
               <div class="basket-info">
                 <a href="{{ item.url }}"><b>{{ item.product.title | escape }}</b></a>
                 <span>{{ item.variant.title | escape }}</span>
-                {%- unless is_quote -%}<span>{{ item.final_line_price | money }}</span>{%- endunless -%}
+                {%- if buy -%}<span>{{ item.final_line_price | money }}</span>{%- endif -%}
                 <dl class="basket-props">
                   {%- for p in item.properties -%}
                     {%- assign first = p.first | slice: 0 -%}
@@ -53,7 +64,7 @@
         <div class="basket-side">
           <button type="submit" class="text-btn" name="update">{{ 'cart.update' | t }}</button>
           <label class="fz-note">{{ 'cart.note' | t }}<textarea name="note" rows="3">{{ cart.note }}</textarea></label>
-          {%- if is_quote -%}
+          {%- if has_quote -%}
             <h2>{{ 'cart.quote_title' | t }}</h2>
             <p>{{ 'cart.quote_text' | t }}</p>
             <fieldset class="quote-contact" data-quote-contact>
@@ -65,10 +76,12 @@
             </fieldset>
             <button type="button" class="pill pill-o" data-send-quote data-endpoint="{{ settings.quote_endpoint | default: '/apps/account/quote' | escape }}">{{ 'cart.send_quote' | t }}</button>
             <p aria-live="polite" data-quote-msg data-need="{{ 'cart.need_contact' | t }}" data-fail="{{ 'cart.quote_fail' | t }}" data-ok="{{ 'cart.quote_ok' | t }}"></p>
+            {%- if has_buy -%}<p class="gq-hint">{{ 'cart.buy_after_quote' | t }}</p>{%- endif -%}
           {%- else -%}
+            <h2>{{ 'cart.buy_title' | t }}</h2>
+            <p>{{ 'cart.buy_text' | t }}</p>
             <p class="basket-total"><span>{{ 'cart.subtotal' | t }}</span><b>{{ cart.total_price | money }}</b></p>
             <button type="submit" class="pill pill-o" name="checkout">{{ 'cart.checkout' | t }}</button>
-            <p>{{ 'cart.checkout_text' | t }}</p>
           {%- endif -%}
         </div>
       </form>

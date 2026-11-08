@@ -62,6 +62,7 @@
     {{ product | structured_data }}
   </script>
 
+  {%- if product.price > 0 and product.tags contains 'buy-online' -%}
   <meta
     property="og:price:amount"
     content="{{ product.price | money_without_currency | strip_html }}"
@@ -70,6 +71,7 @@
     property="og:price:currency"
     content="{{ cart.currency.iso_code }}"
   >
+  {%- endif -%}
 {%- endif -%}
 
 <meta

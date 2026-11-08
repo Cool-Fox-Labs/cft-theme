@@ -99,15 +99,24 @@
       const form = button.closest('form');
       await fetch(form.action + '/update.js', { method: 'POST', body: new FormData(form) });
       const cart = await (await fetch(form.action + '.js')).json();
+      // Only the quote items are sent; buy-now items stay for checkout.
+      const keys = [...document.querySelectorAll('[data-quote-key]')].map((li) => li.dataset.quoteKey);
+      const items = cart.items.filter((it) => keys.includes(it.key));
       const res = await fetch(button.dataset.endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify({ source: 'basket', contact, note: cart.note || '', cart }),
+        body: JSON.stringify({ source: 'basket', contact, note: cart.note || '', cart: { ...cart, items } }),
       });
       if (!res.ok) throw new Error(String(res.status));
       msg.textContent = msg.dataset.ok;
-      await fetch(form.action + '/clear.js', { method: 'POST' });
       button.hidden = true;
+      if (items.length === cart.items.length) {
+        await fetch(form.action + '/clear.js', { method: 'POST' });
+      } else {
+        const updates = Object.fromEntries(items.map((it) => [it.key, 0]));
+        await fetch(form.action + '/update.js', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ updates }) });
+        setTimeout(() => window.location.reload(), 2500);
+      }
     } catch (e) {
       msg.textContent = msg.dataset.fail;
       button.disabled = false;
