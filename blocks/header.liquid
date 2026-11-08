@@ -55,9 +55,7 @@
             <a class="basket-link acc-link" href="{{ login_url }}">{{ 'header.log_in' | t }}</a>
           {%- endif -%}
         {%- endif -%}
-        {%- if cart.item_count > 0 -%}
-          <a class="basket-link" href="{{ routes.cart_url }}">{{ 'header.basket' | t }} ({{ cart.item_count }})</a>
-        {%- endif -%}
+        <a class="basket-link" href="{{ routes.cart_url }}" data-basket-link data-cart-js="{{ routes.cart_url }}.js"{% if cart.item_count == 0 %} hidden{% endif %}>{{ 'header.basket' | t }} (<span data-basket-count>{{ cart.item_count }}</span>)</a>
         <a class="pill pill-o" href="{{ quote_url }}">{{ 'header.get_quote' | t }}</a>
         <button class="burger" type="button" id="menu-btn" aria-expanded="false" aria-controls="drawer" data-open-label="{{ 'header.close' | t }}" data-closed-label="{{ 'header.menu' | t }}">
           {{- 'header.menu' | t -}}

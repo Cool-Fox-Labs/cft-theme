@@ -671,3 +671,31 @@ input[type=range] { width: 100%; accent-color: var(--orange); height: 28px }
 .quote-contact legend { font: 700 18px/1.2 var(--f-d); padding: 0; margin-bottom: 4px }
 @media (max-width: 860px) { .gq-grid { grid-template-columns: minmax(0, 1fr) } }
 @media (max-width: 520px) { .gq-two { grid-template-columns: 1fr } }
+
+/* header: "Your quote (n)" hides when empty */
+.nav > a.basket-link[hidden] { display: none }
+
+/* product page: message after Add to quote */
+.cta-box [data-add-msg].is-added { display: grid; gap: 12px; font-size: 16px; line-height: 1.45; color: var(--cream) }
+.cta-box a.cta-view { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 0 22px; border-radius: 999px; background: var(--cream); color: var(--ink); font: 600 16px/1 var(--f-b); text-decoration: none }
+.cta-box a.cta-view:hover { background: #fff }
+
+/* "Quote request sent" view on the Get a quote page */
+.gq-sent { max-width: 720px; margin-inline: auto; padding-block: clamp(32px, 6vw, 72px); display: grid; gap: 22px; justify-items: start }
+.gq-sent[hidden], .gq[hidden] { display: none }
+.gq-tick { width: 64px; height: 64px; border-radius: 50%; background: var(--orange); color: var(--ink); display: grid; place-items: center }
+.gq-tick svg { width: 34px; height: 34px }
+.gq-sent h1 { font: 700 clamp(32px, 5vw, 52px)/1.05 var(--f-d); letter-spacing: -.03em; margin: 0; outline: none }
+.gq-sent-lead { margin: 0; font-size: 18px; color: var(--muted) }
+.gq-sum, .gq-next { width: 100%; box-sizing: border-box; background: var(--card); border-radius: 22px; box-shadow: 0 0 0 1px var(--line); padding: clamp(18px, 3vw, 28px) }
+.gq-sum h2, .gq-next h2 { font: 700 20px/1.2 var(--f-d); margin: 0 0 12px }
+.gq-sum dl { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 8px 18px; margin: 0 }
+.gq-sum dt { font-weight: 600 }
+.gq-sum dd { margin: 0; overflow-wrap: anywhere }
+.gq-next ol { margin: 0; padding: 0; list-style: none; counter-reset: n; display: grid; gap: 14px }
+.gq-next li { counter-increment: n; display: grid; grid-template-columns: 34px minmax(0, 1fr); column-gap: 12px; color: var(--muted) }
+.gq-next li::before { content: counter(n); grid-row: span 2; width: 30px; height: 30px; border-radius: 50%; background: var(--orange-soft); color: var(--ink); display: grid; place-items: center; font: 700 15px/1 var(--f-d) }
+.gq-next li b { color: var(--ink) }
+.gq-sent-help { margin: 0; color: var(--muted) }
+.gq-sent-cta { display: flex; flex-wrap: wrap; gap: 12px }
+@media (max-width: 520px) { .gq-sum dl { grid-template-columns: 1fr; gap: 2px } .gq-sum dd { margin-bottom: 8px } }

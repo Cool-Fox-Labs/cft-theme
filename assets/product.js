@@ -862,6 +862,7 @@
     msg.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
     const lines = SIZES.filter((s) => st.colour.sizes.includes(s) && st.qty[s]);
     if (!lines.length) { msg.textContent = T.needItems; return; }
+    msg.classList.remove('is-added');
     msg.textContent = T.adding;
     const group = Date.now().toString(36);
     const rows = describe();
@@ -895,6 +896,7 @@
         return;
       }
       msg.innerHTML = fill(T.added, { u: D.cartUrl });
+      msg.classList.add('is-added');
       // Clear the sizes so the next colour starts at 0; the meter now counts
       // what was just added from the basket.
       st.qty = {};

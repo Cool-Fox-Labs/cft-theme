@@ -82,6 +82,60 @@
 })();
 
 /**
+ * After a quote request: a short summary is kept in sessionStorage so the
+ * "Quote request sent" view (/pages/get-a-quote#sent) can show it.
+ */
+function saveSent(summary) {
+  try { sessionStorage.setItem('cft-quote-sent', JSON.stringify(summary)); } catch (e) { /* private mode */ }
+}
+function showSent() {
+  const view = document.querySelector('[data-quote-sent]');
+  if (!view) return;
+  const start = document.querySelector('[data-quote-start]');
+  if (start) start.hidden = true;
+  view.hidden = false;
+  let s = null;
+  try { s = JSON.parse(sessionStorage.getItem('cft-quote-sent') || 'null'); } catch (e) { s = null; }
+  const title = view.querySelector('[data-sent-title]');
+  if (s && s.name) title.textContent = title.dataset.named.replace('%n', s.name.split(' ')[0]);
+  const box = view.querySelector('[data-sent-summary]');
+  const list = view.querySelector('[data-sent-list]');
+  const L = JSON.parse(view.querySelector('[data-sent-labels]')?.textContent || '{}');
+  const rows = [];
+  if (s) {
+    if (s.contact) rows.push([L.contact, s.contact]);
+    (s.items || []).forEach((t, i) => rows.push([i === 0 ? L.items : '', t]));
+    if (s.garment) rows.push([L.garment, s.garment]);
+    if (s.quantity) rows.push([L.quantity, s.quantity]);
+    if (s.neededBy) rows.push([L.neededBy, new Date(s.neededBy).toLocaleDateString('en-GB')]);
+    if (s.files) rows.push([L.files, String(s.files)]);
+  }
+  list.replaceChildren(...rows.flatMap(([k, v]) => {
+    const dt = document.createElement('dt'); dt.textContent = k;
+    const dd = document.createElement('dd'); dd.textContent = v;
+    return [dt, dd];
+  }));
+  box.hidden = !rows.length;
+  window.scrollTo(0, 0);
+  title.focus({ preventScroll: true });
+}
+if (window.location.hash === '#sent') showSent();
+
+/**
+ * Header "Your quote (n)": shows and updates as soon as something is added,
+ * without a page refresh.
+ */
+document.addEventListener('cft:basket-changed', async () => {
+  const link = document.querySelector('[data-basket-link]');
+  if (!link) return;
+  try {
+    const cart = await (await fetch(link.dataset.cartJs)).json();
+    link.querySelector('[data-basket-count]').textContent = cart.item_count;
+    link.hidden = !cart.item_count;
+  } catch (e) { /* leave as it is */ }
+});
+
+/**
  * Basket page: "Send quote request" posts the basket and the customer's
  * contact details to the quote request address (Print Studio, through the
  * app proxy), where it is filed as "Quote requested".
@@ -108,15 +162,23 @@
         body: JSON.stringify({ source: 'basket', contact, note: cart.note || '', cart: { ...cart, items } }),
       });
       if (!res.ok) throw new Error(String(res.status));
-      msg.textContent = msg.dataset.ok;
-      button.hidden = true;
+      // Remove what was sent: everything, or just the quote items when
+      // buy-now items stay behind for checkout.
       if (items.length === cart.items.length) {
         await fetch(form.action + '/clear.js', { method: 'POST' });
       } else {
         const updates = Object.fromEntries(items.map((it) => [it.key, 0]));
         await fetch(form.action + '/update.js', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ updates }) });
-        setTimeout(() => window.location.reload(), 2500);
       }
+      button.textContent = button.dataset.sentLabel;
+      saveSent({
+        name: contact.name,
+        contact: contact.email || contact.phone,
+        items: items.map((it) => `${it.quantity} × ${it.product_title}${it.variant_title ? ` (${it.variant_title})` : ''}`),
+      });
+      if (button.dataset.sentUrl && items.length === cart.items.length) { window.location.href = button.dataset.sentUrl; return; }
+      msg.textContent = msg.dataset.ok;
+      if (items.length !== cart.items.length) setTimeout(() => window.location.reload(), 2500);
     } catch (e) {
       msg.textContent = msg.dataset.fail;
       button.disabled = false;
@@ -149,8 +211,16 @@
         if (j.error && res.status < 500) { msg.textContent = j.error; button.disabled = false; return; }
         throw new Error(String(res.status));
       }
-      msg.textContent = msg.dataset.ok;
-      form.replaceChildren(msg);
+      saveSent({
+        name,
+        contact: String(data.get('email') || '').trim() || String(data.get('phone') || '').trim(),
+        garment: String(data.get('garment') || '').trim(),
+        quantity: String(data.get('quantity') || '').trim(),
+        neededBy: String(data.get('needed_by') || '').trim(),
+        files: files.length,
+      });
+      window.location.hash = 'sent';
+      showSent();
     } catch (err) {
       msg.textContent = msg.dataset.fail;
       button.disabled = false;

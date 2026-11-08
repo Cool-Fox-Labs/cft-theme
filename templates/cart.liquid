@@ -74,7 +74,7 @@
               <label>{{ 'pages.quote.f_phone' | t }}<input type="tel" name="q_phone" autocomplete="tel" value="{{ customer.phone | escape }}"></label>
               <p class="gq-hint">{{ 'cart.contact_hint' | t }}</p>
             </fieldset>
-            <button type="button" class="pill pill-o" data-send-quote data-endpoint="{{ settings.quote_endpoint | default: '/apps/account/quote' | escape }}">{{ 'cart.send_quote' | t }}</button>
+            <button type="button" class="pill pill-o" data-send-quote data-endpoint="{{ settings.quote_endpoint | default: '/apps/account/quote' | escape }}"{% if pages['get-a-quote'].url %} data-sent-url="{{ pages['get-a-quote'].url }}#sent"{% endif %} data-sent-label="{{ 'cart.quote_sent' | t }}">{{ 'cart.send_quote' | t }}</button>
             <p aria-live="polite" data-quote-msg data-need="{{ 'cart.need_contact' | t }}" data-fail="{{ 'cart.quote_fail' | t }}" data-ok="{{ 'cart.quote_ok' | t }}"></p>
             {%- if has_buy -%}<p class="gq-hint">{{ 'cart.buy_after_quote' | t }}</p>{%- endif -%}
           {%- else -%}
