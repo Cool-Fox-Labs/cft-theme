@@ -56,8 +56,15 @@
           {%- if is_quote -%}
             <h2>{{ 'cart.quote_title' | t }}</h2>
             <p>{{ 'cart.quote_text' | t }}</p>
-            <button type="button" class="pill pill-o" data-send-quote data-endpoint="{{ settings.quote_endpoint | escape }}">{{ 'cart.send_quote' | t }}</button>
-            <p aria-live="polite" data-quote-msg data-off="{{ 'cart.quote_off' | t | escape }}" data-fail="{{ 'product.add_fail' | t | escape }}" data-ok="{{ 'product.send_ok' | t | escape }}"></p>
+            <fieldset class="quote-contact" data-quote-contact>
+              <legend>{{ 'cart.contact_title' | t }}</legend>
+              <label>{{ 'pages.quote.f_name' | t }} *<input name="q_name" autocomplete="name" value="{{ customer.name | escape }}"></label>
+              <label>{{ 'pages.quote.f_email' | t }}<input type="email" name="q_email" autocomplete="email" value="{{ customer.email | escape }}"></label>
+              <label>{{ 'pages.quote.f_phone' | t }}<input type="tel" name="q_phone" autocomplete="tel" value="{{ customer.phone | escape }}"></label>
+              <p class="gq-hint">{{ 'cart.contact_hint' | t }}</p>
+            </fieldset>
+            <button type="button" class="pill pill-o" data-send-quote data-endpoint="{{ settings.quote_endpoint | default: '/apps/account/quote' | escape }}">{{ 'cart.send_quote' | t }}</button>
+            <p aria-live="polite" data-quote-msg data-need="{{ 'cart.need_contact' | t | escape }}" data-fail="{{ 'cart.quote_fail' | t | escape }}" data-ok="{{ 'cart.quote_ok' | t | escape }}"></p>
           {%- else -%}
             <p class="basket-total"><span>{{ 'cart.subtotal' | t }}</span><b>{{ cart.total_price | money }}</b></p>
             <button type="submit" class="pill pill-o" name="checkout">{{ 'cart.checkout' | t }}</button>

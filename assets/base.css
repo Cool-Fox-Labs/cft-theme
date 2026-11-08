@@ -646,3 +646,28 @@ input[type=range] { width: 100%; accent-color: var(--orange); height: 28px }
   .coll-help { padding: 20px }
 }
 @media (prefers-reduced-motion: reduce) { .gcard, .gcard-img img { transition: none } }
+
+/* ---------- get a quote page ---------- */
+.gq { padding-block: clamp(28px, 5vw, 56px) }
+.gq-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 20px; align-items: start }
+.gq-card { position: relative; background: var(--card); border-radius: 24px; box-shadow: 0 0 0 1px var(--line); padding: clamp(20px, 3vw, 32px); display: grid; gap: 12px }
+.gq-card h2 { font: 700 clamp(22px, 2.4vw, 30px)/1.1 var(--f-d); letter-spacing: -.02em; padding-right: 48px }
+.gq-card > p { margin: 0; color: var(--muted) }
+.gq-num { position: absolute; top: 18px; right: 18px; width: 38px; height: 38px; border-radius: 50%; background: var(--orange); color: var(--ink); display: grid; place-items: center; font: 700 17px/1 var(--f-d) }
+.gq-card .cats { grid-template-columns: 1fr; margin-top: 4px }
+.gq-card .cats a { background: var(--ground) }
+.gq-card .cats a:hover { background: var(--orange-soft) }
+.gq-form, .quote-contact { display: grid; gap: 12px; margin: 0 }
+.gq-form label, .quote-contact label { display: grid; gap: 6px; font: 600 14px/1.3 var(--f-b) }
+.gq-form input, .gq-form textarea, .quote-contact input { font: 400 16px/1.4 var(--f-b); color: var(--ink); background: var(--card); border: 1.5px solid var(--line); border-radius: 12px; padding: 11px 13px; min-height: 46px; width: 100%; box-sizing: border-box }
+.gq-form input:focus, .gq-form textarea:focus, .quote-contact input:focus { outline: none; border-color: var(--ink) }
+.gq-form input[type="file"] { padding: 9px; background: var(--ground) }
+.gq-two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px }
+.gq-hint { margin: -4px 0 0; font-size: 13px; color: var(--muted) }
+.gq-form .pill { justify-self: start; margin-top: 4px }
+.gq-msg { margin: 0; font-weight: 600 }
+.gq-form .gq-hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden }
+.quote-contact { border: 0; padding: 0; margin-block: 8px 12px }
+.quote-contact legend { font: 700 18px/1.2 var(--f-d); padding: 0; margin-bottom: 4px }
+@media (max-width: 860px) { .gq-grid { grid-template-columns: minmax(0, 1fr) } }
+@media (max-width: 520px) { .gq-two { grid-template-columns: 1fr } }

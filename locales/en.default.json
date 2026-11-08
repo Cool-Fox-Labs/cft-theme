@@ -29,7 +29,12 @@
     "quote_off": "Quote requests are not switched on yet. Call or email us and we will help.",
     "subtotal": "Subtotal",
     "checkout_text": "We send you a proof before anything is printed.",
-    "price_on_quote": "Price on quote"
+    "price_on_quote": "Price on quote",
+    "contact_title": "Your details",
+    "contact_hint": "Name, and an email or phone so we can send your quote.",
+    "need_contact": "Please add your name and an email or phone number.",
+    "quote_fail": "Sorry, that didn't send. Please email hello@coolfoxtees.com or call 07706 949932.",
+    "quote_ok": "Thanks, your quote request is in. We'll email or call you within one working day."
   },
   "customers": {
     "login": {
@@ -457,6 +462,33 @@
       "rights_text": "Only send artwork you own or have permission to use.",
       "terms_link": "Terms and conditions",
       "cta": "Start a quote"
+    },
+    "quote": {
+      "eyebrow": "Get a quote",
+      "title": "Start your quote",
+      "intro": "Two ways to start. We check every design and send you a price and a proof before anything is printed. Nothing is charged now.",
+      "pick_title": "Choose a garment",
+      "pick_text": "Pick the garment, colours and sizes, add your design, then send it from your basket.",
+      "form_title": "Not sure? Tell us what you need",
+      "form_text": "A few details are enough. We'll come back with ideas, a price and a proof.",
+      "f_name": "Your name",
+      "f_email": "Email",
+      "f_phone": "Phone",
+      "f_contact_hint": "Email or phone, so we can reply.",
+      "f_garment": "What would you like printed?",
+      "f_garment_ph": "e.g. black hoodies with our logo on the back",
+      "f_qty": "How many?",
+      "f_date": "Needed by",
+      "f_files": "Your logo or artwork (optional)",
+      "f_files_hint": "Up to 5 files, 10 MB in total. PNG, PDF or vector files print best.",
+      "f_notes": "Anything else?",
+      "f_notes_ph": "Sizes, colours, print positions, event date…",
+      "send": "Send quote request",
+      "need_contact": "Please add your name and an email or phone number.",
+      "too_big": "Please send up to 5 files, 10 MB in total. Bigger files? Email them to hello@coolfoxtees.com.",
+      "sending": "Sending…",
+      "ok": "Thanks, we've got it. We'll be in touch within one working day.",
+      "fail": "Sorry, that didn't send. Please email hello@coolfoxtees.com or call 07706 949932."
     }
   }
 }

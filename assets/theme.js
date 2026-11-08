@@ -82,25 +82,69 @@
 })();
 
 /**
- * Basket page: "Send quote request" posts the basket to the Business Hub
- * address in theme settings. Until that is set it says quote requests are
- * not switched on yet.
+ * Basket page: "Send quote request" posts the basket and the customer's
+ * contact details to the quote request address (Print Studio, through the
+ * app proxy), where it is filed as "Quote requested".
  */
 (() => {
   const button = document.querySelector('[data-send-quote]');
   if (!button) return;
   const msg = document.querySelector('[data-quote-msg]');
+  const val = (n) => (document.querySelector(`[name="${n}"]`) || {}).value?.trim() || '';
   button.addEventListener('click', async () => {
-    const endpoint = button.dataset.endpoint;
-    if (!endpoint) { msg.textContent = msg.dataset.off; return; }
+    const contact = { name: val('q_name'), email: val('q_email'), phone: val('q_phone') };
+    if (!contact.name || !(contact.email || contact.phone)) { msg.textContent = msg.dataset.need; return; }
+    button.disabled = true;
     try {
       const form = button.closest('form');
       await fetch(form.action + '/update.js', { method: 'POST', body: new FormData(form) });
       const cart = await (await fetch(form.action + '.js')).json();
-      const res = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ cart }) });
-      msg.textContent = res.ok ? msg.dataset.ok : msg.dataset.fail;
+      const res = await fetch(button.dataset.endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({ source: 'basket', contact, note: cart.note || '', cart }),
+      });
+      if (!res.ok) throw new Error(String(res.status));
+      msg.textContent = msg.dataset.ok;
+      await fetch(form.action + '/clear.js', { method: 'POST' });
+      button.hidden = true;
     } catch (e) {
       msg.textContent = msg.dataset.fail;
+      button.disabled = false;
+    }
+  });
+})();
+
+/**
+ * Get a quote page: the "tell us what you need" form posts its fields and
+ * any artwork files to the same quote request address.
+ */
+(() => {
+  const form = document.querySelector('[data-quote-form]');
+  if (!form) return;
+  const msg = form.querySelector('[data-quote-form-msg]');
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const data = new FormData(form);
+    const name = String(data.get('name') || '').trim();
+    if (!name || !(String(data.get('email') || '').trim() || String(data.get('phone') || '').trim())) { msg.textContent = msg.dataset.need; return; }
+    const files = data.getAll('files[]').filter((f) => f && f.size);
+    if (files.length > 5 || files.reduce((n, f) => n + f.size, 0) > 10 * 1024 * 1024) { msg.textContent = msg.dataset.big; return; }
+    const button = form.querySelector('button[type="submit"]');
+    button.disabled = true;
+    msg.textContent = msg.dataset.sending;
+    try {
+      const res = await fetch(form.action, { method: 'POST', body: data, headers: { Accept: 'application/json' } });
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({}));
+        if (j.error && res.status < 500) { msg.textContent = j.error; button.disabled = false; return; }
+        throw new Error(String(res.status));
+      }
+      msg.textContent = msg.dataset.ok;
+      form.replaceChildren(msg);
+    } catch (err) {
+      msg.textContent = msg.dataset.fail;
+      button.disabled = false;
     }
   });
 })();

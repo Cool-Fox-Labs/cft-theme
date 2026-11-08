@@ -132,7 +132,8 @@
         <b>{{ 'collections.help_title' | t }}</b>
         <span>{{ 'collections.help_text' | t }}</span>
       </div>
-      <a class="pill pill-o" href="{{ routes.root_url }}#how">{{ 'collections.help_cta' | t }}</a>
+      {%- assign quote_page = pages['get-a-quote'] -%}
+      <a class="pill pill-o" href="{% if quote_page.url %}{{ quote_page.url }}{% else %}{{ routes.root_url }}#how{% endif %}">{{ 'collections.help_cta' | t }}</a>
     </aside>
   </div>
 {% endblock %}
