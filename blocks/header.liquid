@@ -6,6 +6,8 @@
 {% enddoc %}
 
 {%- assign how_url = routes.root_url | append: '#how' -%}
+{%- assign quote_url = how_url -%}
+{%- if pages['get-a-quote'].url -%}{%- assign quote_url = pages['get-a-quote'].url -%}{%- endif -%}
 {%- assign showroom_url = routes.root_url | append: '#showroom' -%}
 
 <header class="site-head full-width" id="site-head" {{ block.shopify_attributes }}>
@@ -53,7 +55,7 @@
         {%- if cart.item_count > 0 -%}
           <a class="basket-link" href="{{ routes.cart_url }}">{{ 'header.basket' | t }} ({{ cart.item_count }})</a>
         {%- endif -%}
-        <a class="pill pill-o" href="{{ how_url }}">{{ 'header.get_quote' | t }}</a>
+        <a class="pill pill-o" href="{{ quote_url }}">{{ 'header.get_quote' | t }}</a>
         <button class="burger" type="button" id="menu-btn" aria-expanded="false" aria-controls="drawer" data-open-label="{{ 'header.close' | t }}" data-closed-label="{{ 'header.menu' | t }}">
           {{- 'header.menu' | t -}}
         </button>
@@ -115,7 +117,7 @@
           <a href="{{ routes.account_login_url }}?return_url=/apps/account">{{ 'header.log_in' | t }}</a>
         {%- endif -%}
       {%- endif -%}
-      <a class="pill pill-o" href="{{ how_url }}">{{ 'header.get_quote' | t }}</a>
+      <a class="pill pill-o" href="{{ quote_url }}">{{ 'header.get_quote' | t }}</a>
     </div>
   </div>
 </header>

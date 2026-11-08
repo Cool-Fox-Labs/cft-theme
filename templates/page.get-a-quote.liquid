@@ -1,0 +1,59 @@
+{% comment %}
+  Get a quote page. Two ways in: choose a garment (category links), or a
+  short "tell us what you need" form with artwork upload. The form posts to
+  the quote request address (theme setting, default /apps/account/quote, the
+  Print Studio app proxy), which files it in Print Studio as "Quote requested".
+  To use it: create a page in Shopify admin (handle "get-a-quote") and choose
+  the "get-a-quote" template. Every "Get a quote" button then links here.
+  Wording lives in locales/en.default.json under pages.quote.
+{% endcomment %}
+
+{% block 'container', tag: 'section' %}
+  {%- assign endpoint = settings.quote_endpoint | default: '/apps/account/quote' -%}
+  <div class="gq">
+    <header class="info-head">
+      <span class="eyebrow">{{ 'pages.quote.eyebrow' | t }}</span>
+      <h1>{{ 'pages.quote.title' | t }}</h1>
+      <p>{{ 'pages.quote.intro' | t }}</p>
+    </header>
+
+    <div class="gq-grid">
+      <section class="gq-card">
+        <span class="gq-num">1</span>
+        <h2>{{ 'pages.quote.pick_title' | t }}</h2>
+        <p>{{ 'pages.quote.pick_text' | t }}</p>
+        {% render 'menu-links', list: 'garments' %}
+      </section>
+
+      <section class="gq-card gq-form-card">
+        <span class="gq-num">2</span>
+        <h2>{{ 'pages.quote.form_title' | t }}</h2>
+        <p>{{ 'pages.quote.form_text' | t }}</p>
+        <form class="gq-form" data-quote-form action="{{ endpoint | escape }}" method="post" enctype="multipart/form-data" novalidate>
+          <input type="hidden" name="source" value="form">
+          <label>{{ 'pages.quote.f_name' | t }} *<input name="name" autocomplete="name" required value="{{ customer.name | escape }}"></label>
+          <div class="gq-two">
+            <label>{{ 'pages.quote.f_email' | t }}<input type="email" name="email" autocomplete="email" value="{{ customer.email | escape }}"></label>
+            <label>{{ 'pages.quote.f_phone' | t }}<input type="tel" name="phone" autocomplete="tel" value="{{ customer.phone | escape }}"></label>
+          </div>
+          <p class="gq-hint">{{ 'pages.quote.f_contact_hint' | t }}</p>
+          <label>{{ 'pages.quote.f_garment' | t }}<input name="garment" placeholder="{{ 'pages.quote.f_garment_ph' | t | escape }}"></label>
+          <div class="gq-two">
+            <label>{{ 'pages.quote.f_qty' | t }}<input type="number" name="quantity" min="1" inputmode="numeric"></label>
+            <label>{{ 'pages.quote.f_date' | t }}<input type="date" name="needed_by"></label>
+          </div>
+          <label>{{ 'pages.quote.f_files' | t }}<input type="file" name="files[]" multiple accept="image/*,.pdf,.ai,.eps,.svg,.psd"></label>
+          <p class="gq-hint">{{ 'pages.quote.f_files_hint' | t }}</p>
+          <label>{{ 'pages.quote.f_notes' | t }}<textarea name="notes" rows="4" placeholder="{{ 'pages.quote.f_notes_ph' | t | escape }}"></textarea></label>
+          <button type="submit" class="pill pill-o">{{ 'pages.quote.send' | t }}</button>
+          <p class="gq-msg" aria-live="polite" data-quote-form-msg
+            data-need="{{ 'pages.quote.need_contact' | t | escape }}"
+            data-big="{{ 'pages.quote.too_big' | t | escape }}"
+            data-sending="{{ 'pages.quote.sending' | t | escape }}"
+            data-ok="{{ 'pages.quote.ok' | t | escape }}"
+            data-fail="{{ 'pages.quote.fail' | t | escape }}"></p>
+        </form>
+      </section>
+    </div>
+  </div>
+{% endblock %}
