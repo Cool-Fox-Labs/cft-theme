@@ -129,13 +129,23 @@
       {%- endif -%}
     {% endpaginate %}
 
+    {%- comment -%} Points to the supplier's full catalogue (theme setting, same as the menu link). Falls back to Get a quote if the setting is blank. {%- endcomment -%}
+    {%- assign catalogue_url = settings.full_catalogue_url | strip -%}
     <aside class="coll-help">
       <div>
         <b>{{ 'collections.help_title' | t }}</b>
-        <span>{{ 'collections.help_text' | t }}</span>
+        {%- if catalogue_url != blank -%}
+          <span>{{ 'collections.help_text_catalogue' | t }}</span>
+        {%- else -%}
+          <span>{{ 'collections.help_text' | t }}</span>
+        {%- endif -%}
       </div>
-      {%- assign quote_page = pages['get-a-quote'] -%}
-      <a class="pill pill-o" href="{% if quote_page.url %}{{ quote_page.url }}{% else %}{{ routes.root_url }}#how{% endif %}">{{ 'collections.help_cta' | t }}</a>
+      {%- if catalogue_url != blank -%}
+        <a class="pill pill-o" href="{{ catalogue_url | escape }}" target="_blank" rel="noopener">{{ 'collections.help_cta_catalogue' | t }}</a>
+      {%- else -%}
+        {%- assign quote_page = pages['get-a-quote'] -%}
+        <a class="pill pill-o" href="{% if quote_page.url %}{{ quote_page.url }}{% else %}{{ routes.root_url }}#how{% endif %}">{{ 'collections.help_cta' | t }}</a>
+      {%- endif -%}
     </aside>
   </div>
 {% endblock %}
