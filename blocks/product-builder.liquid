@@ -316,6 +316,8 @@
           "id": {{ variant.id | json }},
           "colour": {{ variant.options[colour_i] | json }},
           "size": {{ variant.options[size_i] | json }},
+          "available": {{ variant.available | json }},
+          "max": {% if variant.inventory_management == 'shopify' and variant.inventory_policy == 'deny' %}{{ variant.inventory_quantity | at_least: 0 | json }}{% else %}null{% endif %},
           "img": {% if img %}{{ img | image_url: width: 1000 | json }}{% else %}null{% endif %},
           "thumb": {% if img %}{{ img | image_url: width: 160 | json }}{% else %}null{% endif %}
         }{% unless forloop.last %},{% endunless %}
@@ -328,6 +330,9 @@
         "ls": {{ 'product.pos_ls' | t | json }}, "rs": {{ 'product.pos_rs' | t | json }}
       },
       "notMade": {{ 'product.size_not_made' | t | json }},
+      "outOfStock": {{ 'product.out_of_stock' | t | json }},
+      "maxTitle": {{ 'product.max_title' | t | json }},
+      "maxText": {{ 'product.max_text' | t: n: '%n', s: '%s' | json }},
       "inWide": {{ 'product.in_wide' | t: w: '%w' | json }},
       "wxh": {{ 'product.size_wxh' | t: w: '%w', h: '%h' | json }},
       "inches": {{ 'product.inches' | t: w: '%w' | json }},
