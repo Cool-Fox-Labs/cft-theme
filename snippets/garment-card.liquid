@@ -1,7 +1,8 @@
 {% doc %}
   Renders one garment card in a collection grid: the product's main image
   (as set in the admin, usually the model shot), brand and style code, the
-  name, colour dots and the price line. Model shots are kept on purpose
+  name, colour dots and the price line, plus an "In stock" or "5-7 days" badge for products tagged
+  group:Classic or group:Premium. Model shots are kept on purpose
   (Eddie, 01/11/2026: CFT sells to trade).
 
   @param {product} product - The product to show.
@@ -29,6 +30,16 @@
     endif
   endfor
 
+  assign range = ''
+  for tag in product.tags
+    assign t = tag | downcase | replace: ' ', ''
+    if t == 'group:classic'
+      assign range = 'classic'
+    elsif t == 'group:premium'
+      assign range = 'premium'
+    endif
+  endfor
+
   assign quote_only = false
   if product.price == 0 or product.tags contains 'quote-only'
     assign quote_only = true
@@ -37,6 +48,11 @@
 
 <a class="gcard" href="{{ product.url }}">
   <div class="gcard-img">
+    {%- if range == 'classic' -%}
+      <span class="gcard-badge gcard-badge-in">{{ 'collections.badge_classic' | t }}</span>
+    {%- elsif range == 'premium' -%}
+      <span class="gcard-badge">{{ 'collections.badge_premium' | t }}</span>
+    {%- endif -%}
     {%- if photo -%}
       {{ photo | image_url: width: 600 | image_tag: widths: '300, 450, 600', sizes: '(min-width: 1100px) 22vw, (min-width: 760px) 30vw, 46vw', alt: product.title, loading: 'lazy' }}
     {%- else -%}

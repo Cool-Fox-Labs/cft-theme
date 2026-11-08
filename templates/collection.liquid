@@ -6,7 +6,8 @@
   Sections: tag a product "group:Heavyweight" (any name) and the page splits
   into headed sections, A to Z, with jump buttons at the top. Untagged
   products go under "More styles" at the end. With no group tags at all the
-  page is one grid.
+  page is one grid. The groups "Classic" (in-house stock) and "Premium"
+  (5-7 working days) also get a lead-time line, and their cards a badge.
 {% endcomment %}
 
 {% block 'container', tag: 'div' %}
@@ -78,7 +79,14 @@
         {%- for g in groups -%}
           {%- assign want = 'group:' | append: g | downcase -%}
           <section class="coll-group" id="g-{{ g | handleize }}">
-            <h2>{{ g | escape }}</h2>
+            <div class="coll-group-head">
+              <h2>{{ g | escape }}</h2>
+              {%- assign gh = g | handleize -%}
+              {%- case gh -%}
+                {%- when 'classic' -%}<p class="range-note range-in">{{ 'collections.range_classic' | t }}</p>
+                {%- when 'premium' -%}<p class="range-note">{{ 'collections.range_premium' | t }}</p>
+              {%- endcase -%}
+            </div>
             <div class="coll-grid">
               {%- for product in collection.products -%}
                 {%- assign hit = false -%}
@@ -104,7 +112,7 @@
         {%- endcapture -%}
         {%- if rest != blank -%}
           <section class="coll-group" id="g-more">
-            <h2>{{ 'collections.more' | t }}</h2>
+            <div class="coll-group-head"><h2>{{ 'collections.more' | t }}</h2></div>
             <div class="coll-grid">{{ rest }}</div>
           </section>
         {%- endif -%}
