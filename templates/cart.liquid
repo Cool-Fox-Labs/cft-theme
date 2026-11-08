@@ -25,6 +25,7 @@
       <a class="pill pill-l" href="{{ routes.collections_url }}">{{ 'cart.browse' | t }}</a>
     {%- else -%}
       <form action="{{ routes.cart_url }}" method="post" class="basket-grid" data-basket>
+        <div class="basket-main">
         <ul class="basket-items">
           {%- for item in cart.items -%}
             {%- assign buy = false -%}
@@ -60,6 +61,8 @@
             </li>
           {%- endfor -%}
         </ul>
+        <a class="basket-more" href="{{ routes.collections_url }}">+ {{ 'cart.add_more' | t }}</a>
+        </div>
 
         <div class="basket-side">
           <button type="submit" class="text-btn" name="update">{{ 'cart.update' | t }}</button>
@@ -67,15 +70,30 @@
           {%- if has_quote -%}
             <h2>{{ 'cart.quote_title' | t }}</h2>
             <p>{{ 'cart.quote_text' | t }}</p>
+            {%- assign a = customer.default_address -%}
             <fieldset class="quote-contact" data-quote-contact>
               <legend>{{ 'cart.contact_title' | t }}</legend>
-              <label>{{ 'pages.quote.f_name' | t }} *<input name="q_name" autocomplete="name" value="{{ customer.name | escape }}"></label>
-              <label>{{ 'pages.quote.f_email' | t }}<input type="email" name="q_email" autocomplete="email" value="{{ customer.email | escape }}"></label>
-              <label>{{ 'pages.quote.f_phone' | t }}<input type="tel" name="q_phone" autocomplete="tel" value="{{ customer.phone | escape }}"></label>
+              <label>{{ 'pages.quote.f_name' | t }} *<input name="q_name" autocomplete="name" aria-required="true" value="{{ customer.name | escape }}"></label>
+              <label>{{ 'pages.quote.f_email' | t }} *<input type="email" name="q_email" autocomplete="email" aria-required="true" value="{{ customer.email | escape }}"></label>
+              <label>{{ 'pages.quote.f_phone' | t }} *<input type="tel" name="q_phone" autocomplete="tel" aria-required="true" value="{{ customer.phone | default: a.phone | escape }}"></label>
+              <label>{{ 'cart.f_company' | t }}<input name="q_company" autocomplete="organization" value="{{ a.company | escape }}"></label>
               <p class="gq-hint">{{ 'cart.contact_hint' | t }}</p>
             </fieldset>
+            <fieldset class="quote-contact quote-ship" data-quote-ship data-note-company="{{ 'cart.note_company' | t }}" data-note-collect="{{ 'cart.note_collect' | t }}" data-note-deliver="{{ 'cart.note_deliver' | t }}">
+              <legend>{{ 'cart.ship_title' | t }}</legend>
+              <label class="ship-opt"><input type="radio" name="q_ship" value="collect" checked>
+                <span><b>{{ 'cart.ship_collect' | t }}</b>{%- if settings.showroom_address != blank -%}<small>{{ settings.showroom_address | escape }}</small>{%- endif -%}</span></label>
+              <label class="ship-opt"><input type="radio" name="q_ship" value="deliver">
+                <span><b>{{ 'cart.ship_deliver' | t }}</b><small>{{ 'cart.ship_deliver_text' | t }}</small></span></label>
+              <div class="ship-addr" data-ship-addr hidden>
+                <label>{{ 'cart.f_address1' | t }} *<input name="q_address1" autocomplete="address-line1" value="{{ a.address1 | escape }}"></label>
+                <label>{{ 'cart.f_address2' | t }}<input name="q_address2" autocomplete="address-line2" value="{{ a.address2 | escape }}"></label>
+                <label>{{ 'cart.f_city' | t }} *<input name="q_city" autocomplete="address-level2" value="{{ a.city | escape }}"></label>
+                <label>{{ 'cart.f_postcode' | t }} *<input name="q_postcode" autocomplete="postal-code" value="{{ a.zip | escape }}"></label>
+              </div>
+            </fieldset>
             <button type="button" class="pill pill-o" data-send-quote data-endpoint="{{ settings.quote_endpoint | default: '/apps/account/quote' | escape }}"{% if pages['get-a-quote'].url %} data-sent-url="{{ pages['get-a-quote'].url }}#sent"{% endif %} data-sent-label="{{ 'cart.quote_sent' | t }}">{{ 'cart.send_quote' | t }}</button>
-            <p aria-live="polite" data-quote-msg data-need="{{ 'cart.need_contact' | t }}" data-fail="{{ 'cart.quote_fail' | t }}" data-ok="{{ 'cart.quote_ok' | t }}"></p>
+            <p aria-live="polite" data-quote-msg data-need="{{ 'cart.need_contact' | t }}" data-need-email="{{ 'cart.need_email' | t }}" data-need-address="{{ 'cart.need_address' | t }}" data-fail="{{ 'cart.quote_fail' | t }}" data-ok="{{ 'cart.quote_ok' | t }}"></p>
             {%- if has_buy -%}<p class="gq-hint">{{ 'cart.buy_after_quote' | t }}</p>{%- endif -%}
           {%- else -%}
             <h2>{{ 'cart.buy_title' | t }}</h2>
