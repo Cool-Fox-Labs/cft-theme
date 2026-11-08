@@ -61,23 +61,55 @@
         <form class="gq-form" data-quote-form action="{{ endpoint | escape }}" method="post" enctype="multipart/form-data" novalidate>
           <input type="hidden" name="source" value="form">
           <label class="gq-hp" aria-hidden="true">Website<input name="website" tabindex="-1" autocomplete="off"></label>
-          <label>{{ 'pages.quote.f_name' | t }} *<input name="name" autocomplete="name" required value="{{ customer.name | escape }}"></label>
-          <div class="gq-two">
-            <label>{{ 'pages.quote.f_email' | t }}<input type="email" name="email" autocomplete="email" value="{{ customer.email | escape }}"></label>
-            <label>{{ 'pages.quote.f_phone' | t }}<input type="tel" name="phone" autocomplete="tel" value="{{ customer.phone | escape }}"></label>
-          </div>
-          <p class="gq-hint">{{ 'pages.quote.f_contact_hint' | t }}</p>
-          <label>{{ 'pages.quote.f_garment' | t }}<input name="garment" placeholder="{{ 'pages.quote.f_garment_ph' | t }}"></label>
+          <label>{{ 'pages.quote.f_garment' | t }} *<textarea name="garment" rows="3" placeholder="{{ 'pages.quote.f_garment_ph' | t }}"></textarea></label>
+          <fieldset class="gq-seg">
+            <legend>{{ 'pages.quote.f_budget' | t }}</legend>
+            {%- assign budgets = 'pages.quote.budget_options' | t | split: '|' -%}
+            {%- for b in budgets -%}
+              <label><input type="radio" name="budget" value="{{ b | escape }}"><span>{{ b | escape }}</span></label>
+            {%- endfor -%}
+          </fieldset>
           <div class="gq-two">
             <label>{{ 'pages.quote.f_qty' | t }}<input type="number" name="quantity" min="1" inputmode="numeric"></label>
             <label>{{ 'pages.quote.f_date' | t }}<input type="date" name="needed_by"></label>
           </div>
           <label>{{ 'pages.quote.f_files' | t }}<input type="file" name="files[]" multiple accept="image/*,.pdf,.ai,.eps,.svg,.psd"></label>
           <p class="gq-hint">{{ 'pages.quote.f_files_hint' | t }}</p>
-          <label>{{ 'pages.quote.f_notes' | t }}<textarea name="notes" rows="4" placeholder="{{ 'pages.quote.f_notes_ph' | t }}"></textarea></label>
+          <label>{{ 'pages.quote.f_notes' | t }}<textarea name="notes" rows="3" placeholder="{{ 'pages.quote.f_notes_ph' | t }}"></textarea></label>
+
+          {%- assign a = customer.default_address -%}
+          <fieldset class="quote-contact">
+            <legend>{{ 'cart.contact_title' | t }}</legend>
+            <label>{{ 'pages.quote.f_name' | t }} *<input name="name" autocomplete="name" value="{{ customer.name | escape }}"></label>
+            <div class="gq-two">
+              <label>{{ 'pages.quote.f_email' | t }} *<input type="email" name="email" autocomplete="email" value="{{ customer.email | escape }}"></label>
+              <label>{{ 'pages.quote.f_phone' | t }} *<input type="tel" name="phone" autocomplete="tel" value="{{ customer.phone | default: a.phone | escape }}"></label>
+            </div>
+            <label>{{ 'cart.f_company' | t }}<input name="company" autocomplete="organization" value="{{ a.company | escape }}"></label>
+          </fieldset>
+          <fieldset class="quote-contact quote-ship" data-quote-ship>
+            <legend>{{ 'cart.ship_title' | t }}</legend>
+            <label class="ship-opt"><input type="radio" name="ship" value="collect" checked>
+              <span><b>{{ 'cart.ship_collect' | t }}</b>{%- if settings.showroom_address != blank -%}<small>{{ settings.showroom_address | escape }}</small>{%- endif -%}</span></label>
+            <label class="ship-opt"><input type="radio" name="ship" value="deliver">
+              <span><b>{{ 'cart.ship_deliver' | t }}</b><small>{{ 'cart.ship_deliver_text' | t }}</small></span></label>
+            <div class="ship-addr" data-ship-addr hidden>
+              <label>{{ 'cart.f_address1' | t }} *<input name="address1" autocomplete="address-line1" value="{{ a.address1 | escape }}"></label>
+              <label>{{ 'cart.f_address2' | t }}<input name="address2" autocomplete="address-line2" value="{{ a.address2 | escape }}"></label>
+              <label>{{ 'cart.f_city' | t }} *<input name="city" autocomplete="address-level2" value="{{ a.city | escape }}"></label>
+              <label>{{ 'cart.f_postcode' | t }} *<input name="zip" autocomplete="postal-code" value="{{ a.zip | escape }}"></label>
+            </div>
+          </fieldset>
           <button type="submit" class="pill pill-o">{{ 'pages.quote.send' | t }}</button>
           <p class="gq-msg" aria-live="polite" data-quote-form-msg
             data-need="{{ 'pages.quote.need_contact' | t }}"
+            data-need-garment="{{ 'pages.quote.need_garment' | t }}"
+            data-need-email="{{ 'cart.need_email' | t }}"
+            data-need-address="{{ 'cart.need_address' | t }}"
+            data-l-budget="{{ 'pages.quote.note_budget' | t }}"
+            data-l-company="{{ 'pages.quote.note_company' | t }}"
+            data-l-collect="{{ 'pages.quote.note_collect' | t }}"
+            data-l-deliver="{{ 'pages.quote.note_deliver' | t }}"
             data-big="{{ 'pages.quote.too_big' | t }}"
             data-sending="{{ 'pages.quote.sending' | t }}"
             data-ok="{{ 'pages.quote.ok' | t }}"

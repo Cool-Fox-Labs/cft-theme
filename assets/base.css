@@ -686,6 +686,14 @@ input[type=range] { width: 100%; accent-color: var(--orange); height: 28px }
 .gq-form input:focus, .gq-form textarea:focus, .quote-contact input:focus { outline: none; border-color: var(--ink) }
 .gq-form input[type="file"] { padding: 9px; background: var(--ground) }
 .gq-two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px }
+.gq-seg { border: 0; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 8px }
+.gq-seg legend { font: 600 14px/1.3 var(--f-b); padding: 0; margin-bottom: 6px }
+.gq-form .gq-seg label { display: block; cursor: pointer }
+.gq-form .gq-seg input { position: absolute; opacity: 0; width: 1px; height: 1px; min-height: 0; padding: 0 }
+.gq-seg span { display: inline-flex; align-items: center; min-height: 40px; padding: 0 16px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--card); font: 500 14px/1 var(--f-b) }
+.gq-seg input:checked + span { border-color: var(--ink); background: var(--ground) }
+.gq-seg input:focus-visible + span { outline: 2px solid var(--orange); outline-offset: 2px }
+.gq-form textarea[name="garment"] { min-height: 84px; resize: vertical }
 .gq-hint { margin: -4px 0 0; font-size: 13px; color: var(--muted) }
 .gq-form .pill { justify-self: start; margin-top: 4px }
 .gq-msg { margin: 0; font-weight: 600 }
