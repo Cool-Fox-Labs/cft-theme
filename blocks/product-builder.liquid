@@ -143,6 +143,10 @@
             <button type="button" class="text-btn" data-clear>{{ 'product.remove_design' | t }}</button>
           </div>
         </div>
+        <label class="email-art" data-email-art-wrap>
+          <input type="checkbox" data-email-art>
+          <span><b>{{ 'product.email_art' | t }}</b>{{ 'product.email_art_text' | t: email: shop.email }}</span>
+        </label>
       </section>
 
       <div class="nudge"><b data-nudge-pct>0%</b><div class="bar"><span data-nudge-bar></span></div><span data-nudge-text></span></div>
@@ -190,6 +194,12 @@
   <div class="mob-bar"><span data-mob-sum></span><button type="button" class="pill pill-o" data-add>
     {%- if quote_only -%}{{ 'product.add_to_quote' | t }}{%- else -%}{{ 'product.buy_now' | t }}{%- endif -%}
   </button></div>
+
+  <dialog class="cft-alert" data-alert aria-labelledby="al-h">
+    <h2 id="al-h" data-alert-title></h2>
+    <p data-alert-text></p>
+    <button type="button" class="pill pill-o" data-alert-ok>{{ 'product.alert_ok' | t }}</button>
+  </dialog>
 
   <dialog class="dz" data-designer aria-labelledby="dz-h">
     <div class="dz-bar">
@@ -373,6 +383,15 @@
       "note": {{ 'product.note' | t | json }},
       "noDesign": {{ 'product.no_design' | t | json }},
       "needItems": {{ 'product.need_items' | t | json }},
+      "needItemsTitle": {{ 'product.need_items_title' | t | json }},
+      "needDesign": {{ 'product.need_design' | t | json }},
+      "needDesignTitle": {{ 'product.need_design_title' | t | json }},
+      "needPositionTitle": {{ 'product.need_position_title' | t | json }},
+      "failTitle": {{ 'product.fail_title' | t | json }},
+      "emailArt": {{ 'product.email_art_line' | t | json }},
+      "qtyFor": {{ 'product.qty_for' | t: s: '%s' | json }},
+      "less": {{ 'product.qty_less' | t: s: '%s' | json }},
+      "more": {{ 'product.qty_more' | t: s: '%s' | json }},
       "adding": {{ 'product.adding' | t | json }},
       "added": {{ 'product.added_html' | t: url: '%u' | json }},
       "toCheckout": {{ 'product.to_checkout' | t | json }},

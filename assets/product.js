@@ -225,13 +225,28 @@
     box.style.setProperty('--n', SIZES.length);
     SIZES.forEach((s) => {
       const ok = st.colour.sizes.includes(s);
-      const label = make('label', ok ? '' : 'na');
+      const cell = make('div', ok ? 'sz' : 'sz na');
       const input = make('input');
       Object.assign(input, { type: 'number', inputMode: 'numeric', min: 0, placeholder: '0', disabled: !ok });
+      input.setAttribute('aria-label', fill(T.qtyFor, { s }));
       if (ok && st.qty[s]) input.value = st.qty[s];
+      const set = (n) => {
+        st.qty[s] = Math.max(0, n);
+        input.value = st.qty[s] || '';
+        totals();
+      };
       input.addEventListener('input', () => { st.qty[s] = Math.max(0, parseInt(input.value, 10) || 0); totals(); });
-      label.append(s, input);
-      box.append(label);
+      const minus = make('button', 'sz-b', '\u2212');
+      const plus = make('button', 'sz-b', '+');
+      [[minus, -1, T.less], [plus, 1, T.more]].forEach(([b, d, lab]) => {
+        Object.assign(b, { type: 'button', disabled: !ok });
+        b.setAttribute('aria-label', fill(lab, { s }));
+        b.addEventListener('click', () => set((st.qty[s] || 0) + d));
+      });
+      const row = make('div', 'sz-row');
+      row.append(minus, input, plus);
+      cell.append(make('span', 'sz-name', s), row);
+      box.append(cell);
     });
     q('[data-size-note]').textContent = st.colour.sizes.length < SIZES.length ? T.notMade : '';
   }
@@ -290,6 +305,8 @@
     const d = st.design;
     q('[data-design-empty]').hidden = !!d;
     q('[data-design-set]').hidden = !d;
+    const ew = q('[data-email-art-wrap]');
+    if (ew) ew.hidden = !!d;
     const list = q('[data-design-summary]');
     list.innerHTML = '';
     if (!d) return;
@@ -825,7 +842,7 @@
   q('[data-fz-close]', fz).addEventListener('click', () => fz.close());
   q('[data-fz-save]', fz).addEventListener('click', () => {
     if (fzs.files.some((f) => !Object.keys(f.at).length)) {
-      q('[data-fz-msg]', fz).textContent = T.needPosition;
+      popup(T.needPositionTitle, T.needPosition);
       return;
     }
     const note = q('[data-fz-note]', fz).value.trim();
@@ -857,11 +874,38 @@
     return out;
   }
 
+  // Messages that need the customer to do something open as a pop-up.
+  const pop = q('[data-alert]');
+  let popAfter = null;
+  function popup(title, text, after) {
+    if (!pop) { window.alert(text); return; }
+    q('[data-alert-title]', pop).textContent = title;
+    q('[data-alert-text]', pop).textContent = text;
+    popAfter = after || null;
+    pop.showModal();
+    q('[data-alert-ok]', pop).focus();
+  }
+  if (pop) {
+    q('[data-alert-ok]', pop).addEventListener('click', () => pop.close());
+    pop.addEventListener('click', (e) => { if (e.target === pop) pop.close(); });
+    pop.addEventListener('close', () => { if (popAfter) popAfter(); popAfter = null; });
+  }
+  const goTo = (sel) => () => {
+    const el = q(sel);
+    if (!el) return;
+    el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    const f = el.querySelector('input:not([disabled]), button');
+    if (f) f.focus({ preventScroll: true });
+  };
+  const emailArt = q('[data-email-art]');
+
   const msg = q('[data-add-msg]');
   async function addToBasket() {
-    msg.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
     const lines = SIZES.filter((s) => st.colour.sizes.includes(s) && st.qty[s]);
-    if (!lines.length) { msg.textContent = T.needItems; return; }
+    if (!lines.length) { popup(T.needItemsTitle, T.needItems, goTo('[data-sizes]')); return; }
+    const later = !st.design && emailArt && emailArt.checked;
+    if (!st.design && !later) { popup(T.needDesignTitle, T.needDesign, goTo('[data-design-empty]')); return; }
+    msg.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
     msg.classList.remove('is-added');
     msg.textContent = T.adding;
     const group = Date.now().toString(36);
@@ -875,7 +919,7 @@
         body.append('quantity', st.qty[lines[i]]);
         body.append('properties[_group]', group);
         if (!D.quoteOnly) body.append('properties[_buy]', '1');
-        if (!st.design) body.append(`properties[${T.printLabel}]`, T.noDesign);
+        if (!st.design) body.append(`properties[${T.printLabel}]`, later ? T.emailArt : T.noDesign);
         else body.append(`properties[${T.printLabel}]`, st.design.mode === 'designer' ? T.designedOnline : T.filesSent);
         rows.forEach((r) => {
           body.append(`properties[${r.name}]`, r.text);
@@ -904,7 +948,8 @@
       loadBasket();
       document.dispatchEvent(new CustomEvent('cft:basket-changed'));
     } catch (e) {
-      msg.textContent = T.addFail;
+      msg.textContent = '';
+      popup(T.failTitle, T.addFail);
     }
   }
   qa('[data-add]').forEach((b) => b.addEventListener('click', addToBasket));
