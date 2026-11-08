@@ -30,7 +30,7 @@
               <div class="search-result__content">
                 <p>
                   {{ result.title | link_to: result.url }}
-                  {% if result.price %}
+                  {% if result.price and result.tags contains 'buy-online' %}
                     {{ result.price | money_with_currency }}
                   {% endif %}
                 </p>

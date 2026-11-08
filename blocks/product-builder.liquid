@@ -1,8 +1,9 @@
 {% doc %}
   Renders the product page: a photo stage, colour, a size grid with the bulk
   discount nudge, a "Your design" card and one button. The button reads
-  "Add to quote" on quote-only products and "Add to order" on priced ones;
-  both put the sizes in the basket with the design as line item properties.
+  "Add to quote" on every product except those tagged buy-online, which show
+  their price and "Buy now" (straight to checkout). Both put the sizes in the
+  basket with the design as line item properties.
 
   The design is added in one of two pop-ups:
   - Design it yourself: add a logo or text, drag it to move it, drag its
@@ -19,8 +20,9 @@
     it (only when there is at least one). Back photos stay in the designer.
   - Variant images are the flat colour shots. Supplier lifestyle shots
     (file names containing _LS00_) are never shown, per the imagery terms.
-  - A price of 0 or the tag "quote-only" makes it a quote item, because
-    Shopify stores a blank price as 0.00.
+  - The shop is quote-only: no prices show. Only a product tagged
+    "buy-online" with a price above 0 shows its price (printing included)
+    and a Buy now button.
   - Metafield cft.size_guide (JSON) fills the size guide as a table:
     {"unit": "in", "sizes": ["S", "M"], "rows": [{"label": "Chest", "values": ["36/38", "38/40"]}]}.
     Rich text still works too (shown as it is). No metafield,
@@ -62,9 +64,9 @@
     endunless
   endfor
 
-  assign quote_only = false
-  if product.price == 0 or product.tags contains 'quote-only'
-    assign quote_only = true
+  assign quote_only = true
+  if product.price > 0 and product.tags contains 'buy-online'
+    assign quote_only = false
   endif
 
   assign size_guide = product.metafields.cft.size_guide
@@ -103,7 +105,7 @@
           <b>{{ 'product.price_on_quote' | t }}</b>
         {%- else -%}
           {%- assign price_min = product.price_min | money -%}
-          <span class="price-from">{{ 'product.price_from_html' | t: price: price_min }}</span>
+          <span class="price-from">{{ 'product.price_buy_html' | t: price: price_min }}</span>
         {%- endif -%}
         <span>{{ 'product.bulk_line' | t }}</span>
       </div>
@@ -149,9 +151,9 @@
       <div class="cta-box">
         <div class="cta-sum"><span>{{ 'product.your_selection' | t }}</span><b data-sum></b></div>
         <button type="button" class="pill pill-o" data-add>
-          {%- if quote_only -%}{{ 'product.add_to_quote' | t }}{%- else -%}{{ 'product.add_to_order' | t }}{%- endif -%}
+          {%- if quote_only -%}{{ 'product.add_to_quote' | t }}{%- else -%}{{ 'product.buy_now' | t }}{%- endif -%}
         </button>
-        <p data-add-msg aria-live="polite">{{ 'product.add_note' | t }}</p>
+        <p data-add-msg aria-live="polite">{%- if quote_only -%}{{ 'product.quote_note' | t }}{%- else -%}{{ 'product.buy_note' | t }}{%- endif -%}</p>
       </div>
 
       <div class="trust">
@@ -186,7 +188,7 @@
   </div>
 
   <div class="mob-bar"><span data-mob-sum></span><button type="button" class="pill pill-o" data-add>
-    {%- if quote_only -%}{{ 'product.add_to_quote' | t }}{%- else -%}{{ 'product.add_to_order' | t }}{%- endif -%}
+    {%- if quote_only -%}{{ 'product.add_to_quote' | t }}{%- else -%}{{ 'product.buy_now' | t }}{%- endif -%}
   </button></div>
 
   <dialog class="dz" data-designer aria-labelledby="dz-h">
@@ -274,6 +276,7 @@
     "quoteOnly": {{ quote_only | json }},
     "cartAdd": {{ routes.cart_add_url | append: '.js' | json }},
     "cartUrl": {{ routes.cart_url | json }},
+    "checkoutUrl": "/checkout",
     "selectedColour": {{ product.selected_or_first_available_variant.options[colour_i] | json }},
     "sizes": [
       {%- for value in product.options_with_values[size_i].values -%}
@@ -372,6 +375,7 @@
       "needItems": {{ 'product.need_items' | t | json }},
       "adding": {{ 'product.adding' | t | json }},
       "added": {{ 'product.added_html' | t: url: '%u' | json }},
+      "toCheckout": {{ 'product.to_checkout' | t | json }},
       "addFail": {{ 'product.add_fail' | t | json }},
       "artwork": {{ 'product.artwork' | t | json }},
       "printLabel": {{ 'product.print_label' | t | json }}

@@ -40,9 +40,9 @@
     endif
   endfor
 
-  assign quote_only = false
-  if product.price == 0 or product.tags contains 'quote-only'
-    assign quote_only = true
+  assign quote_only = true
+  if product.price > 0 and product.tags contains 'buy-online'
+    assign quote_only = false
   endif
 -%}
 
@@ -79,7 +79,7 @@
         {{ 'collections.price_on_quote' | t }}
       {%- else -%}
         {%- assign price_min = product.price_min | money -%}
-        {{ 'collections.price_from_html' | t: price: price_min }}
+        {{ 'collections.price_buy_html' | t: price: price_min }}
       {%- endif -%}
     </span>
   </div>
