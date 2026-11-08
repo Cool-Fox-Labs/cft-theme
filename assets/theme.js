@@ -145,9 +145,39 @@ document.addEventListener('cft:basket-changed', async () => {
   if (!button) return;
   const msg = document.querySelector('[data-quote-msg]');
   const val = (n) => (document.querySelector(`[name="${n}"]`) || {}).value?.trim() || '';
+  // Collection or delivery: the address boxes only show for delivery.
+  const ship = document.querySelector('[data-quote-ship]');
+  const addr = document.querySelector('[data-ship-addr]');
+  const shipping = () => (document.querySelector('[name="q_ship"]:checked') || {}).value || 'collect';
+  ship?.addEventListener('change', () => { if (addr) addr.hidden = shipping() !== 'deliver'; });
+  if (addr) addr.hidden = shipping() !== 'deliver';
+  const stop = (text, field) => {
+    msg.textContent = text;
+    const el = field && document.querySelector(`[name="${field}"]`);
+    if (el) el.focus();
+  };
   button.addEventListener('click', async () => {
-    const contact = { name: val('q_name'), email: val('q_email'), phone: val('q_phone') };
-    if (!contact.name || !(contact.email || contact.phone)) { msg.textContent = msg.dataset.need; return; }
+    const contact = { name: val('q_name'), email: val('q_email'), phone: val('q_phone'), company: val('q_company') };
+    if (!contact.name) return stop(msg.dataset.need, 'q_name');
+    if (!contact.email) return stop(msg.dataset.need, 'q_email');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact.email)) return stop(msg.dataset.needEmail, 'q_email');
+    if (!contact.phone) return stop(msg.dataset.need, 'q_phone');
+    const method = shipping();
+    const address = method === 'deliver'
+      ? { address1: val('q_address1'), address2: val('q_address2'), city: val('q_city'), zip: val('q_postcode'), countryCode: 'GB' }
+      : null;
+    if (address) {
+      for (const f of ['q_address1', 'q_city', 'q_postcode']) if (!val(f)) return stop(msg.dataset.needAddress, f);
+    }
+    // Company and delivery go in their own fields, and into the note too, so
+    // they reach the quote even before Print Studio reads the new fields.
+    const d = ship ? ship.dataset : {};
+    const extra = [];
+    if (contact.company) extra.push(`${d.noteCompany || 'Company'}: ${contact.company}`);
+    extra.push(address
+      ? `${d.noteDeliver || 'Delivery to'}: ${[address.address1, address.address2, address.city, address.zip].filter(Boolean).join(', ')}`
+      : d.noteCollect || 'Collection from the showroom');
+    msg.textContent = '';
     button.disabled = true;
     try {
       const form = button.closest('form');
@@ -159,7 +189,12 @@ document.addEventListener('cft:basket-changed', async () => {
       const res = await fetch(button.dataset.endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify({ source: 'basket', contact, note: cart.note || '', cart: { ...cart, items } }),
+        body: JSON.stringify({
+          source: 'basket', contact,
+          delivery: { method, address },
+          note: [cart.note || '', ...extra].filter(Boolean).join('\n'),
+          cart: { ...cart, items },
+        }),
       });
       if (!res.ok) throw new Error(String(res.status));
       // Remove what was sent: everything, or just the quote items when
