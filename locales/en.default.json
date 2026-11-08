@@ -36,7 +36,8 @@
     "quote_ok": "Thanks, your quote request is in. We'll email or call you within one working day.",
     "buy_title": "Ready to buy",
     "buy_text": "These items are priced, so you can pay for them now. We still send a proof before printing.",
-    "buy_after_quote": "Send your quote request first. Your buy-now items stay here, ready for checkout."
+    "buy_after_quote": "Send your quote request first. Your buy-now items stay here, ready for checkout.",
+    "quote_sent": "Quote request sent"
   },
   "customers": {
     "login": {
@@ -335,7 +336,7 @@
     "artwork": "Artwork",
     "need_items": "Add at least one item in the size grid first.",
     "adding": "Adding...",
-    "added_html": "Added to your quote. <a href=\"{{ url }}\">View your quote</a> or add another garment.",
+    "added_html": "<span><b>Added to your quote.</b> Add another colour or garment, or view your quote when you're ready.</span><a class=\"cta-view\" href=\"{{ url }}\">View your quote</a>",
     "add_fail": "Sorry, that didn't work. Please try again, or call or email us.",
     "send_ok": "Thanks, your quote request is in. We will email you a proof and a price.",
     "chest_logo": "Left chest logo (about 4in wide)",
@@ -472,7 +473,7 @@
       "title": "Start your quote",
       "intro": "Two ways to start. We check every design and send you a price and a proof before anything is printed. Nothing is charged now.",
       "pick_title": "Choose a garment",
-      "pick_text": "Pick the garment, colours and sizes, add your design, then send it from your basket.",
+      "pick_text": "Pick the garment, colours and sizes, add your design, then send it from Your quote.",
       "form_title": "Not sure? Tell us what you need",
       "form_text": "A few details are enough. We'll come back with ideas, a price and a proof.",
       "f_name": "Your name",
@@ -492,7 +493,27 @@
       "too_big": "Please send up to 5 files, 10 MB in total. Bigger files? Email them to hello@coolfoxtees.com.",
       "sending": "Sending…",
       "ok": "Thanks, we've got it. We'll be in touch within one working day.",
-      "fail": "Sorry, that didn't send. Please email hello@coolfoxtees.com or call 07706 949932."
+      "fail": "Sorry, that didn't send. Please email hello@coolfoxtees.com or call 07706 949932.",
+      "sent_title": "Quote request sent",
+      "sent_title_named": "Thanks %n, your quote request is sent",
+      "sent_lead": "We've got it. We'll email or call you within one working day. Nothing is charged now.",
+      "sent_summary": "What you sent",
+      "sum_contact": "Reply to",
+      "sum_items": "Garments",
+      "sum_garment": "What to print",
+      "sum_qty": "How many",
+      "sum_date": "Needed by",
+      "sum_files": "Artwork files",
+      "next_title": "What happens next",
+      "next_1_title": "We check your artwork",
+      "next_1": "We look at your files, sizes and print positions, and fix anything that won't print well.",
+      "next_2_title": "You get a price and a proof",
+      "next_2": "We email your price and a proof showing your design on the garment.",
+      "next_3_title": "You approve, we print",
+      "next_3": "Nothing is printed or charged until you say yes. Most orders are ready in 5–7 working days.",
+      "sent_help": "Questions in the meantime? Email hello@coolfoxtees.com or call 07706 949932.",
+      "sent_browse": "Browse garments",
+      "sent_home": "Back to home"
     }
   }
 }

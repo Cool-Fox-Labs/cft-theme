@@ -6,11 +6,40 @@
   To use it: create a page in Shopify admin (handle "get-a-quote") and choose
   the "get-a-quote" template. Every "Get a quote" button then links here.
   Wording lives in locales/en.default.json under pages.quote.
+  After a request is sent (from this form or from the basket) the page opens
+  as /pages/get-a-quote#sent and shows the "Quote request sent" view instead,
+  with a summary the sending page saved in sessionStorage (cft-quote-sent).
 {% endcomment %}
 
 {% block 'container', tag: 'section' %}
   {%- assign endpoint = settings.quote_endpoint | default: '/apps/account/quote' -%}
-  <div class="gq">
+  <div class="gq-sent" data-quote-sent hidden>
+    <span class="gq-tick" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+    <h1 tabindex="-1" data-sent-title data-named="{{ 'pages.quote.sent_title_named' | t: name: '%n' }}">{{ 'pages.quote.sent_title' | t }}</h1>
+    <p class="gq-sent-lead">{{ 'pages.quote.sent_lead' | t }}</p>
+    <div class="gq-sum" data-sent-summary hidden>
+      <h2>{{ 'pages.quote.sent_summary' | t }}</h2>
+      <dl data-sent-list></dl>
+      <script type="application/json" data-sent-labels>
+        {"contact": {{ 'pages.quote.sum_contact' | t | json }}, "items": {{ 'pages.quote.sum_items' | t | json }}, "garment": {{ 'pages.quote.sum_garment' | t | json }}, "quantity": {{ 'pages.quote.sum_qty' | t | json }}, "neededBy": {{ 'pages.quote.sum_date' | t | json }}, "files": {{ 'pages.quote.sum_files' | t | json }}}
+      </script>
+    </div>
+    <div class="gq-next">
+      <h2>{{ 'pages.quote.next_title' | t }}</h2>
+      <ol>
+        <li><b>{{ 'pages.quote.next_1_title' | t }}</b>{{ 'pages.quote.next_1' | t }}</li>
+        <li><b>{{ 'pages.quote.next_2_title' | t }}</b>{{ 'pages.quote.next_2' | t }}</li>
+        <li><b>{{ 'pages.quote.next_3_title' | t }}</b>{{ 'pages.quote.next_3' | t }}</li>
+      </ol>
+    </div>
+    <p class="gq-sent-help">{{ 'pages.quote.sent_help' | t }}</p>
+    <div class="gq-sent-cta">
+      <a class="pill pill-o" href="{{ routes.collections_url }}">{{ 'pages.quote.sent_browse' | t }}</a>
+      <a class="pill pill-l" href="{{ routes.root_url }}">{{ 'pages.quote.sent_home' | t }}</a>
+    </div>
+  </div>
+
+  <div class="gq" data-quote-start>
     <header class="info-head">
       <span class="eyebrow">{{ 'pages.quote.eyebrow' | t }}</span>
       <h1>{{ 'pages.quote.title' | t }}</h1>
