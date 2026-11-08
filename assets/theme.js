@@ -225,6 +225,16 @@ document.addEventListener('cft:basket-changed', async () => {
   const shipping = () => (form.querySelector('[name="ship"]:checked') || {}).value || 'collect';
   form.querySelector('[data-quote-ship]')?.addEventListener('change', () => { if (addr) addr.hidden = shipping() !== 'deliver'; });
   if (addr) addr.hidden = shipping() !== 'deliver';
+  // Earliest "needed by" date: N working days from today (weekends skipped).
+  const dateIn = form.querySelector('[name="needed_by"]');
+  let earliest = '';
+  if (dateIn) {
+    const d = new Date();
+    let left = Number(dateIn.dataset.minDays || 0);
+    while (left > 0) { d.setDate(d.getDate() + 1); if (d.getDay() % 6) left -= 1; }
+    earliest = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    dateIn.min = earliest;
+  }
   const stop = (text, field) => {
     msg.textContent = text;
     const el = field && form.querySelector(`[name="${field}"]`);
@@ -237,6 +247,7 @@ document.addEventListener('cft:basket-changed', async () => {
     const d = msg.dataset;
     const name = v('name');
     if (!v('garment')) return stop(d.needGarment, 'garment');
+    if (v('needed_by') && earliest && v('needed_by') < earliest) return stop(d.needDate, 'needed_by');
     if (!name) return stop(d.need, 'name');
     if (!v('email')) return stop(d.need, 'email');
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v('email'))) return stop(d.needEmail, 'email');

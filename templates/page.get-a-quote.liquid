@@ -71,8 +71,14 @@
           </fieldset>
           <div class="gq-two">
             <label>{{ 'pages.quote.f_qty' | t }}<input type="number" name="quantity" min="1" inputmode="numeric"></label>
-            <label>{{ 'pages.quote.f_date' | t }}<input type="date" name="needed_by"></label>
+            <label>{{ 'pages.quote.f_date' | t }}<input type="date" name="needed_by" data-min-days="7" aria-describedby="gq-date-hint"></label>
           </div>
+          {%- assign shop_email = settings.email -%}
+          <p class="gq-hint" id="gq-date-hint">{{ 'pages.quote.f_date_hint' | t }}
+            {%- if settings.phone != blank %} <a href="tel:{{ settings.phone | remove: ' ' }}">{{ settings.phone }}</a>{% endif -%}
+            {%- if settings.phone != blank and shop_email != blank %} {{ 'pages.quote.or' | t }}{% endif -%}
+            {%- if shop_email != blank %} <a href="mailto:{{ shop_email }}">{{ shop_email }}</a>{% endif -%}
+          </p>
           <label>{{ 'pages.quote.f_files' | t }}<input type="file" name="files[]" multiple accept="image/*,.pdf,.ai,.eps,.svg,.psd"></label>
           <p class="gq-hint">{{ 'pages.quote.f_files_hint' | t }}</p>
           <label>{{ 'pages.quote.f_notes' | t }}<textarea name="notes" rows="3" placeholder="{{ 'pages.quote.f_notes_ph' | t }}"></textarea></label>
@@ -104,6 +110,7 @@
           <p class="gq-msg" aria-live="polite" data-quote-form-msg
             data-need="{{ 'pages.quote.need_contact' | t }}"
             data-need-garment="{{ 'pages.quote.need_garment' | t }}"
+            data-need-date="{{ 'pages.quote.need_date' | t }}"
             data-need-email="{{ 'cart.need_email' | t }}"
             data-need-address="{{ 'cart.need_address' | t }}"
             data-l-budget="{{ 'pages.quote.note_budget' | t }}"
