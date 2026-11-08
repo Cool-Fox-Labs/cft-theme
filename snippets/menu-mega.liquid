@@ -1,0 +1,70 @@
+{% doc %}
+  The desktop Garments drop-down: one column per category with its photo,
+  name, the category's sections and a See all link, then a full-width
+  "Can't see what you need?" strip linking to the supplier catalogue.
+
+  Sections are read from the collection itself, the same way the collection
+  page builds them: product tags "group:<Name>", in the collection's product
+  order. So adding or renaming a section in the admin updates the menu too.
+  Each section links to its heading on the collection page (#g-<name>).
+
+  The phone drawer still uses the plain 'menu-links' list.
+
+  @example
+  {% render 'menu-mega' %}
+{% enddoc %}
+
+{%- liquid
+  assign items = 't_shirts,hoodies,sportswear,workwear,headwear,totes' | split: ','
+  assign handles = 't-shirts,hoodies-sweatshirts,sportswear,workwear,headwear,tote-bags' | split: ','
+  assign photos = 'garments-tshirts.jpg,garments-hoodies.jpg,garments-sportswear.jpg,garments-workwear.jpg,garments-headwear.jpg,garments-totes.jpg' | split: ','
+  assign tints = '#FCE6D6,#EEE8E0,#E5EADF,#E0EAE6,#F6EFD2,#ECE6F2' | split: ','
+  assign catalogue_url = settings.full_catalogue_url | strip
+-%}
+
+<div class="mega">
+  {%- for item in items -%}
+    {%- liquid
+      assign i = forloop.index0
+      assign handle = handles[i]
+      assign coll = collections[handle]
+      assign url = routes.collections_url | append: '/' | append: handle
+      assign title_key = 'menu.garments.' | append: item | append: '.title'
+      assign group_list = ''
+      for product in coll.products
+        for tag in product.tags
+          assign head = tag | slice: 0, 6 | downcase
+          if head == 'group:'
+            assign name = tag | slice: 6, 100 | strip
+            if name != blank
+              assign group_list = group_list | append: name | append: '|'
+            endif
+          endif
+        endfor
+      endfor
+      assign groups = group_list | split: '|' | uniq
+    -%}
+    <div class="mega-col">
+      <a class="mega-img" href="{{ url }}" style="--tint: {{ tints[i] }}" tabindex="-1" aria-hidden="true">
+        <img src="{{ photos[i] | asset_url }}" width="1200" height="900" alt="" loading="lazy">
+      </a>
+      <a class="mega-title" href="{{ url }}">{{ title_key | t }}</a>
+      <ul>
+        {%- for g in groups -%}
+          <li><a href="{{ url }}#g-{{ g | handleize }}">{{ g | escape }}</a></li>
+        {%- endfor -%}
+        <li><a class="mega-all" href="{{ url }}">{{ 'header.see_all' | t }} &rarr;</a></li>
+      </ul>
+    </div>
+  {%- endfor -%}
+</div>
+
+{%- if catalogue_url != blank -%}
+  <div class="mega-strip">
+    <div>
+      <b>{{ 'collections.help_title' | t }}</b>
+      <span>{{ 'header.mega_catalogue_text' | t }}</span>
+    </div>
+    <a class="pill pill-o" href="{{ catalogue_url | escape }}" target="_blank" rel="noopener">{{ 'collections.help_cta_catalogue' | t }} &#8599;</a>
+  </div>
+{%- endif -%}
