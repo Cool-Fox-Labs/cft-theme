@@ -64,7 +64,7 @@
               <p class="gq-hint">{{ 'cart.contact_hint' | t }}</p>
             </fieldset>
             <button type="button" class="pill pill-o" data-send-quote data-endpoint="{{ settings.quote_endpoint | default: '/apps/account/quote' | escape }}">{{ 'cart.send_quote' | t }}</button>
-            <p aria-live="polite" data-quote-msg data-need="{{ 'cart.need_contact' | t | escape }}" data-fail="{{ 'cart.quote_fail' | t | escape }}" data-ok="{{ 'cart.quote_ok' | t | escape }}"></p>
+            <p aria-live="polite" data-quote-msg data-need="{{ 'cart.need_contact' | t }}" data-fail="{{ 'cart.quote_fail' | t }}" data-ok="{{ 'cart.quote_ok' | t }}"></p>
           {%- else -%}
             <p class="basket-total"><span>{{ 'cart.subtotal' | t }}</span><b>{{ cart.total_price | money }}</b></p>
             <button type="submit" class="pill pill-o" name="checkout">{{ 'cart.checkout' | t }}</button>
