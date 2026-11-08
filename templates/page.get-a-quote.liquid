@@ -38,21 +38,21 @@
             <label>{{ 'pages.quote.f_phone' | t }}<input type="tel" name="phone" autocomplete="tel" value="{{ customer.phone | escape }}"></label>
           </div>
           <p class="gq-hint">{{ 'pages.quote.f_contact_hint' | t }}</p>
-          <label>{{ 'pages.quote.f_garment' | t }}<input name="garment" placeholder="{{ 'pages.quote.f_garment_ph' | t | escape }}"></label>
+          <label>{{ 'pages.quote.f_garment' | t }}<input name="garment" placeholder="{{ 'pages.quote.f_garment_ph' | t }}"></label>
           <div class="gq-two">
             <label>{{ 'pages.quote.f_qty' | t }}<input type="number" name="quantity" min="1" inputmode="numeric"></label>
             <label>{{ 'pages.quote.f_date' | t }}<input type="date" name="needed_by"></label>
           </div>
           <label>{{ 'pages.quote.f_files' | t }}<input type="file" name="files[]" multiple accept="image/*,.pdf,.ai,.eps,.svg,.psd"></label>
           <p class="gq-hint">{{ 'pages.quote.f_files_hint' | t }}</p>
-          <label>{{ 'pages.quote.f_notes' | t }}<textarea name="notes" rows="4" placeholder="{{ 'pages.quote.f_notes_ph' | t | escape }}"></textarea></label>
+          <label>{{ 'pages.quote.f_notes' | t }}<textarea name="notes" rows="4" placeholder="{{ 'pages.quote.f_notes_ph' | t }}"></textarea></label>
           <button type="submit" class="pill pill-o">{{ 'pages.quote.send' | t }}</button>
           <p class="gq-msg" aria-live="polite" data-quote-form-msg
-            data-need="{{ 'pages.quote.need_contact' | t | escape }}"
-            data-big="{{ 'pages.quote.too_big' | t | escape }}"
-            data-sending="{{ 'pages.quote.sending' | t | escape }}"
-            data-ok="{{ 'pages.quote.ok' | t | escape }}"
-            data-fail="{{ 'pages.quote.fail' | t | escape }}"></p>
+            data-need="{{ 'pages.quote.need_contact' | t }}"
+            data-big="{{ 'pages.quote.too_big' | t }}"
+            data-sending="{{ 'pages.quote.sending' | t }}"
+            data-ok="{{ 'pages.quote.ok' | t }}"
+            data-fail="{{ 'pages.quote.fail' | t }}"></p>
         </form>
       </section>
     </div>
