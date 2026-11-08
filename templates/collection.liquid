@@ -1,28 +1,66 @@
-{% block 'container' %}
-  <h1>{{ collection.title }}</h1>
+{% comment %}
+  A garment category page: heading and intro, three short facts, then a grid
+  of garment cards. The intro is the collection's own description in the
+  admin; without one, a general line is used.
+{% endcomment %}
 
-  <div class="collection-products">
-    {% paginate collection.products by 20 %}
-      {% for product in collection.products %}
-        <div class="collection-product">
-          {% if product.featured_image %}
-            {% render 'image',
-              class: 'collection-product__image',
-              image: product.featured_image,
-              url: product.url,
-              width: 400,
-              height: 400,
-              crop: 'center'
-            %}
-          {% endif %}
-          <div class="collection-product__content">
-            <p>{{ product.title | escape | link_to: product.url }}</p>
-            <p>{{ product.price | money }}</p>
-          </div>
+{% block 'container', tag: 'div' %}
+  <div class="coll">
+    <nav class="crumbs" aria-label="{{ 'product.breadcrumb' | t }}">
+      <a href="{{ routes.root_url }}">{{ 'product.home' | t }}</a> /
+      {{ collection.title | escape }}
+    </nav>
+
+    <header class="coll-head">
+      <div>
+        <span class="eyebrow">{{ 'collections.eyebrow' | t }}</span>
+        <h1>{{ collection.title | escape }}</h1>
+        {%- if collection.description != blank -%}
+          <div class="coll-intro">{{ collection.description }}</div>
+        {%- else -%}
+          <p class="coll-intro">{{ 'collections.intro' | t }}</p>
+        {%- endif -%}
+      </div>
+      <ul class="coll-facts">
+        <li><b>{{ 'collections.fact_discount_title' | t }}</b><span>{{ 'collections.fact_discount_text' | t }}</span></li>
+        <li><b>{{ 'collections.fact_min_title' | t }}</b><span>{{ 'collections.fact_min_text' | t }}</span></li>
+        <li><b>{{ 'collections.fact_showroom_title' | t }}</b><span>{{ 'collections.fact_showroom_text' | t }}</span></li>
+      </ul>
+    </header>
+
+    {% paginate collection.products by 24 %}
+      <p class="coll-count">
+        {%- if collection.products_count == 1 -%}{{ 'collections.count_one' | t }}{%- else -%}{{ 'collections.count' | t: n: collection.products_count }}{%- endif -%}
+      </p>
+
+      {%- if collection.products.size > 0 -%}
+        <div class="coll-grid">
+          {%- for product in collection.products -%}
+            {% render 'garment-card', product: product %}
+          {%- endfor -%}
         </div>
-      {% endfor %}
+      {%- else -%}
+        <div class="coll-empty">
+          <p>{{ 'collections.empty' | t }}</p>
+          <a class="pill pill-o" href="{{ routes.root_url }}#garments">{{ 'collections.empty_cta' | t }}</a>
+        </div>
+      {%- endif -%}
 
-      {{ paginate | default_pagination }}
+      {%- if paginate.pages > 1 -%}
+        <nav class="coll-pages" aria-label="{{ 'collections.pages' | t }}">
+          {%- if paginate.previous -%}<a class="pill pill-l" href="{{ paginate.previous.url }}">&larr; {{ 'collections.previous' | t }}</a>{%- endif -%}
+          <span>{{ 'collections.page_of' | t: page: paginate.current_page, pages: paginate.pages }}</span>
+          {%- if paginate.next -%}<a class="pill pill-l" href="{{ paginate.next.url }}">{{ 'collections.next' | t }} &rarr;</a>{%- endif -%}
+        </nav>
+      {%- endif -%}
     {% endpaginate %}
+
+    <aside class="coll-help">
+      <div>
+        <b>{{ 'collections.help_title' | t }}</b>
+        <span>{{ 'collections.help_text' | t }}</span>
+      </div>
+      <a class="pill pill-o" href="{{ routes.root_url }}#how">{{ 'collections.help_cta' | t }}</a>
+    </aside>
   </div>
 {% endblock %}

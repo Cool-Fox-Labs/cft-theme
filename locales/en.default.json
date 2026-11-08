@@ -40,7 +40,31 @@
     }
   },
   "collections": {
-    "title": "Collections"
+    "title": "All garments",
+    "eyebrow": "Garments",
+    "intro": "Hand-picked garments we print on every week. Pick one to choose colours and sizes and add your design.",
+    "all_intro": "Every garment here is hand-picked and printed in our Leamington Spa studio. Pick a category to see the styles.",
+    "fact_discount_title": "Discount from 10",
+    "fact_discount_text": "Of the same garment, up to 20% off at 50",
+    "fact_min_title": "No minimum",
+    "fact_min_text": "One shirt or two hundred",
+    "fact_showroom_title": "See them first",
+    "fact_showroom_text": "Every garment is in our showroom",
+    "count": "{{ n }} styles",
+    "count_one": "1 style",
+    "colour_one": "1 colour",
+    "colours": "{{ n }} colours",
+    "price_on_quote": "Price on quote",
+    "price_from_html": "From <b>{{ price }}</b>",
+    "empty": "No garments in this category yet.",
+    "empty_cta": "See all garments",
+    "pages": "Pages",
+    "previous": "Previous",
+    "next": "Next",
+    "page_of": "Page {{ page }} of {{ pages }}",
+    "help_title": "Can't see what you need?",
+    "help_text": "We can get almost any brand. Tell us what you're after and we'll quote.",
+    "help_cta": "Get a quote"
   },
   "gift_card": {
     "add_to_apple_wallet": "Add to Apple Wallet",

@@ -1,27 +1,58 @@
-{% block 'container' %}
-  <h1>{{ 'collections.title' | t }}</h1>
+{% comment %}
+  All categories. Each tile uses the collection's own image when one is set
+  in the admin, otherwise the first garment's flat colour shot (never a
+  supplier lifestyle shot).
+{% endcomment %}
 
-  <div class="collections collections--full" style="--grid-gap: 10px">
-    {% for collection in collections %}
-      <a class="collection-card" href="{{ collection.url }}">
-        {% if collection.featured_image %}
-          {% render 'image',
-            class: 'collection-card__image',
-            image: collection.featured_image,
-            width: 600,
-            height: 600,
-            crop: 'center'
-          %}
-        {% endif %}
+{% block 'container', tag: 'div' %}
+  <div class="coll">
+    <header class="coll-head coll-head-solo">
+      <div>
+        <span class="eyebrow">{{ 'collections.eyebrow' | t }}</span>
+        <h1>{{ 'collections.title' | t }}</h1>
+        <p class="coll-intro">{{ 'collections.all_intro' | t }}</p>
+      </div>
+    </header>
 
-        <div class="collection-card__content">
-          <p>{{ collection.title }}</p>
-
-          {% if collection.description %}
-            <p>{{ collection.description | strip_html | truncatewords: 15 }}</p>
-          {% endif %}
-        </div>
-      </a>
-    {% endfor %}
+    <div class="coll-grid coll-grid-cats">
+      {%- for collection in collections -%}
+        {%- if collection.products_count == 0 -%}{%- continue -%}{%- endif -%}
+        {%- liquid
+          assign photo = collection.image
+          if photo == null
+            for product in collection.products limit: 8
+              for variant in product.variants
+                if variant.featured_image
+                  assign src = variant.featured_image.src | downcase
+                  unless src contains '_ls00_'
+                    assign photo = variant.featured_image
+                    break
+                  endunless
+                endif
+              endfor
+              if photo
+                break
+              endif
+            endfor
+          endif
+        -%}
+        <a class="gcard" href="{{ collection.url }}">
+          <div class="gcard-img">
+            {%- if photo -%}
+              {{ photo | image_url: width: 600 | image_tag: widths: '300, 450, 600', sizes: '(min-width: 1100px) 22vw, (min-width: 760px) 30vw, 46vw', alt: collection.title, loading: 'lazy' }}
+            {%- else -%}
+              <img src="{{ 'logo-fox-head.svg' | asset_url }}" width="500" height="600" alt="" loading="lazy" class="gcard-ph">
+            {%- endif -%}
+          </div>
+          <div class="gcard-body">
+            <b>{{ collection.title | escape }}</b>
+            <span class="gcard-meta">
+              {%- if collection.products_count == 1 -%}{{ 'collections.count_one' | t }}{%- else -%}{{ 'collections.count' | t: n: collection.products_count }}{%- endif -%}
+            </span>
+          </div>
+          <i class="gcard-go" aria-hidden="true">&rarr;</i>
+        </a>
+      {%- endfor -%}
+    </div>
   </div>
 {% endblock %}
