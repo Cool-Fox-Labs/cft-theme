@@ -221,11 +221,38 @@ document.addEventListener('cft:basket-changed', async () => {
   const form = document.querySelector('[data-quote-form]');
   if (!form) return;
   const msg = form.querySelector('[data-quote-form-msg]');
+  const addr = form.querySelector('[data-ship-addr]');
+  const shipping = () => (form.querySelector('[name="ship"]:checked') || {}).value || 'collect';
+  form.querySelector('[data-quote-ship]')?.addEventListener('change', () => { if (addr) addr.hidden = shipping() !== 'deliver'; });
+  if (addr) addr.hidden = shipping() !== 'deliver';
+  const stop = (text, field) => {
+    msg.textContent = text;
+    const el = field && form.querySelector(`[name="${field}"]`);
+    if (el) el.focus();
+  };
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     const data = new FormData(form);
-    const name = String(data.get('name') || '').trim();
-    if (!name || !(String(data.get('email') || '').trim() || String(data.get('phone') || '').trim())) { msg.textContent = msg.dataset.need; return; }
+    const v = (n) => String(data.get(n) || '').trim();
+    const d = msg.dataset;
+    const name = v('name');
+    if (!v('garment')) return stop(d.needGarment, 'garment');
+    if (!name) return stop(d.need, 'name');
+    if (!v('email')) return stop(d.need, 'email');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v('email'))) return stop(d.needEmail, 'email');
+    if (!v('phone')) return stop(d.need, 'phone');
+    const deliver = shipping() === 'deliver';
+    if (deliver) for (const f of ['address1', 'city', 'zip']) if (!v(f)) return stop(d.needAddress, f);
+    // Budget, company and collection or delivery also go into the notes, so
+    // they reach the quote whatever Print Studio reads from the form.
+    const extra = [];
+    if (v('budget')) extra.push(`${d.lBudget || 'Budget'}: ${v('budget')}`);
+    if (v('company')) extra.push(`${d.lCompany || 'Company'}: ${v('company')}`);
+    extra.push(deliver
+      ? `${d.lDeliver || 'Delivery to'}: ${['address1', 'address2', 'city', 'zip'].map(v).filter(Boolean).join(', ')}`
+      : d.lCollect || 'Collection from the showroom');
+    data.set('notes', [v('notes'), ...extra].filter(Boolean).join('\n'));
+    if (!deliver) ['address1', 'address2', 'city', 'zip'].forEach((f) => data.delete(f));
     const files = data.getAll('files[]').filter((f) => f && f.size);
     if (files.length > 5 || files.reduce((n, f) => n + f.size, 0) > 10 * 1024 * 1024) { msg.textContent = msg.dataset.big; return; }
     const button = form.querySelector('button[type="submit"]');
@@ -240,7 +267,7 @@ document.addEventListener('cft:basket-changed', async () => {
       }
       saveSent({
         name,
-        contact: String(data.get('email') || '').trim() || String(data.get('phone') || '').trim(),
+        contact: v('email'),
         garment: String(data.get('garment') || '').trim(),
         quantity: String(data.get('quantity') || '').trim(),
         neededBy: String(data.get('needed_by') || '').trim(),
