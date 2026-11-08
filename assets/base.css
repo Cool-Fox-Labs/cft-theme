@@ -594,6 +594,14 @@ input[type=range] { width: 100%; accent-color: var(--orange); height: 28px }
 .coll-facts li::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--orange); grid-row: span 2; align-self: start; margin-top: 7px }
 .coll-facts b { font: 600 16px/1.3 var(--f-d) }
 .coll-facts span { font-size: 14px; color: var(--muted) }
+.coll-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 20px; margin: 18px 0 14px }
+.coll-bar .coll-count { margin: 0 }
+.coll-jump { display: flex; flex-wrap: wrap; gap: 8px }
+.coll-jump a { display: inline-flex; align-items: center; min-height: 40px; padding: 0 16px; border-radius: 999px; background: var(--card); box-shadow: inset 0 0 0 1.5px var(--ink); color: var(--ink); font: 600 14px/1 var(--f-b); text-decoration: none; transition: background .2s, color .2s }
+.coll-jump a:hover { background: var(--ink); color: var(--cream) }
+.coll-group { scroll-margin-top: 16px; padding-top: 10px }
+.coll-group + .coll-group { margin-top: 30px }
+.coll-group h2 { font: 700 clamp(24px, 2.6vw, 32px)/1.1 var(--f-d); letter-spacing: -.02em; margin: 0 0 14px }
 .coll-count { margin: 18px 0 14px; font: 500 12px/1 var(--f-m); letter-spacing: .08em; text-transform: uppercase; color: var(--muted) }
 .coll-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px }
 .coll-grid-cats { margin-top: 24px }

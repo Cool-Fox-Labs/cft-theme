@@ -2,6 +2,11 @@
   A garment category page: heading and intro, three short facts, then a grid
   of garment cards. The intro is the collection's own description in the
   admin; without one, a general line is used.
+
+  Sections: tag a product "group:Heavyweight" (any name) and the page splits
+  into headed sections, A to Z, with jump buttons at the top. Untagged
+  products go under "More styles" at the end. With no group tags at all the
+  page is one grid.
 {% endcomment %}
 
 {% block 'container', tag: 'div' %}
@@ -28,22 +33,81 @@
       </ul>
     </header>
 
-    {% paginate collection.products by 24 %}
-      <p class="coll-count">
-        {%- if collection.products_count == 1 -%}{{ 'collections.count_one' | t }}{%- else -%}{{ 'collections.count' | t: n: collection.products_count }}{%- endif -%}
-      </p>
+    {% paginate collection.products by 50 %}
+      {%- liquid
+        assign group_list = ''
+        for product in collection.products
+          for tag in product.tags
+            assign head = tag | slice: 0, 6 | downcase
+            if head == 'group:'
+              assign name = tag | slice: 6, 100 | strip
+              if name != blank
+                assign group_list = group_list | append: name | append: '|'
+              endif
+            endif
+          endfor
+        endfor
+        assign groups = group_list | split: '|' | uniq | sort_natural
+      -%}
 
-      {%- if collection.products.size > 0 -%}
+      <div class="coll-bar">
+        <p class="coll-count">
+          {%- if collection.products_count == 1 -%}{{ 'collections.count_one' | t }}{%- else -%}{{ 'collections.count' | t: n: collection.products_count }}{%- endif -%}
+        </p>
+        {%- if groups.size > 0 -%}
+          <nav class="coll-jump" aria-label="{{ 'collections.jump' | t }}">
+            {%- for g in groups -%}
+              <a href="#g-{{ g | handleize }}">{{ g | escape }}</a>
+            {%- endfor -%}
+          </nav>
+        {%- endif -%}
+      </div>
+
+      {%- if collection.products.size == 0 -%}
+        <div class="coll-empty">
+          <p>{{ 'collections.empty' | t }}</p>
+          <a class="pill pill-o" href="{{ routes.root_url }}#garments">{{ 'collections.empty_cta' | t }}</a>
+        </div>
+      {%- elsif groups.size == 0 -%}
         <div class="coll-grid">
           {%- for product in collection.products -%}
             {% render 'garment-card', product: product %}
           {%- endfor -%}
         </div>
       {%- else -%}
-        <div class="coll-empty">
-          <p>{{ 'collections.empty' | t }}</p>
-          <a class="pill pill-o" href="{{ routes.root_url }}#garments">{{ 'collections.empty_cta' | t }}</a>
-        </div>
+        {%- for g in groups -%}
+          {%- assign want = 'group:' | append: g | downcase -%}
+          <section class="coll-group" id="g-{{ g | handleize }}">
+            <h2>{{ g | escape }}</h2>
+            <div class="coll-grid">
+              {%- for product in collection.products -%}
+                {%- assign hit = false -%}
+                {%- for tag in product.tags -%}
+                  {%- assign t = tag | downcase | replace: 'group: ', 'group:' -%}
+                  {%- if t == want -%}{%- assign hit = true -%}{%- break -%}{%- endif -%}
+                {%- endfor -%}
+                {%- if hit -%}{% render 'garment-card', product: product %}{%- endif -%}
+              {%- endfor -%}
+            </div>
+          </section>
+        {%- endfor -%}
+
+        {%- capture rest -%}
+          {%- for product in collection.products -%}
+            {%- assign in_group = false -%}
+            {%- for tag in product.tags -%}
+              {%- assign head = tag | slice: 0, 6 | downcase -%}
+              {%- if head == 'group:' -%}{%- assign in_group = true -%}{%- break -%}{%- endif -%}
+            {%- endfor -%}
+            {%- unless in_group -%}{% render 'garment-card', product: product %}{%- endunless -%}
+          {%- endfor -%}
+        {%- endcapture -%}
+        {%- if rest != blank -%}
+          <section class="coll-group" id="g-more">
+            <h2>{{ 'collections.more' | t }}</h2>
+            <div class="coll-grid">{{ rest }}</div>
+          </section>
+        {%- endif -%}
       {%- endif -%}
 
       {%- if paginate.pages > 1 -%}

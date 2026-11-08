@@ -64,7 +64,9 @@
     "page_of": "Page {{ page }} of {{ pages }}",
     "help_title": "Can't see what you need?",
     "help_text": "We can get almost any brand. Tell us what you're after and we'll quote.",
-    "help_cta": "Get a quote"
+    "help_cta": "Get a quote",
+    "jump": "Jump to",
+    "more": "More styles"
   },
   "gift_card": {
     "add_to_apple_wallet": "Add to Apple Wallet",
