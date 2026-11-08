@@ -169,14 +169,6 @@ document.addEventListener('cft:basket-changed', async () => {
     if (address) {
       for (const f of ['q_address1', 'q_city', 'q_postcode']) if (!val(f)) return stop(msg.dataset.needAddress, f);
     }
-    // Company and delivery go in their own fields, and into the note too, so
-    // they reach the quote even before Print Studio reads the new fields.
-    const d = ship ? ship.dataset : {};
-    const extra = [];
-    if (contact.company) extra.push(`${d.noteCompany || 'Company'}: ${contact.company}`);
-    extra.push(address
-      ? `${d.noteDeliver || 'Delivery to'}: ${[address.address1, address.address2, address.city, address.zip].filter(Boolean).join(', ')}`
-      : d.noteCollect || 'Collection from the showroom');
     msg.textContent = '';
     button.disabled = true;
     try {
@@ -192,7 +184,7 @@ document.addEventListener('cft:basket-changed', async () => {
         body: JSON.stringify({
           source: 'basket', contact,
           delivery: { method, address },
-          note: [cart.note || '', ...extra].filter(Boolean).join('\n'),
+          note: cart.note || '',
           cart: { ...cart, items },
         }),
       });
