@@ -40,6 +40,12 @@
     the photo; w and h are inches; inch is how much of the photo width one
     inch covers. "positions" (the send-your-files choices) can still be
     replaced as before.
+    A view may also carry Print Studio's boxes as "psAreas":
+    [{"x": 50, "y": 45, "w": 34, "h": 20, "inW": 4.5, "rot": 0,
+      "colours": {"black": {"x": 52, "y": 47, "w": 34, "h": 20, "rot": 0}}}]
+    (x/y the box centre, w/h its size, % of the photo; inW its real width in
+    inches). While that view's own photo shows, the print area is the widest
+    box, moved for the colour when listed, at its real size.
   - Headwear (product type Caps or Beanies) offers Front only, with a
     smaller print area. The designer uses the straight-on front photo
     ai_{HANDLE}_{Colour}_FRONT.jpg from Files when it exists (colour with
