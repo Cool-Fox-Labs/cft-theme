@@ -38,6 +38,10 @@
     the photo; w and h are inches; inch is how much of the photo width one
     inch covers. "positions" (the send-your-files choices) can still be
     replaced as before.
+  - Headwear (product type Caps or Beanies) offers Front only, with a
+    smaller print area. The designer uses the straight-on front photo
+    ai_{HANDLE}_{Colour}_FRONT.jpg from Files when it exists (colour with
+    each run of other characters as "-"), else the colour's own photo.
 
   @example
   {% block 'product-builder' %}{% endblock %}
@@ -292,6 +296,10 @@
     "cartAdd": {{ routes.cart_add_url | append: '.js' | json }},
     "cartUrl": {{ routes.cart_url | json }},
     "checkoutUrl": "/checkout",
+    {%- comment -%} Headwear (caps and beanies): Front only, on a straight-on AI front photo per colour when one exists in Files (ai_{HANDLE}_{Colour}_FRONT.jpg). Listing photos are unchanged. {%- endcomment -%}
+    "headwear": {% if product.type == 'Caps' or product.type == 'Beanies' %}true{% else %}false{% endif %},
+    "handle": {{ product.handle | json }},
+    "filesBase": {{ 'ai_.jpg' | file_url | split: 'ai_.jpg' | first | json }},
     "selectedColour": {{ product.selected_or_first_available_variant.options[colour_i] | json }},
     "sizes": [
       {%- for value in product.options_with_values[size_i].values -%}
