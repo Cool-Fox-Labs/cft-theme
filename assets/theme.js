@@ -40,12 +40,35 @@
     document.addEventListener('click', (event) => {
       if (!head.contains(event.target)) closeAll(null);
     });
-    head.querySelectorAll('.panel a, .drawer a').forEach((link) =>
-      link.addEventListener('click', () => {
-        closeAll(null);
-        setDrawer(false);
-      })
-    );
+    head.addEventListener('click', (event) => {
+      if (!event.target.closest('.panel a, .drawer a')) return;
+      closeAll(null);
+      setDrawer(false);
+    });
+
+    // Desktop Garments drop-down: the photo menu is its own small page,
+    // fetched once after load on wide screens (phones use the drawer and
+    // never need it). Keeps that work off every page load.
+    const mega = head.querySelector('[data-mega]');
+    if (mega && window.matchMedia('(min-width: 961px)').matches) {
+      let loaded = false;
+      const load = async () => {
+        if (loaded) return;
+        loaded = true;
+        try {
+          const res = await fetch(mega.dataset.megaUrl);
+          if (!res.ok) throw new Error(String(res.status));
+          const html = (await res.text()).trim();
+          if (html.includes('class="mega')) mega.innerHTML = html;
+        } catch (e) {
+          loaded = false; // keep the plain list; try again on the next open
+        }
+      };
+      tops[0]?.addEventListener('pointerenter', load, { once: true });
+      tops[0]?.addEventListener('focus', load, { once: true });
+      if ('requestIdleCallback' in window) requestIdleCallback(load, { timeout: 3000 });
+      else setTimeout(load, 1500);
+    }
   }
 
   document.querySelectorAll('[data-dialog-open]').forEach((opener) => {

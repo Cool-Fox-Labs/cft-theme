@@ -1,0 +1,9 @@
+{% layout none %}
+{% comment %}
+  The desktop Garments drop-down, served on its own at /collections?view=mega.
+  The header fetches it once, on wide screens only, so the per-category
+  product reading in 'menu-mega' no longer runs on every page load (Eddie,
+  15/11/2026: pages open slowly). Until it arrives the drop-down shows the
+  plain category list.
+{% endcomment %}
+{% render 'menu-mega' %}
