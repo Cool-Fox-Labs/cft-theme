@@ -49,6 +49,9 @@
     only while that view's own photo shows. The print area is then the widest
     box, moved for the colour when listed, at its real size, on a photo of
     any shape.
+  - Metafield cft.print_sides (JSON list of "Front", "Back", "Left sleeve",
+    "Right sleeve", set in Print Studio) hides the other sides' positions
+    and views. Missing: headwear Front only, bags Front and Back, else all.
   - Headwear (cap, hat, beanie, visor, bucket or headwear as a word in the
     product type or title, not "cap sleeve") offers Front only, with a
     smaller print area. The designer uses the straight-on front photo
@@ -353,6 +356,7 @@
       {%- endfor -%}
     ],
     "print": {{ product.metafields.cft.print_positions.value | json }},
+    "sides": {{ product.metafields.cft.print_sides.value | json }},
     "t": {
       "pos": {
         "fr": {{ 'product.pos_fr' | t | json }}, "fb": {{ 'product.pos_fb' | t | json }},

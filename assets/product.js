@@ -45,7 +45,17 @@
   const HEAD = { inch: 7.5, positions: [{ id: 'fr', w: 3, x: 50, y: 40, view: 'front' }] };
   const PRINT = HEADWEAR ? HEAD : D.print && D.print.positions ? D.print : DEFAULT;
   const INCH = PRINT.inch || DEFAULT.inch;
-  const POS = PRINT.positions.map((p) => ({ ...p, name: p.name || T.pos[p.id] || p.id }));
+  // Print sides (Print Studio, product metafield cft.print_sides): a list of
+  // "Front", "Back", "Left sleeve", "Right sleeve". Missing: headwear Front
+  // only, bags Front and Back, everything else all four (Print Studio's
+  // defaults). Front always stays. Positions and views of other sides hide.
+  const BAG = !HEADWEAR && /\b(bag|bags|tote|totes|backpack|rucksack|holdall|sack)\b/.test(HEAD_TEXT);
+  const ALL_SIDES = ['Front', 'Back', 'Left sleeve', 'Right sleeve'];
+  const ownSides = Array.isArray(D.sides) ? D.sides.filter((x) => ALL_SIDES.includes(x)) : [];
+  const SIDES = ownSides.length ? ownSides : HEADWEAR ? ['Front'] : BAG ? ['Front', 'Back'] : ALL_SIDES;
+  const SIDE_OF = { fb: 'Back', back: 'Back', ls: 'Left sleeve', rs: 'Right sleeve' };
+  const sideOk = (id) => !SIDE_OF[id] || SIDES.includes(SIDE_OF[id]);
+  const POS = PRINT.positions.filter((p) => sideOk(p.id) && (!p.view || sideOk(p.view))).map((p) => ({ ...p, name: p.name || T.pos[p.id] || p.id }));
   const posById = (id) => POS.find((p) => p.id === id);
 
   // Bulk discount tiers, by item count across the order.
@@ -116,7 +126,7 @@
   };
   const DEFAULT_NAME = { front: T.pos.fr, back: T.pos.fb, ls: T.pos.ls, rs: T.pos.rs };
   if (HEADWEAR) BASE_AREA.front = { w: 4.5, h: 3.2, x: 50, y: 35 };
-  const listed = D.print && Array.isArray(D.print.views) ? D.print.views.filter((v) => v && v.id && (!HEADWEAR || v.id === 'front')) : [];
+  const listed = D.print && Array.isArray(D.print.views) ? D.print.views.filter((v) => v && v.id && (!HEADWEAR || v.id === 'front') && sideOk(v.id)) : [];
   const VIEW_LIST = ['front', ...listed.map((v) => v.id).filter((id) => id !== 'front')].map((id) => {
     const v = listed.find((x) => x.id === id) || {};
     return { id, name: v.name || DEFAULT_NAME[id] || id, area: { ...(BASE_AREA[id] || BASE_AREA.front), ...(v.area || {}) }, images: v.images || null, ps: Array.isArray(v.psAreas) ? v.psAreas.filter((a) => a && a.w > 0 && a.h > 0 && a.inW > 0) : [] };
