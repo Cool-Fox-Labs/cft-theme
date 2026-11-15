@@ -153,7 +153,8 @@ document.addEventListener('cft:basket-changed', async () => {
   if (!link) return;
   try {
     const cart = await (await fetch(link.dataset.cartJs)).json();
-    link.querySelector('[data-basket-count]').textContent = cart.item_count;
+    // The header link and the phone drawer's "Your quote (n)".
+    document.querySelectorAll('[data-basket-count]').forEach((el) => { el.textContent = cart.item_count; });
     link.hidden = !cart.item_count;
     link.dataset.count = cart.item_count;
   } catch (e) { /* leave as it is */ }
@@ -180,6 +181,21 @@ document.addEventListener('cft:basket-changed', async () => {
     const el = field && document.querySelector(`[name="${field}"]`);
     if (el) el.focus();
   };
+  // Enter (Go on a phone) in a contact or address box would submit the
+  // basket form through its first button, Update, reloading the page and
+  // losing what was typed. It sends the quote request instead.
+  document.querySelectorAll('[data-quote-contact] input, [data-quote-ship] input').forEach((input) => {
+    input.addEventListener('keydown', (e) => {
+      if (e.key !== 'Enter') return;
+      e.preventDefault();
+      if (!button.disabled) button.click();
+    });
+  });
+  // Only what Print Studio reads from each line, to keep the request small.
+  const slim = (it) => ({
+    key: it.key, product_id: it.product_id, variant_id: it.variant_id, quantity: it.quantity, properties: it.properties,
+    options_with_values: it.options_with_values, product_title: it.product_title, title: it.title, sku: it.sku,
+  });
   button.addEventListener('click', async () => {
     const contact = { name: val('q_name'), email: val('q_email'), phone: val('q_phone'), company: val('q_company') };
     if (!contact.name) return stop(msg.dataset.need, 'q_name');
@@ -209,7 +225,7 @@ document.addEventListener('cft:basket-changed', async () => {
           source: 'basket', contact,
           delivery: { method, address },
           note: cart.note || '',
-          cart: { ...cart, items },
+          cart: { note: cart.note || '', item_count: cart.item_count, items: items.map(slim) },
         }),
       });
       if (!res.ok) throw new Error(String(res.status));
