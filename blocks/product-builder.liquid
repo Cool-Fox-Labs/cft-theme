@@ -44,12 +44,18 @@
     [{"x": 50, "y": 45, "w": 34, "h": 20, "inW": 4.5, "rot": 0,
       "colours": {"black": {"x": 52, "y": 47, "w": 34, "h": 20, "rot": 0}}}]
     (x/y the box centre, w/h its size, % of the photo; inW its real width in
-    inches). While that view's own photo shows, the print area is the widest
-    box, moved for the colour when listed, at its real size.
-  - Headwear (product type Caps or Beanies) offers Front only, with a
+    inches). The front's boxes apply on whichever front photo shows (Print
+    Studio draws garment fronts on the colour's own photo); back and sleeves
+    only while that view's own photo shows. The print area is then the widest
+    box, moved for the colour when listed, at its real size, on a photo of
+    any shape.
+  - Headwear (cap, hat, beanie, visor, bucket or headwear as a word in the
+    product type or title, not "cap sleeve") offers Front only, with a
     smaller print area. The designer uses the straight-on front photo
-    ai_{HANDLE}_{Colour}_FRONT.jpg from Files when it exists (colour with
-    each run of other characters as "-"), else the colour's own photo.
+    ai_{HANDLE}_{Colour}_FRONT.jpg from Files when it exists (handle and
+    colour with each run of other characters as "-", ends trimmed, at most
+    60 characters, as Print Studio names it), else the colour's own photo.
+    The metafield's front image for the colour wins over it.
 
   @example
   {% block 'product-builder' %}{% endblock %}
@@ -302,10 +308,12 @@
     "cartJs": {{ routes.cart_url | append: '.js' | json }},
     "quoteOnly": {{ quote_only | json }},
     "cartAdd": {{ routes.cart_add_url | append: '.js' | json }},
+    "cartChange": {{ routes.cart_change_url | append: '.js' | json }},
+    "cartUpdate": {{ routes.cart_update_url | append: '.js' | json }},
     "cartUrl": {{ routes.cart_url | json }},
     "checkoutUrl": "/checkout",
-    {%- comment -%} Headwear (caps and beanies): Front only, on a straight-on AI front photo per colour when one exists in Files (ai_{HANDLE}_{Colour}_FRONT.jpg). Listing photos are unchanged. {%- endcomment -%}
-    "headwear": {% if product.type == 'Caps' or product.type == 'Beanies' %}true{% else %}false{% endif %},
+    {%- comment -%} Headwear is decided in product.js from the type and title, with Print Studio's rule. {%- endcomment -%}
+    "productType": {{ product.type | json }},
     "handle": {{ product.handle | json }},
     "filesBase": {{ 'ai_.jpg' | file_url | split: 'ai_.jpg' | first | json }},
     "selectedColour": {{ product.selected_or_first_available_variant.options[colour_i] | json }},

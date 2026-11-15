@@ -102,7 +102,7 @@
       </details>
       <a href="{{ how_url }}">{{ 'header.how_it_works' | t }}</a>
       <a href="{{ showroom_url }}">{{ 'header.visit_showroom' | t }}</a>
-      <a href="{{ routes.cart_url }}">{{ 'header.basket' | t }} ({{ cart.item_count }})</a>
+      <a href="{{ routes.cart_url }}">{{ 'header.basket' | t }} (<span data-basket-count>{{ cart.item_count }}</span>)</a>
       {%- if shop.customer_accounts_enabled -%}
         {%- if customer -%}
           <a href="/apps/account">{{ 'header.account' | t }}</a>

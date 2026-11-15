@@ -37,9 +37,11 @@
       { id: 'rs', w: 3, x: 15, y: 33, view: 'front' },
     ],
   };
-  // Headwear (caps and beanies): Front only, on the front patch. One inch
-  // covers about 7.5% of a straight-on cap front photo.
-  const HEADWEAR = !!D.headwear;
+  // Headwear: Front only, on the front patch. One inch covers about 7.5% of
+  // a straight-on cap front photo. Print Studio's rule, exactly: a headwear
+  // word in the product type or title, once "cap sleeve" is taken out.
+  const HEAD_TEXT = `${D.productType || ''} ${D.title || ''}`.toLowerCase().replace(/\bcap[\s-]+sleeved?s?\b/g, '');
+  const HEADWEAR = /\b(cap|caps|hat|hats|beanie|beanies|headwear|visor|bucket)\b/.test(HEAD_TEXT);
   const HEAD = { inch: 7.5, positions: [{ id: 'fr', w: 3, x: 50, y: 40, view: 'front' }] };
   const PRINT = HEADWEAR ? HEAD : D.print && D.print.positions ? D.print : DEFAULT;
   const INCH = PRINT.inch || DEFAULT.inch;
@@ -129,25 +131,56 @@
   // widest is the print area. Returns the area in theme units:
   // { w, h inches, x centre %, y top %, inch, rot }.
   const colourKey = (name) => String(name).toLowerCase().replace(/[^a-z0-9]/g, '');
+  // The front's boxes are drawn on whichever front photo shows (Print
+  // Studio draws garment fronts on the colour's own shop photo); back and
+  // sleeves only while that view's own photo shows.
+  const shownPhoto = (view) => photoFor(view) || (view === 'front' ? st.colour.img : null);
   function areaOf(view) {
     const base = { ...AREAS[view], inch: INCH, rot: 0 };
     const v = VIEW_LIST.find((x) => x.id === view);
-    if (!v || !v.ps.length || !photoFor(view)) return base;
+    const shown = v && v.ps.length ? shownPhoto(view) : null;
+    if (!shown) return base;
     const main = v.ps.reduce((a, b) => (b.inW > a.inW ? b : a));
     const own = main.colours && main.colours[colourKey(st.colour.name)];
-    const b = { ...main, ...(own || {}) };
+    const b = toStage({ ...main, ...(own || {}) }, photoRatio(shown));
     if (!(b.w > 0 && b.h > 0)) return base;
     const inch = b.w / main.inW;
     return { w: main.inW, h: b.h / (inch * ASPECT), x: b.x, y: b.y - b.h / 2, inch, rot: b.rot || 0 };
+  }
+  // Print Studio's boxes are % of the photo itself, but the stage is 5:6
+  // and shows the photo with object-fit: contain, so a photo of another
+  // shape is letterboxed. Turns a box into % of the stage. r is the
+  // photo's width / height (null until it has loaded: taken as 5:6).
+  function toStage(b, r) {
+    if (!r) return b;
+    if (r > ASPECT) { const k = ASPECT / r; return { ...b, y: 50 + (b.y - 50) * k, h: b.h * k }; }
+    const k = r / ASPECT;
+    return { ...b, x: 50 + (b.x - 50) * k, w: b.w * k };
+  }
+  // Each photo's width / height, read once. When one arrives the print
+  // areas may move, so the designs are fitted again and redrawn.
+  const RATIO = {};
+  function photoRatio(url) {
+    if (url in RATIO) return RATIO[url];
+    RATIO[url] = null;
+    const img = new Image();
+    img.onload = () => {
+      if (!img.naturalWidth || !img.naturalHeight) return;
+      RATIO[url] = img.naturalWidth / img.naturalHeight;
+      refit();
+    };
+    img.src = url;
+    return null;
   }
   const VIEW_NAME = Object.fromEntries(VIEW_LIST.map((v) => [v.id, v.name]));
   // The view's own photo for the chosen colour, or null to use the front photo.
   function photoFor(id) {
     const v = VIEW_LIST.find((x) => x.id === id);
     const own = v && v.images ? v.images[st.colour.name] : null;
-    // Front: the straight-on headwear photo, then Print Studio's photo for
-    // this colour (no "default" - the colour's own photo is better).
-    if (id === 'front') return st.colour.front || own || null;
+    // Front: Print Studio's photo for this colour (it keeps it up to date,
+    // regenerated photos included), then the straight-on headwear photo
+    // found by name in Files. No "default" - the colour's own photo is better.
+    if (id === 'front') return own || st.colour.front || null;
     return own || (v && v.images && v.images.default) || null;
   }
 
@@ -167,6 +200,17 @@
     const right = a.x + pw(a.w, a.inch) / 2;
     it.x = Math.min(Math.max(it.x, left + b.w / 2), right - b.w / 2);
     it.y = Math.min(Math.max(it.y, a.y + b.h / 2), a.y + ph(a.h, a.inch) - b.h / 2);
+  }
+  // The print areas changed (another colour, or a photo arrived): keep every
+  // design inside its area and redraw.
+  function refit() {
+    const d = st.design;
+    if (d && d.mode === 'designer') d.items.forEach(fit);
+    pagePhoto();
+    if (dz.open) {
+      dzs.items.filter((it) => it.src).forEach(fit);
+      dzRender();
+    }
   }
   const sizeLabel = (it) => fill(T.wxh, { w: half(it.w), h: half(it.w / it.ratio) });
   const dragSize = (it) => `${half(it.w)} × ${half(it.w / it.ratio)}in`;
@@ -252,7 +296,13 @@
       b.setAttribute('aria-pressed', String(c === st.colour));
       if (c.hex) b.style.setProperty('--c', c.hex);
       else if (c.thumb) b.style.backgroundImage = `url("${c.thumb}")`;
-      b.addEventListener('click', () => { st.colour = c; st.photo = null; render(); });
+      b.addEventListener('click', () => {
+        st.colour = c;
+        st.photo = null;
+        const d = st.design;
+        if (d && d.mode === 'designer') d.items.forEach(fit);
+        render();
+      });
       box.append(b);
     });
   }
@@ -305,14 +355,19 @@
 
   // The discount counts this garment in every colour, so items of it
   // already in the basket count towards the meter too.
+  // basketQty: how many of each variant the basket holds, for the stock cap.
   let inBasket = 0;
+  let basketQty = {};
   async function loadBasket() {
     try {
       const res = await fetch(D.cartJs, { headers: { Accept: 'application/json' } });
       const cart = await res.json();
-      inBasket = (cart.items || []).filter((l) => l.product_id === D.productId).reduce((a, l) => a + l.quantity, 0);
+      const mine = (cart.items || []).filter((l) => l.product_id === D.productId);
+      inBasket = mine.reduce((a, l) => a + l.quantity, 0);
+      basketQty = mine.reduce((m, l) => ({ ...m, [l.variant_id]: (m[l.variant_id] || 0) + l.quantity }), {});
     } catch (e) {
       inBasket = 0;
+      basketQty = {};
     }
     totals();
   }
@@ -378,17 +433,17 @@
 
   // Headwear: the straight-on front photo for this colour, if it is in Files.
   // Checked once per colour; the colour's own photo is used until it loads.
+  // Named as Print Studio's generator names it (generate_views.py slug()).
+  const slug = (v) => String(v).replace(/[^A-Za-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60) || 'x';
   function headFront(c) {
     if (!HEADWEAR || !D.filesBase || c.frontTried) return;
     c.frontTried = true;
-    const name = `ai_${String(D.handle).toUpperCase()}_${c.name.replace(/[^A-Za-z0-9]+/g, '-')}_FRONT.jpg`;
+    const name = `ai_${slug(String(D.handle).toUpperCase())}_${slug(c.name)}_FRONT.jpg`;
     const url = `${D.filesBase}${name}?width=1000`;
     const img = new Image();
     img.onload = () => {
       c.front = url;
-      if (c !== st.colour) return;
-      pagePhoto();
-      if (dz.open) dzRender();
+      if (c === st.colour) refit();
     };
     img.src = url;
   }
@@ -748,6 +803,8 @@
       const img = make('img');
       img.src = photoFor(v) || st.colour.img || '';
       img.alt = '';
+      // Print Studio's boxes are placed on the whole photo (as on the stage).
+      if (VIEW_LIST.find((x) => x.id === v).ps.length) img.style.objectFit = 'contain';
       const marks = make('span', 'vt-marks');
       placeAll(marks, v, dzs.items, null, false);
       pic.append(img, marks);
@@ -935,8 +992,7 @@
   const dataUrlToBlob = async (url) => (await fetch(url)).blob();
 
   // The artwork files, uploaded once with the first size of this garment.
-  async function artworkFiles() {
-    const d = st.design;
+  async function artworkFiles(d) {
     if (!d) return [];
     if (d.mode === 'files') return d.files.map((f) => [f.file, f.name]);
     const out = [];
@@ -972,13 +1028,73 @@
   };
   const emailArt = q('[data-email-art]');
 
+  // Where each design goes, for Print Studio (the _Prints property). One
+  // list per artwork file, in artworkFiles() order; the links are added once
+  // the files are uploaded. Worked out when Add to quote is pressed, as the
+  // print area depends on the colour.
+  const PS_VIEW = { front: 'Front', back: 'Back', ls: 'Left sleeve', rs: 'Right sleeve' };
+  const tenth = (n) => Math.round(n * 10) / 10;
+  function placements(d) {
+    if (!d) return [];
+    if (d.mode === 'designer') {
+      return d.items.map((it) => {
+        const a = areaOf(it.view);
+        return [{
+          view: PS_VIEW[it.view] || 'Front',
+          location: VIEW_NAME[it.view],
+          name: it.kind === 'text' ? `${it.view}-text.png` : it.name,
+          kind: it.kind === 'text' ? 'text' : 'logo',
+          text: it.kind === 'text' ? it.lines.join(' / ') : null,
+          widthIn: tenth(it.w),
+          topIn: tenth((box(it).top - a.y) / (a.inch * ASPECT)),
+          fromCentreIn: tenth((it.x - a.x) / a.inch),
+        }];
+      });
+    }
+    // Sent files: Print Studio places them, at the width asked for if any.
+    // Sleeve and back positions go on those views.
+    return d.files.map((f) => POS.filter((p) => p.id in f.at).map((p) => {
+      const size = sizeOf(f.at[p.id]);
+      return {
+        view: PS_VIEW[{ fb: 'back', ls: 'ls', rs: 'rs' }[p.id] || p.view] || 'Front',
+        location: p.name,
+        name: f.name,
+        kind: 'logo',
+        text: null,
+        widthIn: typeof size === 'number' ? size : null,
+        topIn: null,
+        fromCentreIn: 0,
+      };
+    }));
+  }
+  // Uploaded file links come back from /cart.js; Print Studio wants https.
+  const https = (u) => (typeof u === 'string' && u.startsWith('//') ? 'https:' + u : u);
+  const getCart = async () => {
+    const res = await fetch(D.cartJs, { headers: { Accept: 'application/json' } });
+    if (!res.ok) throw new Error(String(res.status));
+    return res.json();
+  };
+  const postJson = (url, body) => fetch(url, {
+    method: 'POST',
+    body: JSON.stringify(body),
+    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+  });
+
   const msg = q('[data-add-msg]');
   const addButtons = qa('[data-add]');
   let busy = false;
   async function addToBasket() {
     if (busy) return;
-    // A typed number above the stock is capped before anything is added.
-    SIZES.forEach((s) => { const v = variantOf(s); if (v && v.max != null && st.qty[s] > v.max) st.qty[s] = v.max; });
+    // A typed number above the stock is capped before anything is added,
+    // counting what the basket already holds of that size.
+    let capped = false;
+    SIZES.forEach((s) => {
+      const v = variantOf(s);
+      if (!v || v.max == null) return;
+      const room = Math.max(0, v.max - (basketQty[v.id] || 0));
+      if (st.qty[s] > room) { st.qty[s] = room; capped = true; }
+    });
+    if (capped) sizes();
     const lines = SIZES.filter((s) => canPick(s) && st.qty[s]);
     if (!lines.length) { popup(T.needItemsTitle, T.needItems, goTo('[data-sizes]')); return; }
     const later = !st.design && emailArt && emailArt.checked;
@@ -992,44 +1108,66 @@
     const labels = addButtons.map((b) => b.textContent);
     addButtons.forEach((b) => { b.disabled = true; b.textContent = T.adding; });
     const group = Date.now().toString(36);
+    // Everything is read now: the colour, sizes or design may change while
+    // the add is under way, and only this snapshot is used from here on.
     const rows = describe();
+    const design = st.design;
+    const colour = st.colour;
+    const want = lines.map((size) => ({ id: colour.variants.find((x) => x.size === size).id, quantity: st.qty[size] }));
+    const where = placements(design);
+    let added = false;
+    let leaving = false;
     try {
-      const files = await artworkFiles();
+      const files = await artworkFiles(design);
       // The same details go on every size of this garment.
       const props = { _group: group };
       if (!D.quoteOnly) props._buy = '1';
-      if (!st.design) props[T.printLabel] = later ? T.emailArt : T.noDesign;
-      else props[T.printLabel] = st.design.mode === 'designer' ? T.designedOnline : T.filesSent;
+      if (!design) props[T.printLabel] = later ? T.emailArt : T.noDesign;
+      else props[T.printLabel] = design.mode === 'designer' ? T.designedOnline : T.filesSent;
       rows.forEach((r) => {
         props[r.name] = r.text;
         if (r.detail) props[`_${r.name} ${T.placement}`] = r.detail;
       });
-      if (st.design && st.design.mode === 'files' && st.design.note) props[T.note] = st.design.note;
-      const item = (size) => ({ id: st.colour.variants.find((x) => x.size === size).id, quantity: st.qty[size], properties: props });
-      // Two requests at most, not one per size: the first size carries the
-      // artwork files (they need a file upload), the other sizes go together.
+      if (design && design.mode === 'files' && design.note) props[T.note] = design.note;
+      // The first size carries the artwork files (they need a file upload).
       const first = new FormData();
-      const one = item(lines[0]);
-      first.append('id', one.id);
-      first.append('quantity', one.quantity);
+      first.append('id', want[0].id);
+      first.append('quantity', want[0].quantity);
       Object.entries(props).forEach(([k, val]) => first.append(`properties[${k}]`, val));
       files.forEach(([blob, name], n) => first.append(`properties[${T.artwork} ${n + 1}]`, blob, name));
       let res = await fetch(D.cartAdd, { method: 'POST', body: first, headers: { Accept: 'application/json' } });
       if (!res.ok) throw new Error(String(res.status));
-      if (lines.length > 1) {
-        res = await fetch(D.cartAdd, {
-          method: 'POST',
-          body: JSON.stringify({ items: lines.slice(1).map(item) }),
-          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        });
+      added = true;
+      // Then the uploaded links and where each design goes (_Prints) go on
+      // that line and every other size, so the quote keeps the artwork
+      // whichever sizes stay in the basket.
+      let all = props;
+      if (files.length) {
+        const cart = await getCart();
+        const line = cart.items.find((l) => l.properties && l.properties._group === group && l.variant_id === want[0].id);
+        if (line) {
+          const urls = files.map((f, n) => https(line.properties[`${T.artwork} ${n + 1}`]));
+          const prints = where.flatMap((list, n) => (urls[n] ? list.map((e) => ({ ...e, url: urls[n] })) : []));
+          all = { ...props };
+          urls.forEach((u, n) => { if (u) all[`${T.artwork} ${n + 1}`] = u; });
+          if (prints.length) all._Prints = JSON.stringify(prints);
+          res = await postJson(D.cartChange, { id: line.key, quantity: line.quantity, properties: all });
+          if (!res.ok) throw new Error(String(res.status));
+        }
+      }
+      // The other sizes together in one request.
+      if (want.length > 1) {
+        res = await postJson(D.cartAdd, { items: want.slice(1).map((w) => ({ ...w, properties: all })) });
         if (!res.ok) throw new Error(String(res.status));
       }
       if (!D.quoteOnly) {
         // Buy now: straight to checkout, unless quote items are also in the
         // basket (checkout takes the whole basket), then the basket page.
         msg.textContent = T.toCheckout;
-        const cart = await (await fetch(D.cartJs)).json();
-        const onlyBuy = cart.items.every((it) => it.properties && it.properties._buy);
+        const cart = await getCart().catch(() => null);
+        const onlyBuy = !!cart && cart.items.every((it) => it.properties && it.properties._buy);
+        // Buttons stay disabled while the next page loads.
+        leaving = true;
         window.location.href = onlyBuy ? D.checkoutUrl : D.cartUrl;
         return;
       }
@@ -1042,11 +1180,23 @@
       loadBasket();
       document.dispatchEvent(new CustomEvent('cft:basket-changed'));
     } catch (e) {
+      // Take out what this attempt added, so trying again does not double it.
+      if (added) {
+        try {
+          const cart = await getCart();
+          const updates = Object.fromEntries(cart.items.filter((l) => l.properties && l.properties._group === group).map((l) => [l.key, 0]));
+          if (Object.keys(updates).length) await postJson(D.cartUpdate, { updates });
+        } catch (e2) { /* leave it; the basket page shows what is there */ }
+        loadBasket();
+        document.dispatchEvent(new CustomEvent('cft:basket-changed'));
+      }
       msg.textContent = '';
       popup(T.failTitle, T.addFail);
     } finally {
-      busy = false;
-      addButtons.forEach((b, i) => { b.disabled = false; b.textContent = labels[i]; });
+      if (!leaving) {
+        busy = false;
+        addButtons.forEach((b, i) => { b.disabled = false; b.textContent = labels[i]; });
+      }
     }
   }
   addButtons.forEach((b) => b.addEventListener('click', addToBasket));
