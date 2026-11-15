@@ -67,7 +67,8 @@
   <div class="panel" id="panel-garments" hidden>
     <div class="panel-in panel-mega">
       <h3>{{ 'header.choose_garment' | t }}</h3>
-      {% render 'menu-mega' %}
+      {%- comment -%} The photo menu ('menu-mega') is fetched once by theme.js on wide screens; the plain list shows until then. {%- endcomment -%}
+      <div data-mega data-mega-url="{{ routes.collections_url }}?view=mega">{% render 'menu-links', list: 'garments' %}</div>
     </div>
   </div>
 
