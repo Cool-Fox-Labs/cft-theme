@@ -917,7 +917,10 @@
   const emailArt = q('[data-email-art]');
 
   const msg = q('[data-add-msg]');
+  const addButtons = qa('[data-add]');
+  let busy = false;
   async function addToBasket() {
+    if (busy) return;
     // A typed number above the stock is capped before anything is added.
     SIZES.forEach((s) => { const v = variantOf(s); if (v && v.max != null && st.qty[s] > v.max) st.qty[s] = v.max; });
     const lines = SIZES.filter((s) => canPick(s) && st.qty[s]);
@@ -927,26 +930,42 @@
     msg.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
     msg.classList.remove('is-added');
     msg.textContent = T.adding;
+    // One add at a time: both Add to quote buttons show "Adding…" and do
+    // nothing more until this one has finished.
+    busy = true;
+    const labels = addButtons.map((b) => b.textContent);
+    addButtons.forEach((b) => { b.disabled = true; b.textContent = T.adding; });
     const group = Date.now().toString(36);
     const rows = describe();
-    const files = await artworkFiles();
     try {
-      for (let i = 0; i < lines.length; i++) {
-        const v = st.colour.variants.find((x) => x.size === lines[i]);
-        const body = new FormData();
-        body.append('id', v.id);
-        body.append('quantity', st.qty[lines[i]]);
-        body.append('properties[_group]', group);
-        if (!D.quoteOnly) body.append('properties[_buy]', '1');
-        if (!st.design) body.append(`properties[${T.printLabel}]`, later ? T.emailArt : T.noDesign);
-        else body.append(`properties[${T.printLabel}]`, st.design.mode === 'designer' ? T.designedOnline : T.filesSent);
-        rows.forEach((r) => {
-          body.append(`properties[${r.name}]`, r.text);
-          if (r.detail) body.append(`properties[_${r.name} ${T.placement}]`, r.detail);
+      const files = await artworkFiles();
+      // The same details go on every size of this garment.
+      const props = { _group: group };
+      if (!D.quoteOnly) props._buy = '1';
+      if (!st.design) props[T.printLabel] = later ? T.emailArt : T.noDesign;
+      else props[T.printLabel] = st.design.mode === 'designer' ? T.designedOnline : T.filesSent;
+      rows.forEach((r) => {
+        props[r.name] = r.text;
+        if (r.detail) props[`_${r.name} ${T.placement}`] = r.detail;
+      });
+      if (st.design && st.design.mode === 'files' && st.design.note) props[T.note] = st.design.note;
+      const item = (size) => ({ id: st.colour.variants.find((x) => x.size === size).id, quantity: st.qty[size], properties: props });
+      // Two requests at most, not one per size: the first size carries the
+      // artwork files (they need a file upload), the other sizes go together.
+      const first = new FormData();
+      const one = item(lines[0]);
+      first.append('id', one.id);
+      first.append('quantity', one.quantity);
+      Object.entries(props).forEach(([k, val]) => first.append(`properties[${k}]`, val));
+      files.forEach(([blob, name], n) => first.append(`properties[${T.artwork} ${n + 1}]`, blob, name));
+      let res = await fetch(D.cartAdd, { method: 'POST', body: first, headers: { Accept: 'application/json' } });
+      if (!res.ok) throw new Error(String(res.status));
+      if (lines.length > 1) {
+        res = await fetch(D.cartAdd, {
+          method: 'POST',
+          body: JSON.stringify({ items: lines.slice(1).map(item) }),
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         });
-        if (st.design && st.design.mode === 'files' && st.design.note) body.append(`properties[${T.note}]`, st.design.note);
-        if (i === 0) files.forEach(([blob, name], n) => body.append(`properties[${T.artwork} ${n + 1}]`, blob, name));
-        const res = await fetch(D.cartAdd, { method: 'POST', body, headers: { Accept: 'application/json' } });
         if (!res.ok) throw new Error(String(res.status));
       }
       if (!D.quoteOnly) {
@@ -969,9 +988,20 @@
     } catch (e) {
       msg.textContent = '';
       popup(T.failTitle, T.addFail);
+    } finally {
+      busy = false;
+      addButtons.forEach((b, i) => { b.disabled = false; b.textContent = labels[i]; });
     }
   }
-  qa('[data-add]').forEach((b) => b.addEventListener('click', addToBasket));
+  addButtons.forEach((b) => b.addEventListener('click', addToBasket));
+
+  // Phones: the bottom bar's Add to quote hides while the main Add to quote
+  // box is on screen, so there is only ever one button in view.
+  const mobBar = q('.mob-bar');
+  const ctaBox = q('.cta-box');
+  if (mobBar && ctaBox && 'IntersectionObserver' in window) {
+    new IntersectionObserver(([e]) => mobBar.classList.toggle('is-off', e.isIntersecting)).observe(ctaBox);
+  }
 
   /* ---------- size guide ---------- */
 

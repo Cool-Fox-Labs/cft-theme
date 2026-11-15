@@ -785,3 +785,8 @@ input[type=range] { width: 100%; accent-color: var(--orange); height: 28px }
   .nav > a.pill-o { display: none }
   .strip .logo { height: 34px }
 }
+
+/* Phones: one Add to quote in view at a time (15/11/2026). */
+.mob-bar { transition: opacity .2s, transform .2s }
+.mob-bar.is-off { opacity: 0; transform: translateY(12px); pointer-events: none; visibility: hidden }
+[data-add]:disabled { opacity: .75; cursor: progress }
