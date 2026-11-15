@@ -147,6 +147,7 @@
   const shownPhoto = (view) => photoFor(view) || (view === 'front' ? st.colour.img : null);
   function areaOf(view) {
     const base = { ...AREAS[view], inch: INCH, rot: 0 };
+    base.hb = base.h;
     const v = VIEW_LIST.find((x) => x.id === view);
     const shown = v && v.ps.length ? shownPhoto(view) : null;
     if (!shown) return base;
@@ -155,7 +156,11 @@
     const b = toStage({ ...main, ...(own || {}) }, photoRatio(shown));
     if (!(b.w > 0 && b.h > 0)) return base;
     const inch = b.w / main.inW;
-    return { w: main.inW, h: b.h / (inch * ASPECT), x: b.x, y: b.y - b.h / 2, inch, rot: b.rot || 0 };
+    // h: the real height in inches - the one typed in Print Studio (inH)
+    // when there is one, else worked out from the box. hb: the box's own
+    // height in inches at this scale, for drawing it and keeping designs in.
+    const hb = b.h / (inch * ASPECT);
+    return { w: main.inW, h: main.inH > 0 ? main.inH : hb, hb, x: b.x, y: b.y - b.h / 2, inch, rot: b.rot || 0 };
   }
   // Print Studio's boxes are % of the photo itself, but the stage is 5:6
   // and shows the photo with object-fit: contain, so a photo of another
@@ -204,12 +209,12 @@
   // Keep a design inside its print area.
   function fit(it) {
     const a = areaOf(it.view);
-    it.w = Math.max(1, Math.min(it.w, a.w, a.h * it.ratio));
+    it.w = Math.max(1, Math.min(it.w, a.w, Math.min(a.h, a.hb) * it.ratio));
     const b = box(it);
     const left = a.x - pw(a.w, a.inch) / 2;
     const right = a.x + pw(a.w, a.inch) / 2;
     it.x = Math.min(Math.max(it.x, left + b.w / 2), right - b.w / 2);
-    it.y = Math.min(Math.max(it.y, a.y + b.h / 2), a.y + ph(a.h, a.inch) - b.h / 2);
+    it.y = Math.min(Math.max(it.y, a.y + b.h / 2), a.y + ph(a.hb, a.inch) - b.h / 2);
   }
   // The print areas changed (another colour, or a photo arrived): keep every
   // design inside its area and redraw.
@@ -239,7 +244,7 @@
     if (edit) {
       const a = areaOf(view);
       const area = make('div', 'area');
-      area.style.cssText = `left:${a.x - pw(a.w, a.inch) / 2}%;top:${a.y}%;width:${pw(a.w, a.inch)}%;height:${ph(a.h, a.inch)}%`;
+      area.style.cssText = `left:${a.x - pw(a.w, a.inch) / 2}%;top:${a.y}%;width:${pw(a.w, a.inch)}%;height:${ph(a.hb, a.inch)}%`;
       if (a.rot) area.style.transform = `rotate(${a.rot}deg)`;
       area.append(make('span', 'ph-tag', T.areaTag));
       holder.append(area);
@@ -725,7 +730,7 @@
   // A new design starts in the middle of the print area at 60% of its width.
   async function place(it) {
     const a = areaOf(dzs.view);
-    Object.assign(it, { uid: uid(), view: dzs.view, w: a.w * 0.6, x: a.x, y: a.y + ph(a.h, a.inch) / 2 });
+    Object.assign(it, { uid: uid(), view: dzs.view, w: a.w * 0.6, x: a.x, y: a.y + ph(a.hb, a.inch) / 2 });
     if (it.kind === 'text') await drawText(it);
     fit(it);
     dzs.items.push(it);
