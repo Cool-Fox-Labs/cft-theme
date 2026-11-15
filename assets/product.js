@@ -92,7 +92,9 @@
   /* ---------- stage: garment photo with designs placed ---------- */
 
   // Views come from the product. Front is always there and uses the colour's
-  // own photo. Back and sleeves appear only when the product's
+  // own photo, or the front view's "images" entry for the colour when the
+  // metafield has one (Print Studio's AI photos), in the designer and once a
+  // design is on the page. Back and sleeves appear only when the product's
   // cft.print_positions metafield lists them under "views", each with its
   // print area and a photo per colour:
   //   {"inch": 2.4, "views": [{"id": "back", "area": {"w": 12, "h": 14, "x": 50, "y": 22},
@@ -110,7 +112,7 @@
   };
   const DEFAULT_NAME = { front: T.pos.fr, back: T.pos.fb, ls: T.pos.ls, rs: T.pos.rs };
   if (HEADWEAR) BASE_AREA.front = { w: 4.5, h: 3.2, x: 50, y: 35 };
-  const listed = !HEADWEAR && D.print && Array.isArray(D.print.views) ? D.print.views.filter((v) => v && v.id) : [];
+  const listed = D.print && Array.isArray(D.print.views) ? D.print.views.filter((v) => v && v.id && (!HEADWEAR || v.id === 'front')) : [];
   const VIEW_LIST = ['front', ...listed.map((v) => v.id).filter((id) => id !== 'front')].map((id) => {
     const v = listed.find((x) => x.id === id) || {};
     return { id, name: v.name || DEFAULT_NAME[id] || id, area: { ...(BASE_AREA[id] || BASE_AREA.front), ...(v.area || {}) }, images: v.images || null };
@@ -121,9 +123,11 @@
   // The view's own photo for the chosen colour, or null to use the front photo.
   function photoFor(id) {
     const v = VIEW_LIST.find((x) => x.id === id);
-    if (id === 'front') return st.colour.front || null;
-    if (!v || !v.images) return null;
-    return v.images[st.colour.name] || v.images.default || null;
+    const own = v && v.images ? v.images[st.colour.name] : null;
+    // Front: the straight-on headwear photo, then Print Studio's photo for
+    // this colour (no "default" - the colour's own photo is better).
+    if (id === 'front') return st.colour.front || own || null;
+    return own || (v && v.images && v.images.default) || null;
   }
 
   // A placed design: x and y are its centre as % of the photo, w its width in inches.
