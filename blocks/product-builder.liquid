@@ -100,15 +100,19 @@
         <h1>{{ product.title | escape }}</h1>
       </div>
 
-      <div class="price-row">
-        {%- if quote_only -%}
-          <b>{{ 'product.price_on_quote' | t }}</b>
-        {%- else -%}
-          {%- assign price_min = product.price_min | money -%}
-          <span class="price-from">{{ 'product.price_buy_html' | t: price: price_min }}</span>
-        {%- endif -%}
-        <span>{{ 'product.bulk_line' | t }}</span>
-      </div>
+      {%- comment -%} Quote-only garments: "Price on quote" sits just above the button (Eddie, 15/11/2026), so the page opens on colour and sizes. Buy-online garments keep their price at the top. {%- endcomment -%}
+      {%- capture price_row -%}
+        <div class="price-row">
+          {%- if quote_only -%}
+            <b>{{ 'product.price_on_quote' | t }}</b>
+          {%- else -%}
+            {%- assign price_min = product.price_min | money -%}
+            <span class="price-from">{{ 'product.price_buy_html' | t: price: price_min }}</span>
+          {%- endif -%}
+          <span>{{ 'product.bulk_line' | t }}</span>
+        </div>
+      {%- endcapture -%}
+      {%- unless quote_only -%}{{ price_row }}{%- endunless -%}
 
       <section class="step" aria-labelledby="s-colour">
         <div class="step-h"><i>1</i><h2 id="s-colour">{{ 'product.step_colour' | t }}</h2><small data-colour-name></small></div>
@@ -152,6 +156,7 @@
       <div class="nudge"><b data-nudge-pct>0%</b><div class="bar"><span data-nudge-bar></span></div><span data-nudge-text></span></div>
       <p class="nudge-basket" data-nudge-basket hidden></p>
 
+      {%- if quote_only -%}{{ price_row }}{%- endif -%}
       <div class="cta-box">
         <div class="cta-sum"><span>{{ 'product.your_selection' | t }}</span><b data-sum></b></div>
         <button type="button" class="pill pill-o" data-add>
@@ -214,8 +219,8 @@
           <img class="shirt" data-shirt src="{{ 'logo-fox-head.svg' | asset_url }}" width="500" height="600" alt="">
           <div data-placements></div>
         </div>
-        <p class="ref-note">{{ 'product.ref_note' | t }}</p>
       </div>
+      <p class="ref-note">{{ 'product.ref_note' | t }}</p>
       <div class="dz-views" role="group" aria-label="{{ 'product.view' | t }}" data-dz-views></div>
       </div>
       <div class="dz-side">

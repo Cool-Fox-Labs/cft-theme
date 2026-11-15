@@ -50,12 +50,12 @@
         <a href="{{ showroom_url }}"><span class="dot" aria-hidden="true"></span>{{ 'header.visit_showroom' | t }}</a>
         {%- if shop.customer_accounts_enabled -%}
           {%- if customer -%}
-            <a class="basket-link acc-link" href="/apps/account">{{ 'header.account' | t }}</a>
+            <a class="basket-link acc-link" href="/apps/account"><svg class="hd-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M4 21c1.2-4.2 4.3-6.2 8-6.2s6.8 2 8 6.2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span class="hd-txt">{{ 'header.account' | t }}</span></a>
           {%- else -%}
-            <a class="basket-link acc-link" href="{{ login_url }}">{{ 'header.log_in' | t }}</a>
+            <a class="basket-link acc-link" href="{{ login_url }}"><svg class="hd-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M4 21c1.2-4.2 4.3-6.2 8-6.2s6.8 2 8 6.2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span class="hd-txt">{{ 'header.log_in' | t }}</span></a>
           {%- endif -%}
         {%- endif -%}
-        <a class="basket-link" href="{{ routes.cart_url }}" data-basket-link data-cart-js="{{ routes.cart_url }}.js"{% if cart.item_count == 0 %} hidden{% endif %}>{{ 'header.basket' | t }} (<span data-basket-count>{{ cart.item_count }}</span>)</a>
+        <a class="basket-link q-link" href="{{ routes.cart_url }}" data-basket-link data-cart-js="{{ routes.cart_url }}.js" data-count="{{ cart.item_count }}"{% if cart.item_count == 0 %} hidden{% endif %}><svg class="hd-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M9 4.5V3h6v1.5M8.5 10h7M8.5 14h7M8.5 18h4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span class="hd-txt">{{ 'header.basket' | t }} (</span><span class="q-count" data-basket-count>{{ cart.item_count }}</span><span class="hd-txt">)</span></a>
         <a class="pill pill-o" href="{{ quote_url }}">{{ 'header.get_quote' | t }}</a>
         <button class="burger" type="button" id="menu-btn" aria-expanded="false" aria-controls="drawer" data-open-label="{{ 'header.close' | t }}" data-closed-label="{{ 'header.menu' | t }}">
           {{- 'header.menu' | t -}}
@@ -101,6 +101,7 @@
       </details>
       <a href="{{ how_url }}">{{ 'header.how_it_works' | t }}</a>
       <a href="{{ showroom_url }}">{{ 'header.visit_showroom' | t }}</a>
+      <a href="{{ routes.cart_url }}">{{ 'header.basket' | t }} ({{ cart.item_count }})</a>
       {%- if shop.customer_accounts_enabled -%}
         {%- if customer -%}
           <a href="/apps/account">{{ 'header.account' | t }}</a>

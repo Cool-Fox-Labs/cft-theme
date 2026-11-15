@@ -132,6 +132,7 @@ document.addEventListener('cft:basket-changed', async () => {
     const cart = await (await fetch(link.dataset.cartJs)).json();
     link.querySelector('[data-basket-count]').textContent = cart.item_count;
     link.hidden = !cart.item_count;
+    link.dataset.count = cart.item_count;
   } catch (e) { /* leave as it is */ }
 });
 
