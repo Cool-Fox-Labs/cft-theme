@@ -37,7 +37,11 @@
       { id: 'rs', w: 3, x: 15, y: 33, view: 'front' },
     ],
   };
-  const PRINT = D.print && D.print.positions ? D.print : DEFAULT;
+  // Headwear (caps and beanies): Front only, on the front patch. One inch
+  // covers about 7.5% of a straight-on cap front photo.
+  const HEADWEAR = !!D.headwear;
+  const HEAD = { inch: 7.5, positions: [{ id: 'fr', w: 3, x: 50, y: 40, view: 'front' }] };
+  const PRINT = HEADWEAR ? HEAD : D.print && D.print.positions ? D.print : DEFAULT;
   const INCH = PRINT.inch || DEFAULT.inch;
   const POS = PRINT.positions.map((p) => ({ ...p, name: p.name || T.pos[p.id] || p.id }));
   const posById = (id) => POS.find((p) => p.id === id);
@@ -105,7 +109,8 @@
     rs: { w: 4, h: 4, x: 50, y: 35 },
   };
   const DEFAULT_NAME = { front: T.pos.fr, back: T.pos.fb, ls: T.pos.ls, rs: T.pos.rs };
-  const listed = D.print && Array.isArray(D.print.views) ? D.print.views.filter((v) => v && v.id) : [];
+  if (HEADWEAR) BASE_AREA.front = { w: 4.5, h: 3.2, x: 50, y: 35 };
+  const listed = !HEADWEAR && D.print && Array.isArray(D.print.views) ? D.print.views.filter((v) => v && v.id) : [];
   const VIEW_LIST = ['front', ...listed.map((v) => v.id).filter((id) => id !== 'front')].map((id) => {
     const v = listed.find((x) => x.id === id) || {};
     return { id, name: v.name || DEFAULT_NAME[id] || id, area: { ...(BASE_AREA[id] || BASE_AREA.front), ...(v.area || {}) }, images: v.images || null };
@@ -116,7 +121,8 @@
   // The view's own photo for the chosen colour, or null to use the front photo.
   function photoFor(id) {
     const v = VIEW_LIST.find((x) => x.id === id);
-    if (id === 'front' || !v || !v.images) return null;
+    if (id === 'front') return st.colour.front || null;
+    if (!v || !v.images) return null;
     return v.images[st.colour.name] || v.images.default || null;
   }
 
@@ -185,7 +191,9 @@
   function drawStage(stage, view, list, selUid, edit) {
     const c = st.colour;
     const shirt = q('[data-shirt]', stage);
-    const own = photoFor(view);
+    // The page photo stays the listing photo until a design is on it.
+    const plain = view === 'front' && !edit && !list.some((it) => it.src && it.view === 'front');
+    const own = plain ? null : photoFor(view);
     const src = own || c.img;
     if (src) {
       shirt.removeAttribute('srcset');
@@ -341,7 +349,25 @@
     }
   }
 
+  // Headwear: the straight-on front photo for this colour, if it is in Files.
+  // Checked once per colour; the colour's own photo is used until it loads.
+  function headFront(c) {
+    if (!HEADWEAR || !D.filesBase || c.frontTried) return;
+    c.frontTried = true;
+    const name = `ai_${String(D.handle).toUpperCase()}_${c.name.replace(/[^A-Za-z0-9]+/g, '-')}_FRONT.jpg`;
+    const url = `${D.filesBase}${name}?width=1000`;
+    const img = new Image();
+    img.onload = () => {
+      c.front = url;
+      if (c !== st.colour) return;
+      pagePhoto();
+      if (dz.open) dzRender();
+    };
+    img.src = url;
+  }
+
   function render() {
+    headFront(st.colour);
     q('[data-colour-name]').textContent = st.colour.name;
     swatches();
     sizes();
