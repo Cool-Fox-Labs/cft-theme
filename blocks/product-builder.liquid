@@ -18,8 +18,10 @@
   - The main photo is the chosen colour's photo with the design on it.
     Product photos not linked to a variant show as small thumbnails under
     it (only when there is at least one). Back photos stay in the designer.
-  - Variant images are the flat colour shots. Supplier lifestyle shots
-    (file names containing _LS00_) are never shown, per the imagery terms.
+  - Variant images are the flat colour shots. Supplier lifestyle (model)
+    shots (file names containing _LS00_) are never the main photo, but show
+    as an extra thumbnail (Eddie, 15/11/2026: CFT sells to trade), except
+    for Norty, whose terms say remove them by December 2026.
   - The shop is quote-only: no prices show. Only a product tagged
     "buy-online" with a price above 0 shows its price (printing included)
     and a Buy now button.
@@ -333,9 +335,12 @@
     ],
     "extras": [
       {%- assign sep = '' -%}
+      {%- assign vendor_lc = product.vendor | downcase -%}
       {%- for image in product.images -%}
         {%- assign src = image.src | downcase -%}
-        {%- if image.variants.size == 0 -%}{%- unless src contains '_ls00_' -%}
+        {%- assign hide = false -%}
+        {%- if src contains '_ls00_' and vendor_lc contains 'norty' -%}{%- assign hide = true -%}{%- endif -%}
+        {%- if image.variants.size == 0 -%}{%- unless hide -%}
           {{ sep }}{"img": {{ image | image_url: width: 1000 | json }}, "thumb": {{ image | image_url: width: 160 | json }}, "alt": {{ image.alt | default: product.title | json }}}
           {%- assign sep = ',' -%}
         {%- endunless -%}{%- endif -%}
