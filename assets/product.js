@@ -101,8 +101,10 @@
   //     "images": {"Black": "https://…", "default": "https://…"}}]}
   // x is the centre and y the top of the area, as % of the photo; w and h are inches.
   const ASPECT = 5 / 6; // stage width / height
-  const pw = (inches) => inches * INCH; // inches to % of photo width
-  const ph = (inches) => inches * INCH * ASPECT; // inches to % of photo height
+  // inch: how much of the photo width one inch covers (it can differ per view
+  // and colour when Print Studio sets the area, see areaOf).
+  const pw = (inches, inch = INCH) => inches * inch; // inches to % of photo width
+  const ph = (inches, inch = INCH) => inches * inch * ASPECT; // inches to % of photo height
   const half = (n) => Math.round(n * 2) / 2;
   const BASE_AREA = {
     front: { w: 12, h: 14, x: 50, y: 25 },
@@ -115,10 +117,29 @@
   const listed = D.print && Array.isArray(D.print.views) ? D.print.views.filter((v) => v && v.id && (!HEADWEAR || v.id === 'front')) : [];
   const VIEW_LIST = ['front', ...listed.map((v) => v.id).filter((id) => id !== 'front')].map((id) => {
     const v = listed.find((x) => x.id === id) || {};
-    return { id, name: v.name || DEFAULT_NAME[id] || id, area: { ...(BASE_AREA[id] || BASE_AREA.front), ...(v.area || {}) }, images: v.images || null };
+    return { id, name: v.name || DEFAULT_NAME[id] || id, area: { ...(BASE_AREA[id] || BASE_AREA.front), ...(v.area || {}) }, images: v.images || null, ps: Array.isArray(v.psAreas) ? v.psAreas.filter((a) => a && a.w > 0 && a.h > 0 && a.inW > 0) : [] };
   });
   const VIEWS = VIEW_LIST.map((v) => v.id);
   const AREAS = Object.fromEntries(VIEW_LIST.map((v) => [v.id, v.area]));
+  // Print Studio's print box for this view and colour (cft.print_positions
+  // views[].psAreas), used only while its own photo is showing: x/y are the
+  // box centre and w/h its size, all % of the photo; inW its real width in
+  // inches; "colours" (keyed by the colour name lower-cased, letters and
+  // digits only) moves it per colour. With several boxes on a view the
+  // widest is the print area. Returns the area in theme units:
+  // { w, h inches, x centre %, y top %, inch, rot }.
+  const colourKey = (name) => String(name).toLowerCase().replace(/[^a-z0-9]/g, '');
+  function areaOf(view) {
+    const base = { ...AREAS[view], inch: INCH, rot: 0 };
+    const v = VIEW_LIST.find((x) => x.id === view);
+    if (!v || !v.ps.length || !photoFor(view)) return base;
+    const main = v.ps.reduce((a, b) => (b.inW > a.inW ? b : a));
+    const own = main.colours && main.colours[colourKey(st.colour.name)];
+    const b = { ...main, ...(own || {}) };
+    if (!(b.w > 0 && b.h > 0)) return base;
+    const inch = b.w / main.inW;
+    return { w: main.inW, h: b.h / (inch * ASPECT), x: b.x, y: b.y - b.h / 2, inch, rot: b.rot || 0 };
+  }
   const VIEW_NAME = Object.fromEntries(VIEW_LIST.map((v) => [v.id, v.name]));
   // The view's own photo for the chosen colour, or null to use the front photo.
   function photoFor(id) {
@@ -132,26 +153,27 @@
 
   // A placed design: x and y are its centre as % of the photo, w its width in inches.
   function box(it) {
-    const w = pw(it.w);
-    const h = ph(it.w / it.ratio);
+    const { inch } = areaOf(it.view);
+    const w = pw(it.w, inch);
+    const h = ph(it.w / it.ratio, inch);
     return { left: it.x - w / 2, top: it.y - h / 2, w, h };
   }
   // Keep a design inside its print area.
   function fit(it) {
-    const a = AREAS[it.view];
+    const a = areaOf(it.view);
     it.w = Math.max(1, Math.min(it.w, a.w, a.h * it.ratio));
     const b = box(it);
-    const left = a.x - pw(a.w) / 2;
-    const right = a.x + pw(a.w) / 2;
+    const left = a.x - pw(a.w, a.inch) / 2;
+    const right = a.x + pw(a.w, a.inch) / 2;
     it.x = Math.min(Math.max(it.x, left + b.w / 2), right - b.w / 2);
-    it.y = Math.min(Math.max(it.y, a.y + b.h / 2), a.y + ph(a.h) - b.h / 2);
+    it.y = Math.min(Math.max(it.y, a.y + b.h / 2), a.y + ph(a.h, a.inch) - b.h / 2);
   }
   const sizeLabel = (it) => fill(T.wxh, { w: half(it.w), h: half(it.w / it.ratio) });
   const dragSize = (it) => `${half(it.w)} × ${half(it.w / it.ratio)}in`;
   function whereText(it) {
-    const a = AREAS[it.view];
-    const down = half((box(it).top - a.y) / (INCH * ASPECT));
-    const off = half((it.x - a.x) / INCH);
+    const a = areaOf(it.view);
+    const down = half((box(it).top - a.y) / (a.inch * ASPECT));
+    const off = half((it.x - a.x) / a.inch);
     const side = Math.abs(off) < 0.5 ? T.centred : fill(off > 0 ? T.rightOf : T.leftOf, { n: Math.abs(off) });
     return fill(T.where, { d: down, s: side });
   }
@@ -161,9 +183,10 @@
   function placeAll(holder, view, list, selUid, edit) {
     holder.innerHTML = '';
     if (edit) {
-      const a = AREAS[view];
+      const a = areaOf(view);
       const area = make('div', 'area');
-      area.style.cssText = `left:${a.x - pw(a.w) / 2}%;top:${a.y}%;width:${pw(a.w)}%;height:${ph(a.h)}%`;
+      area.style.cssText = `left:${a.x - pw(a.w, a.inch) / 2}%;top:${a.y}%;width:${pw(a.w, a.inch)}%;height:${ph(a.h, a.inch)}%`;
+      if (a.rot) area.style.transform = `rotate(${a.rot}deg)`;
       area.append(make('span', 'ph-tag', T.areaTag));
       holder.append(area);
     }
@@ -636,8 +659,8 @@
 
   // A new design starts in the middle of the print area at 60% of its width.
   async function place(it) {
-    const a = AREAS[dzs.view];
-    Object.assign(it, { uid: uid(), view: dzs.view, w: a.w * 0.6, x: a.x, y: a.y + ph(a.h) / 2 });
+    const a = areaOf(dzs.view);
+    Object.assign(it, { uid: uid(), view: dzs.view, w: a.w * 0.6, x: a.x, y: a.y + ph(a.h, a.inch) / 2 });
     if (it.kind === 'text') await drawText(it);
     fit(it);
     dzs.items.push(it);
@@ -787,7 +810,10 @@
         tag.textContent = label();
         return;
       }
-      if (resize) it.w = start.w + Math.max((dx * 2) / INCH, ((dy * 2) / (INCH * ASPECT)) * it.ratio);
+      if (resize) {
+        const { inch } = areaOf(it.view);
+        it.w = start.w + Math.max((dx * 2) / inch, ((dy * 2) / (inch * ASPECT)) * it.ratio);
+      }
       else { it.x = start.x + dx; it.y = start.y + dy; }
       fit(it);
       const b = box(it);
