@@ -28,7 +28,9 @@
     Rich text still works too (shown as it is). No metafield,
     no size guide link.
   - Metafield cft.print_positions (JSON) sets the views and print areas.
-    Front is always shown, on the colour's own photo. Back and sleeves show
+    Front is always shown, on the colour's own photo, or on the front view's
+    "images" photo for that colour when there is one (designer, and the page
+    once a design is on it; no "default" for front). Back and sleeves show
     only when listed under "views", each with its area and a photo per colour:
     {"inch": 2.4, "views": [
       {"id": "front", "area": {"w": 9, "h": 12, "x": 50, "y": 25}},
