@@ -332,3 +332,27 @@ document.addEventListener('cft:basket-changed', async () => {
     }
   });
 })();
+
+// Basket thumbnails for designs made online: the garment photo with each
+// front design placed as on the product page (the line's _Mock property).
+document.querySelectorAll('[data-mock]').forEach((box) => {
+  let m;
+  try { m = JSON.parse(box.dataset.mock); } catch (e) { return; }
+  if (!m || !m.img || !Array.isArray(m.items)) return;
+  const photo = box.querySelector('img') || document.createElement('img');
+  photo.removeAttribute('srcset');
+  photo.src = m.img;
+  photo.alt = '';
+  box.prepend(photo);
+  m.items.forEach((it) => {
+    if (!it.u) return;
+    const d = document.createElement('img');
+    d.className = 'mock-d';
+    d.src = it.u;
+    d.alt = '';
+    d.loading = 'lazy';
+    d.style.cssText = `left:${it.l}%;top:${it.t}%;width:${it.w}%;height:${it.h}%`;
+    if (it.r) d.style.transform = `rotate(${it.r}deg)`;
+    box.append(d);
+  });
+});

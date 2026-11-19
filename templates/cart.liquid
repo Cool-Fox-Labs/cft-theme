@@ -31,7 +31,13 @@
             {%- assign buy = false -%}
             {%- if item.final_price > 0 and item.product.tags contains 'buy-online' -%}{%- assign buy = true -%}{%- endif -%}
             <li class="basket-item"{% unless buy %} data-quote-key="{{ item.key }}"{% endunless %}>
-              {%- if item.image -%}
+              {%- comment -%} A design made online shows on the garment (_Mock, drawn by theme.js), else the plain photo. {%- endcomment -%}
+              {%- assign mock = item.properties['_Mock'] -%}
+              {%- if mock != blank -%}
+                <div class="basket-img basket-mock" data-mock="{{ mock | escape }}" role="img" aria-label="{{ item.product.title | escape }}">
+                  {%- if item.image -%}{{ item.image | image_url: width: 240 | image_tag: alt: '', loading: 'lazy' }}{%- endif -%}
+                </div>
+              {%- elsif item.image -%}
                 {{ item.image | image_url: width: 240 | image_tag: class: 'basket-img', alt: item.product.title, loading: 'lazy' }}
               {%- endif -%}
               <div class="basket-info">
