@@ -337,7 +337,10 @@ document.addEventListener('cft:basket-changed', async () => {
 // front design placed as on the product page (the line's _Mock property).
 document.querySelectorAll('[data-mock]').forEach((box) => {
   let m;
-  try { m = JSON.parse(box.dataset.mock); } catch (e) { return; }
+  // Shopify can print the property with a stray "http://" in front, so
+  // read from the first "{".
+  const raw = box.dataset.mock || '';
+  try { m = JSON.parse(raw.slice(raw.indexOf('{'))); } catch (e) { return; }
   if (!m || !m.img || !Array.isArray(m.items)) return;
   const photo = box.querySelector('img') || document.createElement('img');
   photo.removeAttribute('srcset');
