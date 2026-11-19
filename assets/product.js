@@ -59,7 +59,7 @@
   const posById = (id) => POS.find((p) => p.id === id);
 
   // Bulk discount tiers, by item count across the order.
-  const TIERS = [[50, 20], [40, 15], [20, 10], [10, 5]];
+  const TIERS = [[100, 30], [50, 25], [25, 20], [10, 10]];
   const rate = (n) => (TIERS.find(([min]) => n >= min) || [0, 0])[1];
   const nextTier = (n) => TIERS.map(([min]) => min).reverse().find((min) => min > n);
 
@@ -392,7 +392,7 @@
     const next = nextTier(n);
     q('[data-total]').textContent = items(total());
     q('[data-nudge-pct]').textContent = rate(n) + '%';
-    q('[data-nudge-bar]').style.width = Math.min(100, n * 2) + '%';
+    q('[data-nudge-bar]').style.width = Math.min(100, n) + '%';
     q('[data-nudge-text]').textContent = next ? fill(T.addMore, { n: next - n, p: rate(next) }) : T.top;
     const nb = q('[data-nudge-basket]');
     nb.hidden = !inBasket;

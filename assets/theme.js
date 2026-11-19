@@ -81,8 +81,8 @@
     });
   });
 
-  // Published bulk discount: 10+ 5%, 20+ 10%, 40+ 15%, 50+ 20%.
-  const rate = (quantity) => (quantity >= 50 ? 20 : quantity >= 40 ? 15 : quantity >= 20 ? 10 : quantity >= 10 ? 5 : 0);
+  // Published bulk discount: 10+ 10%, 25+ 20%, 50+ 25%, 100+ 30%.
+  const rate = (quantity) => (quantity >= 100 ? 30 : quantity >= 50 ? 25 : quantity >= 25 ? 20 : quantity >= 10 ? 10 : 0);
   document.querySelectorAll('[data-bulk]').forEach((card) => {
     const range = card.querySelector('[data-bulk-range]');
     const count = card.querySelector('[data-bulk-count]');
