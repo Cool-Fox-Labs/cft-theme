@@ -33,7 +33,7 @@ before you push.
 - Never hard-code a store domain. Links use `routes.*`.
 - Never put supplier (Ralawise, Uneek) imagery through an AI tool, and do not
   alter it. The homepage uses Cool Fox Tees' own photos only.
-- The bulk discount tiers (10+ 5%, 20+ 10%, 40+ 15%, 50+ 20%) appear in
+- The bulk discount tiers (10+ 10%, 25+ 20%, 50+ 25%, 100+ 30%) appear in
   `blocks/bulk-discount.liquid`, `assets/theme.js` and the locale file. Change
   all three together.
 
