@@ -14,7 +14,27 @@
     </header>
 
     <div class="coll-grid coll-grid-cats">
-      {%- for collection in collections -%}
+      {%- comment -%}
+        Order (Eddie, 19/11/2026): T-shirts, Hoodies & sweatshirts, Headwear,
+        Workwear first, then any other categories in their usual order.
+      {%- endcomment -%}
+      {%- liquid
+        assign first_handles = 't-shirts,hoodies-sweatshirts,headwear,workwear' | split: ','
+        assign ordered = ''
+        for h in first_handles
+          if collections[h].products_count > 0
+            assign ordered = ordered | append: h | append: ','
+          endif
+        endfor
+        for c in collections
+          unless first_handles contains c.handle
+            assign ordered = ordered | append: c.handle | append: ','
+          endunless
+        endfor
+        assign ordered = ordered | split: ','
+      -%}
+      {%- for handle in ordered -%}
+        {%- assign collection = collections[handle] -%}
         {%- if collection.products_count == 0 or collection.handle == 'frontpage' -%}{%- continue -%}{%- endif -%}
         {%- liquid
           assign photo = collection.image
