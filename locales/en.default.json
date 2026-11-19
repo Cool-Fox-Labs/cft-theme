@@ -194,6 +194,14 @@
       "sports": {
         "title": "Sports clubs and gyms",
         "text": "Team kit, gym and class tees"
+      },
+      "bulk": {
+        "title": "Bulk orders",
+        "text": "Teams, staff and big events"
+      },
+      "all": {
+        "title": "All services",
+        "text": "Everything we print, and how"
       }
     }
   },
@@ -555,6 +563,26 @@
       "sent_home": "Back to home",
       "back_text": "Know what you want?",
       "back_link": "Choose a garment and build your quote"
+    },
+    "service": {
+      "eyebrow": "Services",
+      "build": "Build your quote",
+      "tell_us": "Tell us what you need",
+      "facts_title": "Good to know",
+      "fact_minimum": "No minimum order. One item is fine.",
+      "fact_discount": "Bulk discount by how many of the same garment you order, any sizes and colours: 10+ 5% off, 20+ 10%, 40+ 15%, 50+ 20%.",
+      "fact_proof": "You get a proof to approve before anything is printed.",
+      "fact_time": "Usually ready 5 to 7 working days after you approve your proof and pay.",
+      "fact_showroom": "Come and see the garments at our showroom in Leamington Spa.",
+      "more_title": "Other things we print",
+      "card_leavers": "School or college name, year and every leaver's name.",
+      "card_uniforms": "Polos, softshells and more with your logo.",
+      "card_hen_stag": "Matching tees for the whole group.",
+      "card_events": "Tees, hoodies and totes for staff, volunteers and fans.",
+      "card_bulk": "Big orders for teams, staff and events, with bulk discount.",
+      "card_one_off": "A single gift, or a one-off piece for you.",
+      "card_dtg": "Full-colour, detailed prints on cotton.",
+      "card_dtf": "Bright, tough prints on almost any fabric."
     }
   }
 }
