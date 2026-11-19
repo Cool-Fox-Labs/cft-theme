@@ -3,8 +3,10 @@
   drop-down panels and the phone drawer, so the two menus never drift apart.
 
   Garment links point at collections by handle; the collections themselves
-  are created later. Service links point at the homepage How it works
-  section until each service has its own page. The Garments list ends with
+  are created later. Service links point at their service pages (handles in
+  'services-data'); a page not created yet falls back to the homepage How it
+  works section. Sports clubs links to the Sportswear collection, and the
+  list ends with All services when that page exists. The Garments list ends with
   a Full catalogue link to the supplier catalogue site, opened in a new tab
   (its quote basket fails inside a frame, so it is not embedded).
 
@@ -19,7 +21,8 @@
     assign items = 't_shirts,hoodies,sportswear,workwear,headwear,totes' | split: ','
     assign handles = 't-shirts,hoodies-sweatshirts,sportswear,workwear,headwear,tote-bags' | split: ','
   else
-    assign items = 'one_off,hen_stag,leavers,events,uniforms,sports' | split: ','
+    assign items = 'leavers,uniforms,hen_stag,events,bulk,one_off,sports' | split: ','
+    assign handles = 'leavers-hoodies,workwear,hen-and-stag,event-merchandise,bulk-orders,one-off-printing,' | split: ','
   endif
 -%}
 
@@ -28,8 +31,15 @@
     {%- liquid
       if list == 'garments'
         assign url = routes.collections_url | append: '/' | append: handles[forloop.index0]
+      elsif item == 'sports'
+        assign url = routes.collections_url | append: '/sportswear'
       else
-        assign url = routes.root_url | append: '#how'
+        assign svc = pages[handles[forloop.index0]]
+        if svc != empty and svc != nil
+          assign url = svc.url
+        else
+          assign url = routes.root_url | append: '#how'
+        endif
       endif
       assign title_key = 'menu.' | append: list | append: '.' | append: item | append: '.title'
       assign text_key = 'menu.' | append: list | append: '.' | append: item | append: '.text'
@@ -44,6 +54,13 @@
     <a href="{{ catalogue_url | escape }}" target="_blank" rel="noopener">
       <b>{{ 'menu.garments.full_catalogue.title' | t }}</b>
       <span>{{ 'menu.garments.full_catalogue.text' | t }}</span>
+    </a>
+  {%- endif -%}
+  {%- assign all_services = pages['services'] -%}
+  {%- if list == 'services' and all_services != empty and all_services != nil -%}
+    <a href="{{ all_services.url }}">
+      <b>{{ 'menu.services.all.title' | t }}</b>
+      <span>{{ 'menu.services.all.text' | t }}</span>
     </a>
   {%- endif -%}
 </div>

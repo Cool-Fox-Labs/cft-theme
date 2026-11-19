@@ -1,0 +1,27 @@
+{% comment %}
+  Services overview (Eddie, 19/11/2026). Create a page with handle
+  "services" and choose the "services" template. The intro is the page's
+  own content; the cards list every service page that exists.
+{% endcomment %}
+
+{% block 'container', tag: 'section' %}
+  {%- assign quote_page = pages['get-a-quote'] -%}
+  <div class="svc in">
+    <header class="svc-head">
+      <div class="svc-txt">
+        <span class="eyebrow">{{ 'pages.service.eyebrow' | t }}</span>
+        <h1>{{ page.title | escape }}</h1>
+        <div class="rte svc-lead">{{ page.content }}</div>
+        <div class="svc-btns">
+          <a class="pill pill-o" href="{{ routes.collections_url }}">{{ 'pages.service.build' | t }}</a>
+          {%- if quote_page -%}<a class="pill pill-l" href="{{ quote_page.url }}">{{ 'pages.service.tell_us' | t }}</a>{%- endif -%}
+        </div>
+      </div>
+      <img class="svc-img" src="{{ 'service-studio.jpg' | asset_url }}" width="1600" height="1200" alt="" fetchpriority="high">
+    </header>
+
+    <section class="svc-more svc-all" aria-label="{{ 'pages.service.eyebrow' | t }}">
+      {% render 'service-cards', skip: '' %}
+    </section>
+  </div>
+{% endblock %}
