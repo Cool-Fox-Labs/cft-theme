@@ -64,7 +64,8 @@
     "google_review_count": "Number of Google reviews",
     "google_reviews_url": "Link to Google reviews",
     "quote_endpoint": "Quote request address",
-    "full_catalogue_url": "Full catalogue address"
+    "full_catalogue_url": "Full catalogue address",
+    "show_services_menu": "Show Services in the menu"
   },
   "options": {
     "alignment": {
@@ -90,6 +91,7 @@
     "transparent_png": "Use a transparent PNG or WebP, about 1250 px square.",
     "four_by_three": "Use a 4:3 photo, at least 1200 px wide. Keep the garments in the middle, phones crop the sides.",
     "quote_endpoint": "Where \"Send for quote\" posts the request. Leave blank until the Business Hub app is installed.",
-    "full_catalogue_url": "The supplier catalogue site. The Full catalogue link in the Garments menu opens it in a new tab. Leave blank to hide the link."
+    "full_catalogue_url": "The supplier catalogue site. The Full catalogue link in the Garments menu opens it in a new tab. Leave blank to hide the link.",
+    "show_services_menu": "Off for now (Eddie, 19/11/2026) while the service pages are reworked. The pages still exist at their own addresses."
   }
 }

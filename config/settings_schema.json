@@ -121,6 +121,13 @@
         "label": "t:labels.full_catalogue_url",
         "info": "t:info.full_catalogue_url",
         "default": "https://coolfoxtees.fullcollection.com/"
+      },
+      {
+        "type": "checkbox",
+        "id": "show_services_menu",
+        "label": "t:labels.show_services_menu",
+        "info": "t:info.show_services_menu",
+        "default": false
       }
     ]
   },
