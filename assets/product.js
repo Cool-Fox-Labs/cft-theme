@@ -1082,6 +1082,18 @@
       };
     }));
   }
+  // The front as the page shows it, for the basket thumbnail: the photo and
+  // each front design as % of the 5:6 stage (n = its artwork file number).
+  function mockOf(d) {
+    if (!d || d.mode !== 'designer') return null;
+    const img = photoFor('front') || st.colour.img;
+    const r1 = (n) => Math.round(n * 10) / 10;
+    const items = d.items.map((it, n) => ({ it, n })).filter(({ it }) => it.view === 'front' && it.src).map(({ it, n }) => {
+      const b = box(it);
+      return { n, l: r1(b.left), t: r1(b.top), w: r1(b.w), h: r1(b.h), r: it.rot || 0 };
+    });
+    return img && items.length ? { img: https(img), items } : null;
+  }
   // Uploaded file links come back from /cart.js; Print Studio wants https.
   const https = (u) => (typeof u === 'string' && u.startsWith('//') ? 'https:' + u : u);
   const getCart = async () => {
@@ -1130,6 +1142,7 @@
     const colour = st.colour;
     const want = lines.map((size) => ({ id: colour.variants.find((x) => x.size === size).id, quantity: st.qty[size] }));
     const where = placements(design);
+    const mock = mockOf(design);
     let added = false;
     let leaving = false;
     try {
@@ -1166,6 +1179,11 @@
           all = { ...props };
           urls.forEach((u, n) => { if (u) all[`${T.artwork} ${n + 1}`] = u; });
           if (prints.length) all._Prints = JSON.stringify(prints);
+          // The basket shows the garment with the design on it (_Mock).
+          if (mock) {
+            const items = mock.items.filter((m) => urls[m.n]).map(({ n, ...m }) => ({ ...m, u: urls[n] }));
+            if (items.length) all._Mock = JSON.stringify({ img: mock.img, items });
+          }
           res = await postJson(D.cartChange, { id: line.key, quantity: line.quantity, properties: all });
           if (!res.ok) throw new Error(String(res.status));
         }
