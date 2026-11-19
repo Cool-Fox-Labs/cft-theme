@@ -1,5 +1,5 @@
 {% doc %}
-  Cards linking to the service pages that exist, with photo, title and a
+  Cards linking to the service pages that exist, with title and a
   short line. Pages that have not been created yet are left out.
 
   @param {string} skip - Handle of a page to leave out (the current one).
@@ -18,11 +18,9 @@
       if p == empty or p == nil or parts[1] == skip
         continue
       endif
-      assign photo = 'service-' | append: parts[1] | append: '.jpg'
       assign card_key = 'pages.service.card_' | append: parts[0]
     -%}
     <a class="svc-card" href="{{ p.url }}">
-      <img src="{{ photo | asset_url }}" width="1600" height="1200" alt="" loading="lazy">
       <b>{{ p.title | escape }}</b>
       <span>{{ card_key | t }}</span>
     </a>

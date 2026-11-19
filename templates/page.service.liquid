@@ -1,13 +1,12 @@
 {% comment %}
   One service page (Eddie, 19/11/2026). Choose the "service" template on a
   page. The wording is the page's own content, edited in Shopify admin; the
-  photo is the theme asset service-{page handle}.jpg. Below the text: the
+  page has no photo for now (Eddie 19/11). Below the text: the
   key facts, a quote button and links to the other services.
 {% endcomment %}
 
 {% block 'container', tag: 'section' %}
   {%- liquid
-    assign photo = 'service-' | append: page.handle | append: '.jpg'
     assign quote_page = pages['get-a-quote']
     assign services_page = pages['services']
     assign facts = 'minimum,discount,proof,time,showroom' | split: ','
@@ -25,7 +24,6 @@
           {%- if quote_page -%}<a class="pill pill-l" href="{{ quote_page.url }}">{{ 'pages.service.tell_us' | t }}</a>{%- endif -%}
         </div>
       </div>
-      <img class="svc-img" src="{{ photo | asset_url }}" width="1600" height="1200" alt="" fetchpriority="high">
     </header>
 
     <div class="svc-body">
