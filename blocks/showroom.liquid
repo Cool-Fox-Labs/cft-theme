@@ -25,7 +25,9 @@
           <dd><a href="tel:{{ settings.phone | remove: ' ' }}">{{ settings.phone }}</a></dd>
         {%- endif -%}
       </dl>
-      <div><a class="pill pill-c" href="#visit">{{ 'home.showroom.plan_visit' | t }}</a></div>
+      {%- comment -%} Opens Google Maps with directions to the showroom address (Eddie, 20/11/2026). {%- endcomment -%}
+      {%- assign maps_dest = 'Cool Fox Tees, ' | append: settings.showroom_address | url_encode -%}
+      <div><a class="pill pill-c" href="https://www.google.com/maps/dir/?api=1&amp;destination={{ maps_dest }}" target="_blank" rel="noopener">{{ 'home.showroom.plan_visit' | t }} &#8599;</a></div>
     </div>
     <figure class="rail">
       {%- if block.settings.image != blank -%}
