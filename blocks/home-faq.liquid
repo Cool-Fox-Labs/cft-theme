@@ -14,6 +14,7 @@
 {%- liquid
   assign faq_page = pages['faq']
   assign questions = 'minimum,bulk,time,cost,method' | split: ','
+  assign t = 'pages.faq.'
 -%}
 
 <section class="sec sec-tight home-faq" id="faq" aria-labelledby="home-faq-title" {{ block.shopify_attributes }}>
@@ -26,8 +27,8 @@
   <div class="faq-card">
     {%- for q in questions -%}
       <details class="faq">
-        <summary>{{ 'pages.faq.q_' | append: q | t }}</summary>
-        <p>{{ 'pages.faq.a_' | append: q | t }}</p>
+        <summary>{{ t | append: 'q_' | append: q | t }}</summary>
+        <p>{{ t | append: 'a_' | append: q | t }}</p>
       </details>
     {%- endfor -%}
   </div>
