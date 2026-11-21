@@ -12,6 +12,7 @@
 {%- comment -%} "Get a quote" (Eddie 21/11, was "Build your quote") starts at All garments. The Get a quote page holds only the "tell us what you need" form, linked from the bottom of All garments. {%- endcomment -%}
 {%- assign quote_url = routes.collections_url -%}
 {%- assign showroom_url = routes.root_url | append: '#showroom' -%}
+{%- assign contact_page = pages['contact'] -%}
 
 <header class="site-head full-width" id="site-head" {{ block.shopify_attributes }}>
   <div class="infobar">
@@ -53,6 +54,7 @@
           <svg viewBox="0 0 10 10" aria-hidden="true"><path d="M1 3l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
         </button>
         <a href="{{ showroom_url }}"><span class="dot" aria-hidden="true"></span>{{ 'header.visit_showroom' | t }}</a>
+        {%- if contact_page != empty and contact_page != nil -%}<a href="{{ contact_page.url }}">{{ 'header.contact' | t }}</a>{%- endif -%}
         {%- if shop.customer_accounts_enabled -%}
           {%- if customer -%}
             <a class="basket-link acc-link" href="/apps/account"><svg class="hd-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M4 21c1.2-4.2 4.3-6.2 8-6.2s6.8 2 8 6.2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span class="hd-txt">{{ 'header.account' | t }}</span></a>
@@ -123,6 +125,7 @@
         {% render 'help-links', style: 'cats' %}
       </details>
       <a href="{{ showroom_url }}">{{ 'header.visit_showroom' | t }}</a>
+      {%- if contact_page != empty and contact_page != nil -%}<a href="{{ contact_page.url }}">{{ 'header.contact' | t }}</a>{%- endif -%}
       <a href="{{ routes.cart_url }}">{{ 'header.basket' | t }} (<span data-basket-count>{{ cart.item_count }}</span>)</a>
       {%- if shop.customer_accounts_enabled -%}
         {%- if customer -%}
