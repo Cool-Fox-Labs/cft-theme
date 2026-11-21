@@ -1,6 +1,6 @@
 {% doc %}
   Renders the dark storefront footer: stacked logo, showroom address,
-  opening hours and contact details from the Cool Fox Tees theme settings.
+  opening hours, contact details and the Help links (FAQ and policies) from the Cool Fox Tees theme settings.
   Composed directly in layout/theme.liquid so it appears on every page.
 {% enddoc %}
 
@@ -27,6 +27,10 @@
       {%- if email != blank -%}
         <p><a href="mailto:{{ email }}">{{ email }}</a></p>
       {%- endif -%}
+    </div>
+    <div>
+      <h3>{{ 'help.title' | t }}</h3>
+      {% render 'help-links', full: true %}
     </div>
   </div>
   <div class="in foot-base">

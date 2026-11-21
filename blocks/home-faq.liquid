@@ -1,0 +1,41 @@
+{% doc %}
+  Renders the homepage "Common questions" section: a few FAQ answers that
+  open on click, reusing the FAQ page wording (locales pages.faq), and a
+  "See all questions" link when the FAQ page exists.
+
+  @param {string} content - Required. The section heading and intro line.
+
+  @example
+  {% block 'home-faq' %}
+    <h2 id="home-faq-title">{{ 'home.faq.title' | t }}</h2>
+  {% endblock %}
+{% enddoc %}
+
+{%- liquid
+  assign faq_page = pages['faq']
+  assign questions = 'minimum,bulk,time,cost,method' | split: ','
+-%}
+
+<section class="sec sec-tight home-faq" id="faq" aria-labelledby="home-faq-title" {{ block.shopify_attributes }}>
+  <div class="sec-head">
+    {{ content }}
+    {%- if faq_page != empty and faq_page != nil -%}
+      <a class="pill pill-l" href="{{ faq_page.url }}">{{ 'home.faq.see_all' | t }}</a>
+    {%- endif -%}
+  </div>
+  <div class="faq-card">
+    {%- for q in questions -%}
+      <details class="faq">
+        <summary>{{ 'pages.faq.q_' | append: q | t }}</summary>
+        <p>{{ 'pages.faq.a_' | append: q | t }}</p>
+      </details>
+    {%- endfor -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "t:general.home_faq",
+  "settings": []
+}
+{% endschema %}

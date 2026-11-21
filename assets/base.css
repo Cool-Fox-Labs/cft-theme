@@ -255,12 +255,14 @@ input[type=range] { width: 100%; accent-color: var(--orange); height: 28px }
 
 /* footer */
 .foot { background: var(--ink); color: var(--cream); margin-top: clamp(32px, 4vw, 56px) }
-.foot .in { display: grid; grid-template-columns: auto 1fr 1fr 1fr; gap: 28px 48px; padding-block: 48px; align-items: start }
+.foot .in { display: grid; grid-template-columns: auto 1fr 1fr 1fr 1fr; gap: 28px 48px; padding-block: 48px; align-items: start }
 .foot img { width: 120px; height: auto }
 .foot h3 { font: 600 13px/1 var(--f-b); letter-spacing: .1em; text-transform: uppercase; color: var(--sand); margin-bottom: 12px }
 .foot p { margin: 0; font-size: 15px; line-height: 1.6 }
 .foot a { color: inherit; text-underline-offset: 4px }
 .foot a:hover { color: var(--orange) }
+.foot-links { display: grid; gap: 6px; font-size: 15px; line-height: 1.4 }
+.foot-links b { font-weight: 400 }
 .foot-base { padding-block: 0 28px !important; display: block !important; font-size: 13px; color: var(--sand) }
 .eyebrow-muted { color: var(--muted) }
 .score h2 { margin-bottom: 6px }
@@ -449,6 +451,11 @@ input[type=range] { width: 100%; accent-color: var(--orange); height: 28px }
 .faq summary::after { content: '+'; position: absolute; right: 4px; top: 10px; font: 400 22px/1 var(--f-b); color: var(--orange) }
 .faq[open] summary::after { content: '\2212' }
 .faq p { color: var(--muted) }
+.panel-help { grid-template-columns: minmax(0, 1fr) }
+.panel-help .cats { grid-template-columns: repeat(4, minmax(0, 1fr)) }
+.faq-card { background: var(--card); border-radius: var(--r); padding: 4px 22px; box-shadow: 0 0 0 1px var(--line); max-width: 860px }
+.faq-card .faq p { margin: 0 0 14px }
+@media (max-width: 960px) { .panel-help .cats { grid-template-columns: 1fr 1fr } }
 @media (max-width: 600px) { .info-cards { grid-template-columns: 1fr } }
 
 /* ---- Design pop-ups and basket ---- */
