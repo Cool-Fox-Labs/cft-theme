@@ -870,3 +870,18 @@ input[type=range] { width: 100%; accent-color: var(--orange); height: 28px }
   .coll-filter::-webkit-scrollbar { display: none }
   .coll-filter button { flex: none; min-height: 38px; padding: 0 14px; font-size: 13.5px }
 }
+
+/* Full catalogue card at the end of a category grid */
+.gcard-cat { display: flex; background: var(--ink); color: var(--cream); box-shadow: none; min-height: 100% }
+.gcard-cat:hover { box-shadow: 0 24px 44px -26px rgba(29,29,27,.45) }
+.gcard-cat-in { display: flex; flex-direction: column; justify-content: center; gap: 10px; padding: 28px 22px; width: 100% }
+.gcard-cat-num { font: 700 clamp(40px, 4.4vw, 60px)/1 var(--f-d); letter-spacing: -.03em; color: var(--orange) }
+.gcard-cat b { font: 600 20px/1.2 var(--f-d); letter-spacing: -.01em }
+.gcard-cat-in > span:not([class]) { font-size: 15px; line-height: 1.45; opacity: .8 }
+.gcard-cat .pill { align-self: flex-start; margin-top: 8px }
+@media (max-width: 760px) {
+  .gcard-cat-in { padding: 18px 14px; gap: 8px }
+  .gcard-cat b { font-size: 16px }
+  .gcard-cat-in > span:not([class]) { font-size: 13px }
+  .gcard-cat .pill { font-size: 13px; padding-inline: 12px; min-height: 36px }
+}

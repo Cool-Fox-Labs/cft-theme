@@ -8,6 +8,7 @@
   everything, untagged products included. Buttons follow the collection's product
   order in the admin (the first product of each group decides). With fewer than two groups there are no buttons.
   The groups "Classic" and "Premium" still give their cards a badge.
+  The last card links to the full catalogue (theme setting full_catalogue_url).
 {% endcomment %}
 
 {% block 'container', tag: 'div' %}
@@ -99,6 +100,18 @@
               <div class="coll-item" data-groups="{{ mine }}">{% render 'garment-card', product: product %}</div>
             {%- endfor -%}
           {%- endfor -%}
+          {%- comment -%} Last card: the supplier's full catalogue (theme setting). Shown whatever filter is on. {%- endcomment -%}
+          {%- assign cat_url = settings.full_catalogue_url | strip -%}
+          {%- if cat_url != blank -%}
+            <a class="gcard gcard-cat" href="{{ cat_url | escape }}" target="_blank" rel="noopener">
+              <span class="gcard-cat-in">
+                <span class="gcard-cat-num">{{ 'collections.cat_card_big' | t }}</span>
+                <b>{{ 'collections.cat_card_title' | t }}</b>
+                <span>{{ 'collections.cat_card_text' | t }}</span>
+                <span class="pill pill-o">{{ 'collections.help_cta_catalogue' | t }} &#8599;</span>
+              </span>
+            </a>
+          {%- endif -%}
         </div>
       {%- endif -%}
 
