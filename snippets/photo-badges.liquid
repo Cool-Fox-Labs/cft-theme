@@ -1,0 +1,48 @@
+{% doc %}
+  Up to two small badges on a product photo (Eddie, 21/11/2026), in this order:
+  - "Heavyweight · 240gsm": t-shirts (tag cat-t-shirts) with cft.gsm 200 or
+    more, and hoodies and sweatshirts (tag cat-hoodies-sweatshirts, zips too)
+    with cft.gsm 300 or more. Never on any other category.
+  - "Organic": cft.fabric contains "organic".
+  - "Oversized fit": the title contains "oversized" or "boxy".
+  Nothing is printed when no badge applies.
+
+  @param {product} product - The product.
+  @param {string} [class] - Extra class on the wrapper ('pb-card' or 'pb-page').
+
+  @example
+  {% render 'photo-badges', product: product, class: 'pb-card' %}
+{% enddoc %}
+
+{%- liquid
+  assign gsm = product.metafields.cft.gsm.value | plus: 0
+  assign fabric = product.metafields.cft.fabric.value | downcase
+  assign title = product.title | downcase
+
+  assign heavy = false
+  if product.tags contains 'cat-t-shirts' and gsm >= 200
+    assign heavy = true
+  elsif product.tags contains 'cat-hoodies-sweatshirts' and gsm >= 300
+    assign heavy = true
+  endif
+
+  assign organic = false
+  if fabric contains 'organic'
+    assign organic = true
+  endif
+
+  assign oversized = false
+  if title contains 'oversized' or title contains 'boxy'
+    assign oversized = true
+  endif
+
+  assign shown = 0
+-%}
+
+{%- if heavy or organic or oversized -%}
+  <span class="pbadges {{ class }}">
+    {%- if heavy -%}<span class="pbadge pbadge-heavy">{{ 'collections.badge_heavy' | t: gsm: gsm }}</span>{%- assign shown = shown | plus: 1 -%}{%- endif -%}
+    {%- if organic -%}<span class="pbadge pbadge-organic">{{ 'collections.badge_organic' | t }}</span>{%- assign shown = shown | plus: 1 -%}{%- endif -%}
+    {%- if oversized and shown < 2 -%}<span class="pbadge">{{ 'collections.badge_oversized' | t }}</span>{%- endif -%}
+  </span>
+{%- endif -%}
