@@ -321,7 +321,7 @@ input[type=range] { width: 100%; accent-color: var(--orange); height: 28px }
 .step-h { display: flex; align-items: center; gap: 10px }
 .step-h i { width: 28px; height: 28px; border-radius: 50%; background: var(--orange); display: grid; place-items: center; font: 700 14px/1 var(--f-d); font-style: normal; flex: none }
 .step-h h2 { font-size: 20px; font-weight: 600; letter-spacing: -.01em }
-.step-h small { margin-left: auto; font-size: 14px; color: var(--muted) }
+.step-h small { margin-left: auto; font-size: 18px; font-weight: 600; color: var(--ink, #1D1D1B) }
 
 .sw-wrap { display: grid; gap: 10px }
 .sw-filter { display: flex; gap: 6px; flex-wrap: wrap }
