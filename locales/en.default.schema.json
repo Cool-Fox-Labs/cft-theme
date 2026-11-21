@@ -39,7 +39,8 @@
     "reviews": "Google reviews",
     "product_builder": "Product quote builder",
     "quotes": "Quote requests",
-    "home_faq": "Homepage FAQ"
+    "home_faq": "Homepage FAQ",
+    "quick_tees": "Quick print tees"
   },
   "labels": {
     "alignment": "Alignment",
