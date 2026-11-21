@@ -112,7 +112,18 @@
     "inh_fact_fast": "Quick turnaround",
     "inh_fact_sameday": "Same-day printing available, order before 12pm",
     "inh_contact": "Need it today? Contact us",
-    "inh_card_meta": "In-house stock"
+    "inh_card_meta": "In-house stock",
+    "quick_eyebrow": "Same-day printing",
+    "quick_intro": "Our classic tees, kept in stock in our studio. Order before 12pm and we print them the same day.",
+    "quick_contact": "Questions? Contact us",
+    "quick_f1_title": "Same day",
+    "quick_f1_text": "Order before 12pm for same-day printing",
+    "quick_f2_title": "Front and back only",
+    "quick_f2_text": "No sleeve prints on same-day orders",
+    "quick_f3_title": "Up to 10 pieces",
+    "quick_f3_text": "Subject to stock. Need more? Get a normal quote",
+    "quick_f4_title": "Collect or post",
+    "quick_f4_text": "Free collection from Bath Place, or Royal Mail"
   },
   "gift_card": {
     "add_to_apple_wallet": "Add to Apple Wallet",
@@ -312,12 +323,10 @@
     "quick": {
       "eyebrow": "Same-day printing",
       "title": "Quick print tees",
-      "intro": "Our classic tees, kept in stock in our studio and printed the same day.",
       "fact_time": "Order before 12pm for same day",
-      "fact_print": "Front and back prints only",
-      "fact_qty": "Up to 10 pieces",
-      "contact": "Questions? Contact us",
-      "card_meta": "Same-day print"
+      "card_meta": "Same-day print",
+      "strip": "Our classic tee for men, women and kids, kept in stock in our studio and printed the same day.",
+      "cta": "See quick tees"
     },
     "faq": {
       "title": "Common questions",
