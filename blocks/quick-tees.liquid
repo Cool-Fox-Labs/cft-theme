@@ -17,13 +17,15 @@
 {%- assign quick = collections['quick-tees'] -%}
 {%- if quick != blank and quick.products.size > 0 -%}
   <section class="quick-ban" aria-labelledby="quick-title" {{ block.shopify_attributes }}>
-    <img class="quick-ban-photo" src="{{ 'quick-tees-family.jpg' | asset_url }}" alt="" width="1774" height="591" loading="lazy">
+    <img class="quick-ban-photo" src="{{ 'quick-tees-family.jpg' | asset_url }}" alt="" width="1774" height="455" loading="lazy">
     <div class="quick-ban-text">
       {{ content }}
-      <ul class="inh-facts">
-        <li>{{ 'home.quick.fact_time' | t }}</li>
-      </ul>
-      <a class="quick-ban-cta" href="{{ quick.url }}">{{ 'home.quick.cta' | t }} <span aria-hidden="true">&rarr;</span></a>
+      <div class="quick-ban-row">
+        <ul class="inh-facts">
+          <li>{{ 'home.quick.fact_time' | t }}</li>
+        </ul>
+        <a class="quick-ban-cta" href="{{ quick.url }}">{{ 'home.quick.cta' | t }} <span aria-hidden="true">&rarr;</span></a>
+      </div>
     </div>
   </section>
 {%- endif -%}
