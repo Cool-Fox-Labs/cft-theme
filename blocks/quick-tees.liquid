@@ -1,46 +1,25 @@
 {% doc %}
-  Renders the homepage "Quick print tees" section (Eddie, 21/11/2026): the
-  same-day tees from the collection with handle "quick-tees" (products tagged
-  quick-tee: copies of the in-house classic tees with front and back print
-  areas only and no stock tracking). Hidden when that collection is missing
-  or empty, so it can go live before the products exist.
+  Renders the homepage "Quick print tees" strip (Eddie, 21/11/2026): one slim
+  line under the hero linking to the quick-tees collection page, which holds
+  the same-day tees and their rules. Hidden when that collection is missing
+  or empty.
 
-  @param {string} content - Required. The eyebrow, heading and intro line.
+  @param {string} content - Required. The strip's text.
 
   @example
   {% block 'quick-tees' %}
-    <h2 id="quick-title">{{ 'home.quick.title' | t }}</h2>
+    <b>{{ 'home.quick.title' | t }}</b>
   {% endblock %}
 {% enddoc %}
 
-{%- liquid
-  assign quick = collections['quick-tees']
-  assign contact_page = pages['contact']
--%}
-
+{%- assign quick = collections['quick-tees'] -%}
 {%- if quick != blank and quick.products.size > 0 -%}
-  <section class="sec sec-tight quick" id="quick-tees" aria-labelledby="quick-title" {{ block.shopify_attributes }}>
-    <div class="inh">
-      <div class="inh-head">
-        <div>{{ content }}</div>
-        <div>
-          <ul class="inh-facts">
-            <li>{{ 'home.quick.fact_time' | t }}</li>
-            <li>{{ 'home.quick.fact_print' | t }}</li>
-            <li>{{ 'home.quick.fact_qty' | t }}</li>
-          </ul>
-          {%- if contact_page != empty and contact_page != nil -%}
-            <a class="inh-contact" href="{{ contact_page.url }}">{{ 'home.quick.contact' | t }} <span aria-hidden="true">&rarr;</span></a>
-          {%- endif -%}
-        </div>
-      </div>
-      <div class="coll-grid quick-grid">
-        {%- assign quick_meta = 'home.quick.card_meta' | t -%}
-        {%- for product in quick.products limit: 6 -%}
-          {% render 'garment-card', product: product, meta: quick_meta %}
-        {%- endfor -%}
-      </div>
-    </div>
+  <section class="quick-strip" aria-label="{{ 'home.quick.title' | t }}" {{ block.shopify_attributes }}>
+    <a class="quick-strip-in" href="{{ quick.url }}">
+      <span class="quick-strip-dot" aria-hidden="true"></span>
+      <span class="quick-strip-text">{{ content }}</span>
+      <span class="pill pill-d quick-strip-cta">{{ 'home.quick.cta' | t }} <span aria-hidden="true">&rarr;</span></span>
+    </a>
   </section>
 {%- endif -%}
 

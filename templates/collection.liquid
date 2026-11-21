@@ -14,6 +14,10 @@
   style codes in the theme setting "In-house stock style codes" (default
   UC301, UC318, UC306) are shown in their own "Our classic tees" section at
   the top, without the brand name, and left out of the grid below.
+
+  Quick print tees (Eddie, 21/11/2026): the collection with handle quick-tees
+  gets its own eyebrow, intro and four same-day facts, cards say "Same-day print"
+  instead of the brand, and there is no full catalogue card.
 {% endcomment %}
 
 {% block 'container', tag: 'div' %}
@@ -23,20 +27,37 @@
       {{ collection.title | escape }}
     </nav>
 
+    {%- assign is_quick = false -%}
+    {%- if collection.handle == 'quick-tees' -%}{%- assign is_quick = true -%}{%- endif -%}
     <header class="coll-head">
       <div>
-        <span class="eyebrow">{{ 'collections.eyebrow' | t }}</span>
+        <span class="eyebrow">{% if is_quick %}{{ 'collections.quick_eyebrow' | t }}{% else %}{{ 'collections.eyebrow' | t }}{% endif %}</span>
         <h1>{{ collection.title | escape }}</h1>
         {%- if collection.description != blank -%}
           <div class="coll-intro">{{ collection.description }}</div>
+        {%- elsif is_quick -%}
+          <p class="coll-intro">{{ 'collections.quick_intro' | t }}</p>
         {%- else -%}
           <p class="coll-intro">{{ 'collections.intro' | t }}</p>
         {%- endif -%}
+        {%- if is_quick -%}
+          {%- assign q_contact = pages['contact'] -%}
+          {%- if q_contact != empty and q_contact != nil -%}
+            <a class="inh-contact" href="{{ q_contact.url }}">{{ 'collections.quick_contact' | t }} <span aria-hidden="true">&rarr;</span></a>
+          {%- endif -%}
+        {%- endif -%}
       </div>
       <ul class="coll-facts">
+        {%- if is_quick -%}
+          <li><b>{{ 'collections.quick_f1_title' | t }}</b><span>{{ 'collections.quick_f1_text' | t }}</span></li>
+          <li><b>{{ 'collections.quick_f2_title' | t }}</b><span>{{ 'collections.quick_f2_text' | t }}</span></li>
+          <li><b>{{ 'collections.quick_f3_title' | t }}</b><span>{{ 'collections.quick_f3_text' | t }}</span></li>
+          <li><b>{{ 'collections.quick_f4_title' | t }}</b><span>{{ 'collections.quick_f4_text' | t }}</span></li>
+        {%- else -%}
         <li><b>{{ 'collections.fact_discount_title' | t }}</b><span>{{ 'collections.fact_discount_text' | t }}</span></li>
         <li><b>{{ 'collections.fact_min_title' | t }}</b><span>{{ 'collections.fact_min_text' | t }}</span></li>
         <li><b>{{ 'collections.fact_showroom_title' | t }}</b><span>{{ 'collections.fact_showroom_text' | t }}</span></li>
+        {%- endif -%}
       </ul>
     </header>
 
@@ -134,6 +155,7 @@
           <a class="pill pill-o" href="{{ routes.root_url }}#garments">{{ 'collections.empty_cta' | t }}</a>
         </div>
       {%- else -%}
+        {%- assign quick_meta = 'home.quick.card_meta' | t -%}
         <div class="coll-grid">
           {%- comment -%}
             Order (Eddie, 21/11/2026): adult Uneek styles first (the in-stock range),
@@ -156,16 +178,17 @@
               {%- assign kids = false -%}
               {%- assign mine_list = mine | split: ' ' -%}
               {%- if mine_list contains 'kids' -%}{%- assign kids = true -%}{%- endif -%}
+              {%- if is_quick and product.handle contains 'kids' -%}{%- assign kids = true -%}{%- endif -%}
               {%- assign vendor = product.vendor | downcase | strip -%}
               {%- if kids -%}{%- assign want = 3 -%}{%- else -%}{%- assign want = 1 -%}{%- endif -%}
               {%- unless vendor == 'uneek' -%}{%- assign want = want | plus: 1 -%}{%- endunless -%}
               {%- if pass != want -%}{%- continue -%}{%- endif -%}
-              <div class="coll-item" data-groups="{{ mine }}">{% render 'garment-card', product: product %}</div>
+              <div class="coll-item" data-groups="{{ mine }}">{%- if is_quick -%}{% render 'garment-card', product: product, meta: quick_meta %}{%- else -%}{% render 'garment-card', product: product %}{%- endif -%}</div>
             {%- endfor -%}
           {%- endfor -%}
           {%- comment -%} Last card: the supplier's full catalogue (theme setting). Shown whatever filter is on. {%- endcomment -%}
           {%- assign cat_url = settings.full_catalogue_url | strip -%}
-          {%- if cat_url != blank -%}
+          {%- if cat_url != blank and is_quick == false -%}
             <a class="gcard gcard-cat" href="{{ cat_url | escape }}" target="_blank" rel="noopener">
               <span class="gcard-cat-in">
                 <span class="gcard-cat-num">{{ 'collections.cat_card_big' | t }}</span>
