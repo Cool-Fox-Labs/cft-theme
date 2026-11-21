@@ -64,10 +64,33 @@
   const nextTier = (n) => TIERS.map(([min]) => min).reverse().find((min) => min > n);
 
   const SIZES = D.sizes;
+  // Swatch colour from the colour name, used only when a colour has no photo of
+  // its own (Eddie, 21/11/2026: otherwise those swatches all showed the same
+  // fallback photo). Longest matching name wins, so "Bottle Green" beats "Green".
+  const NAMED = {
+    'black': '#1d1d1b', 'jet black': '#111111', 'white': '#ffffff', 'arctic white': '#ffffff', 'natural': '#efe6d2', 'ecru': '#ece3cf',
+    'cream': '#f1e8dd', 'vanilla': '#f3e7c4', 'beige': '#d9c7a7', 'sand': '#cdb892', 'stone': '#bfb39b', 'khaki': '#a39368', 'brown': '#6b4a32', 'chocolate': '#4a3022',
+    'charcoal': '#3f4044', 'graphite': '#4a4b4f', 'grey': '#9a9a9a', 'gray': '#9a9a9a', 'heather grey': '#b5b5b3', 'heather': '#b5b5b3', 'ash': '#cfcfcd', 'silver': '#c4c6c8', 'light grey': '#cfd0d1', 'dark grey': '#55575a', 'steel grey': '#71777d',
+    'navy': '#1f2a44', 'french navy': '#232c4a', 'oxford navy': '#1c2440', 'royal': '#2251b5', 'royal blue': '#2251b5', 'sapphire': '#2b5ea8', 'sapphire blue': '#2b5ea8', 'sky': '#8fc0e8', 'sky blue': '#8fc0e8', 'light blue': '#a9cbe8', 'baby blue': '#b7d6ef', 'pale blue': '#bcd4ea', 'turquoise': '#25b3b8', 'aqua': '#4cc3c9', 'teal': '#17777b', 'denim': '#4f6d8f', 'blue': '#2f62b5', 'airforce blue': '#5d7e9c',
+    'red': '#c62a2f', 'fire red': '#d0262c', 'classic red': '#c62a2f', 'burgundy': '#6c1f2e', 'maroon': '#6e2333', 'wine': '#5c1d2b', 'cherry': '#a3202f', 'coral': '#ef7b66',
+    'pink': '#f2a7c3', 'hot pink': '#e8559a', 'fuchsia': '#d63a8b', 'light pink': '#f6c9d7', 'baby pink': '#f6cbd8',
+    'orange': '#f07a22', 'burnt orange': '#c75b20', 'yellow': '#f6d33c', 'sun yellow': '#f8d23a', 'gold': '#e0a526', 'lemon': '#f6e66e', 'mustard': '#d5a231',
+    'green': '#2f8a4a', 'kelly green': '#1f9a4b', 'bottle green': '#1e4733', 'forest green': '#244a34', 'forest': '#244a34', 'olive': '#6b6b3a', 'military green': '#55583a', 'khaki green': '#6d6a47', 'lime': '#9ccc3b', 'mint': '#b6e2c8', 'sage': '#a3b69a', 'apple green': '#7fbf3f', 'emerald': '#14845a',
+    'purple': '#5f3a8a', 'lilac': '#c3a9d8', 'lavender': '#bfaedb', 'violet': '#6b4aa0',
+  };
+  const namedHex = (name) => {
+    const n = String(name || '').toLowerCase().replace(/\s+/g, ' ').trim();
+    if (NAMED[n]) return NAMED[n];
+    const key = Object.keys(NAMED).filter((k) => n.includes(k)).sort((a, b) => b.length - a.length)[0];
+    return key ? NAMED[key] : null;
+  };
+
   const COLOURS = D.colours.map((c) => {
     const variants = D.variants.filter((v) => v.colour === c.name);
     const first = variants.find((v) => v.img) || {};
-    return { ...c, variants, sizes: variants.map((v) => v.size), img: first.img, thumb: first.thumb };
+    const own = variants.some((v) => v.own);
+    const hex = c.hex || (own ? null : namedHex(c.name));
+    return { ...c, hex, variants, sizes: variants.map((v) => v.size), img: first.img, thumb: first.thumb };
   }).filter((c) => c.variants.length);
 
   // design: null, { mode: 'designer', items: { posId: item } }
