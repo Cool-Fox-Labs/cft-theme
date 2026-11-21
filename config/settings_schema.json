@@ -96,7 +96,8 @@
         "type": "text",
         "id": "email",
         "label": "t:labels.email",
-        "info": "t:info.email"
+        "info": "t:info.email",
+        "default": "hello@coolfoxtees.com"
       },
       {
         "type": "text",
