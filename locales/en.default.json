@@ -137,7 +137,9 @@
     "promo_no_minimum_text": "One shirt is fine. So is two hundred.",
     "basket": "Your quote",
     "log_in": "Log in",
-    "account": "My account"
+    "account": "My account",
+    "help": "Help",
+    "help_title": "Help and information"
   },
   "menu": {
     "garments": {
@@ -288,6 +290,11 @@
       "review1": "\"Ordered a t-shirt for my daughter's World Book Day. Really good quality, printed in less than 48 hours and much cheaper than online shops.\"",
       "review2": "\"Needed a last minute bespoke T-shirt for a very fussy young customer and the guys went above and beyond to help.\"",
       "review3": "\"I take in second hand t-shirts for him to print my company logo on. Even helps out loads with graphic design and sends the designs across.\""
+    },
+    "faq": {
+      "title": "Common questions",
+      "intro": "Quick answers before you ask for a quote.",
+      "see_all": "See all questions"
     }
   },
   "product": {
@@ -599,5 +606,19 @@
       "card_dtg": "Full-colour, detailed prints on cotton.",
       "card_dtf": "Bright, tough prints on almost any fabric."
     }
+  },
+  "help": {
+    "title": "Help",
+    "faq": "FAQ",
+    "faq_text": "Quick answers to common questions",
+    "artwork": "Artwork guide",
+    "artwork_text": "Files, sizes and how we print",
+    "delivery": "Delivery",
+    "delivery_text": "Prices, times and collection",
+    "returns": "Returns",
+    "returns_text": "If something isn't right",
+    "terms": "Terms of service",
+    "privacy": "Privacy policy",
+    "contact": "Contact us"
   }
 }

@@ -72,6 +72,13 @@
 {% endblock %}
 
 {% block 'container', tag: 'div' %}
+  {% block 'home-faq' %}
+    <h2 id="home-faq-title">{{ 'home.faq.title' | t }}</h2>
+    <p>{{ 'home.faq.intro' | t }}</p>
+  {% endblock %}
+{% endblock %}
+
+{% block 'container', tag: 'div' %}
   {% block 'reviews' %}
     <figure class="rev">
       <blockquote>{{ 'home.reviews.review1' | t }}</blockquote>

@@ -1,0 +1,50 @@
+{% doc %}
+  Renders the Help link list: FAQ, Artwork guide, Delivery and Returns, plus
+  Terms, Privacy and Contact when full is true. Links appear only when their
+  page or policy exists. Used by the header Help drop-down, the phone drawer
+  (style 'cats', with a short line under each) and the footer (plain links).
+
+  @param {string} [style] - 'cats' for the menu cards, anything else for plain links.
+  @param {boolean} [full] - Also list Terms of service, Privacy policy and Contact.
+
+  @example
+  {% render 'help-links', style: 'cats' %}
+{% enddoc %}
+
+{%- liquid
+  assign faq_page = pages['faq']
+  assign artwork_page = pages['artwork-guide']
+  assign contact_page = pages['contact']
+-%}
+
+{%- capture links -%}
+  {%- if faq_page != empty and faq_page != nil -%}
+    <a href="{{ faq_page.url }}"><b>{{ 'help.faq' | t }}</b>{% if style == 'cats' %}<span>{{ 'help.faq_text' | t }}</span>{% endif %}</a>
+  {%- endif -%}
+  {%- if artwork_page != empty and artwork_page != nil -%}
+    <a href="{{ artwork_page.url }}"><b>{{ 'help.artwork' | t }}</b>{% if style == 'cats' %}<span>{{ 'help.artwork_text' | t }}</span>{% endif %}</a>
+  {%- endif -%}
+  {%- if shop.shipping_policy -%}
+    <a href="{{ shop.shipping_policy.url }}"><b>{{ 'help.delivery' | t }}</b>{% if style == 'cats' %}<span>{{ 'help.delivery_text' | t }}</span>{% endif %}</a>
+  {%- endif -%}
+  {%- if shop.refund_policy -%}
+    <a href="{{ shop.refund_policy.url }}"><b>{{ 'help.returns' | t }}</b>{% if style == 'cats' %}<span>{{ 'help.returns_text' | t }}</span>{% endif %}</a>
+  {%- endif -%}
+  {%- if full -%}
+    {%- if shop.terms_of_service -%}
+      <a href="{{ shop.terms_of_service.url }}"><b>{{ 'help.terms' | t }}</b></a>
+    {%- endif -%}
+    {%- if shop.privacy_policy -%}
+      <a href="{{ shop.privacy_policy.url }}"><b>{{ 'help.privacy' | t }}</b></a>
+    {%- endif -%}
+    {%- if contact_page != empty and contact_page != nil -%}
+      <a href="{{ contact_page.url }}"><b>{{ 'help.contact' | t }}</b></a>
+    {%- endif -%}
+  {%- endif -%}
+{%- endcapture -%}
+
+{%- if style == 'cats' -%}
+  <div class="cats">{{ links }}</div>
+{%- else -%}
+  <nav class="foot-links" aria-label="{{ 'help.title' | t }}">{{ links }}</nav>
+{%- endif -%}

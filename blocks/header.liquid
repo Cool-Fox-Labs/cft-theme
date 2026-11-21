@@ -1,6 +1,6 @@
 {% doc %}
   Renders the storefront header: the showroom info bar, the dark menu strip
-  with the wordmark, the Garments and Services drop-down panels, and the
+  with the wordmark, the Garments, Services and Help drop-down panels, and the
   phone menu drawer. Composed directly in layout/theme.liquid so it wraps
   every page. Business details come from the Cool Fox Tees theme settings.
 {% enddoc %}
@@ -49,6 +49,10 @@
         </button>
         {%- endif -%}
         <a href="{{ how_url }}">{{ 'header.how_it_works' | t }}</a>
+        <button class="top" type="button" aria-expanded="false" aria-controls="panel-help">
+          {{ 'header.help' | t }}
+          <svg viewBox="0 0 10 10" aria-hidden="true"><path d="M1 3l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
+        </button>
         <a href="{{ showroom_url }}"><span class="dot" aria-hidden="true"></span>{{ 'header.visit_showroom' | t }}</a>
         {%- if shop.customer_accounts_enabled -%}
           {%- if customer -%}
@@ -94,6 +98,15 @@
   </div>
   {%- endif -%}
 
+  <div class="panel" id="panel-help" hidden>
+    <div class="panel-in panel-help">
+      <div>
+        <h3>{{ 'header.help_title' | t }}</h3>
+        {% render 'help-links', style: 'cats' %}
+      </div>
+    </div>
+  </div>
+
   <div class="drawer" id="drawer" hidden>
     <div class="in">
       <details>
@@ -107,6 +120,10 @@
       </details>
       {%- endif -%}
       <a href="{{ how_url }}">{{ 'header.how_it_works' | t }}</a>
+      <details>
+        <summary>{{ 'header.help' | t }}</summary>
+        {% render 'help-links', style: 'cats' %}
+      </details>
       <a href="{{ showroom_url }}">{{ 'header.visit_showroom' | t }}</a>
       <a href="{{ routes.cart_url }}">{{ 'header.basket' | t }} (<span data-basket-count>{{ cart.item_count }}</span>)</a>
       {%- if shop.customer_accounts_enabled -%}
