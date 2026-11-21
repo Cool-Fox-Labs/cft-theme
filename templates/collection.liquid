@@ -1,15 +1,13 @@
 {% comment %}
-  A garment category page: heading and intro, three short facts, then a grid
-  of garment cards. The intro is the collection's own description in the
-  admin; without one, a general line is used.
+  A garment category page: heading and intro, three short facts, then one
+  grid of garment cards, cheapest first (lowest variant price; prices are not
+  shown), Uneek first, with kids' styles (group:Kids) after the adult ones. Eddie, 21/11/2026: one grid with filters instead of sections.
 
-  Sections: tag a product "group:Heavyweight" (any name) and the page splits
-  into headed sections with jump buttons at the top. Sections follow the
-  collection's product order in the admin (the first product of each group
-  decides where its section sits), so dragging products reorders them. Untagged
-  products go under "More styles" at the end. With no group tags at all the
-  page is one grid. The groups "Classic" (in-house stock) and "Premium"
-  (5-7 working days) also get a lead-time line, and their cards a badge.
+  Filters: tag a product "group:Heavyweight" (any name) and a "Heavyweight"
+  button appears above the grid; tapping it shows only that group. "All" shows
+  everything, untagged products included. Buttons follow the collection's product
+  order in the admin (the first product of each group decides). With fewer than two groups there are no buttons.
+  The groups "Classic" and "Premium" still give their cards a badge.
 {% endcomment %}
 
 {% block 'container', tag: 'div' %}
@@ -38,6 +36,7 @@
 
     {% paginate collection.products by 50 %}
       {%- liquid
+        assign sorted = collection.products | sort: 'price'
         assign group_list = ''
         for product in collection.products
           for tag in product.tags
@@ -53,16 +52,17 @@
         assign groups = group_list | split: '|' | uniq
       -%}
 
-      <div class="coll-bar">
-        <p class="coll-count">
+      <div class="coll-bar" data-coll-filter>
+        <p class="coll-count" data-count-one="{{ 'collections.count_one' | t }}" data-count="{{ 'collections.count' | t: n: '%n' }}">
           {%- if collection.products_count == 1 -%}{{ 'collections.count_one' | t }}{%- else -%}{{ 'collections.count' | t: n: collection.products_count }}{%- endif -%}
         </p>
-        {%- if groups.size > 0 -%}
-          <nav class="coll-jump" aria-label="{{ 'collections.jump' | t }}">
+        {%- if groups.size > 1 -%}
+          <div class="coll-filter" role="group" aria-label="{{ 'collections.filter' | t }}">
+            <button type="button" aria-pressed="true" data-filter="">{{ 'collections.filter_all' | t }}</button>
             {%- for g in groups -%}
-              <a href="#g-{{ g | handleize }}">{{ g | escape }}</a>
+              <button type="button" aria-pressed="false" data-filter="{{ g | handleize }}">{{ g | escape }}</button>
             {%- endfor -%}
-          </nav>
+          </div>
         {%- endif -%}
       </div>
 
@@ -71,53 +71,35 @@
           <p>{{ 'collections.empty' | t }}</p>
           <a class="pill pill-o" href="{{ routes.root_url }}#garments">{{ 'collections.empty_cta' | t }}</a>
         </div>
-      {%- elsif groups.size == 0 -%}
+      {%- else -%}
         <div class="coll-grid">
-          {%- for product in collection.products -%}
-            {% render 'garment-card', product: product %}
+          {%- comment -%}
+            Order (Eddie, 21/11/2026): adult Uneek styles first (the in-stock range),
+            then other adult styles, then kids' styles (group:Kids) the same way.
+            Cheapest first within each.
+          {%- endcomment -%}
+          {%- for pass in (1..4) -%}
+            {%- for product in sorted -%}
+              {%- assign mine = '' -%}
+              {%- for tag in product.tags -%}
+                {%- assign head = tag | slice: 0, 6 | downcase -%}
+                {%- if head == 'group:' -%}
+                  {%- assign gname = tag | slice: 6, 100 | strip | handleize -%}
+                  {%- assign mine = mine | append: ' ' | append: gname -%}
+                {%- endif -%}
+              {%- endfor -%}
+              {%- assign mine = mine | strip -%}
+              {%- assign kids = false -%}
+              {%- assign mine_list = mine | split: ' ' -%}
+              {%- if mine_list contains 'kids' -%}{%- assign kids = true -%}{%- endif -%}
+              {%- assign vendor = product.vendor | downcase | strip -%}
+              {%- if kids -%}{%- assign want = 3 -%}{%- else -%}{%- assign want = 1 -%}{%- endif -%}
+              {%- unless vendor == 'uneek' -%}{%- assign want = want | plus: 1 -%}{%- endunless -%}
+              {%- if pass != want -%}{%- continue -%}{%- endif -%}
+              <div class="coll-item" data-groups="{{ mine }}">{% render 'garment-card', product: product %}</div>
+            {%- endfor -%}
           {%- endfor -%}
         </div>
-      {%- else -%}
-        {%- for g in groups -%}
-          {%- assign want = 'group:' | append: g | downcase -%}
-          <section class="coll-group" id="g-{{ g | handleize }}">
-            <div class="coll-group-head">
-              <h2>{{ g | escape }}</h2>
-              {%- assign gh = g | handleize -%}
-              {%- case gh -%}
-                {%- when 'classic' -%}<p class="range-note range-in">{{ 'collections.range_classic' | t }}</p>
-                {%- when 'premium' -%}<p class="range-note">{{ 'collections.range_premium' | t }}</p>
-              {%- endcase -%}
-            </div>
-            <div class="coll-grid">
-              {%- for product in collection.products -%}
-                {%- assign hit = false -%}
-                {%- for tag in product.tags -%}
-                  {%- assign t = tag | downcase | replace: 'group: ', 'group:' -%}
-                  {%- if t == want -%}{%- assign hit = true -%}{%- break -%}{%- endif -%}
-                {%- endfor -%}
-                {%- if hit -%}{% render 'garment-card', product: product %}{%- endif -%}
-              {%- endfor -%}
-            </div>
-          </section>
-        {%- endfor -%}
-
-        {%- capture rest -%}
-          {%- for product in collection.products -%}
-            {%- assign in_group = false -%}
-            {%- for tag in product.tags -%}
-              {%- assign head = tag | slice: 0, 6 | downcase -%}
-              {%- if head == 'group:' -%}{%- assign in_group = true -%}{%- break -%}{%- endif -%}
-            {%- endfor -%}
-            {%- unless in_group -%}{% render 'garment-card', product: product %}{%- endunless -%}
-          {%- endfor -%}
-        {%- endcapture -%}
-        {%- if rest != blank -%}
-          <section class="coll-group" id="g-more">
-            <div class="coll-group-head"><h2>{{ 'collections.more' | t }}</h2></div>
-            <div class="coll-grid">{{ rest }}</div>
-          </section>
-        {%- endif -%}
       {%- endif -%}
 
       {%- if paginate.pages > 1 -%}

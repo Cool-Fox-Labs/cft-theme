@@ -359,3 +359,29 @@ document.querySelectorAll('[data-mock]').forEach((box) => {
     box.append(d);
   });
 });
+
+/* Category page filters: show only the cards in the chosen group. */
+(() => {
+  const bar = document.querySelector('[data-coll-filter]');
+  if (!bar) return;
+  const buttons = [...bar.querySelectorAll('[data-filter]')];
+  if (!buttons.length) return;
+  const items = [...document.querySelectorAll('.coll-item')];
+  const count = bar.querySelector('.coll-count');
+  const apply = (key) => {
+    let shown = 0;
+    items.forEach((item) => {
+      const on = !key || (item.dataset.groups || '').split(' ').includes(key);
+      item.hidden = !on;
+      if (on) shown += 1;
+    });
+    buttons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.filter === key)));
+    if (count) count.textContent = shown === 1 ? count.dataset.countOne : count.dataset.count.replace('%n', shown);
+  };
+  buttons.forEach((b) => b.addEventListener('click', () => {
+    apply(b.dataset.filter);
+    try { history.replaceState(null, '', b.dataset.filter ? '#' + b.dataset.filter : location.pathname + location.search); } catch (e) {}
+  }));
+  const start = decodeURIComponent(location.hash.slice(1));
+  if (start && buttons.some((b) => b.dataset.filter === start)) apply(start);
+})();
