@@ -374,7 +374,8 @@
           "available": {{ variant.available | json }},
           "max": {% if variant.inventory_management == 'shopify' and variant.inventory_policy == 'deny' %}{{ variant.inventory_quantity | at_least: 0 | json }}{% else %}null{% endif %},
           "img": {% if img %}{{ img | image_url: width: 1000 | json }}{% else %}null{% endif %},
-          "thumb": {% if img %}{{ img | image_url: width: 160 | json }}{% else %}null{% endif %}
+          "thumb": {% if img %}{{ img | image_url: width: 160 | json }}{% else %}null{% endif %},
+          "own": {% if variant.featured_image %}true{% else %}false{% endif %}
         }{% unless forloop.last %},{% endunless %}
       {%- endfor -%}
     ],
