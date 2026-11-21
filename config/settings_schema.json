@@ -94,6 +94,13 @@
       },
       {
         "type": "text",
+        "id": "whatsapp_number",
+        "label": "t:labels.whatsapp_number",
+        "info": "t:info.whatsapp_number",
+        "default": "07706 949932"
+      },
+      {
+        "type": "text",
         "id": "email",
         "label": "t:labels.email",
         "info": "t:info.email",
