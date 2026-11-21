@@ -14,6 +14,14 @@
   {% endblock %}
 {% endblock %}
 
+{% block 'container', tag: 'div' %}
+  {% block 'quick-tees' %}
+    <span class="eyebrow">{{ 'home.quick.eyebrow' | t }}</span>
+    <h2 id="quick-title">{{ 'home.quick.title' | t }}</h2>
+    <p>{{ 'home.quick.intro' | t }}</p>
+  {% endblock %}
+{% endblock %}
+
 {% block 'container', tag: 'section' %}
   <div class="sec" id="garments">
     <div class="sec-head">
