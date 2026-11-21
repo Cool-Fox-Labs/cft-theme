@@ -115,6 +115,10 @@ h1, h2, h3 { font-family: var(--f-d); text-wrap: balance; margin: 0 }
 .promo-d { background: var(--ink); color: var(--cream) }
 .promo-d span { color: var(--sand) }
 .promo-d .big-num { position: absolute; right: 16px; top: 10px; font: 700 64px/1 var(--f-d); color: var(--orange); letter-spacing: -.04em }
+@media (min-width: 961px) and (max-width: 1180px) {
+  .nav > a, .nav > button.top, .nav > a.basket-link { padding: 0 9px }
+  .nav > a.pill-o { margin-left: 4px; padding: 0 14px }
+}
 @media (max-width: 960px) {
   .nav > a:not(.pill-o):not(.basket-link), .nav > button.top { display: none }
   .burger { display: inline-flex }
@@ -453,7 +457,7 @@ input[type=range] { width: 100%; accent-color: var(--orange); height: 28px }
 .faq p { color: var(--muted) }
 .panel-help { grid-template-columns: minmax(0, 1fr) }
 .panel-help .cats { grid-template-columns: repeat(4, minmax(0, 1fr)) }
-.faq-card { background: var(--card); border-radius: var(--r); padding: 4px 22px; box-shadow: 0 0 0 1px var(--line); max-width: 860px }
+.faq-card { background: var(--card); border-radius: var(--r); padding: 4px 22px; box-shadow: 0 0 0 1px var(--line) }
 .faq-card .faq p { margin: 0 0 14px }
 @media (max-width: 960px) { .panel-help .cats { grid-template-columns: 1fr 1fr } }
 @media (max-width: 600px) { .info-cards { grid-template-columns: 1fr } }
