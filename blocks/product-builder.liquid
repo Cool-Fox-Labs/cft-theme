@@ -199,6 +199,23 @@
   <div class="more">
     <section class="panel-c" aria-labelledby="d-h">
       <h2 id="d-h">{{ 'product.details' | t }}</h2>
+      {%- comment -%}
+        Garment details (Eddie, 21/11/2026) from metafields cft.gsm, cft.fabric.
+        (Wash temp left out on purpose: print care differs.) Only lines with a value show; no box when all are empty.
+      {%- endcomment -%}
+      {%- liquid
+        assign g_gsm = product.metafields.cft.gsm.value
+        assign g_fabric = product.metafields.cft.fabric.value
+      -%}
+      {%- if g_gsm != blank or g_fabric != blank -%}
+        <div class="gdet">
+          <h3>{{ 'product.garment_details' | t }}</h3>
+          <dl>
+            {%- if g_gsm != blank -%}<dt>{{ 'product.gd_weight' | t }}</dt><dd>{{ 'product.gd_gsm' | t: n: g_gsm }}</dd>{%- endif -%}
+            {%- if g_fabric != blank -%}<dt>{{ 'product.gd_fabric' | t }}</dt><dd>{{ g_fabric | escape }}</dd>{%- endif -%}
+          </dl>
+        </div>
+      {%- endif -%}
       <div class="rte">{{ product.description }}</div>
     </section>
     {%- assign faq_page = pages['faq'] -%}
