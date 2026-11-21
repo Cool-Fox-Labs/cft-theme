@@ -1,7 +1,7 @@
 {% comment %}
   A garment category page: heading and intro, three short facts, then one
   grid of garment cards, cheapest first (lowest variant price; prices are not
-  shown). Eddie, 21/11/2026: one grid with filters instead of sections.
+  shown), with kids' styles (group:Kids) after the adult ones. Eddie, 21/11/2026: one grid with filters instead of sections.
 
   Filters: tag a product "group:Heavyweight" (any name) and a "Heavyweight"
   button appears above the grid; tapping it shows only that group. "All" shows
@@ -73,16 +73,25 @@
         </div>
       {%- else -%}
         <div class="coll-grid">
-          {%- for product in sorted -%}
-            {%- assign mine = '' -%}
-            {%- for tag in product.tags -%}
-              {%- assign head = tag | slice: 0, 6 | downcase -%}
-              {%- if head == 'group:' -%}
-                {%- assign gname = tag | slice: 6, 100 | strip | handleize -%}
-                {%- assign mine = mine | append: ' ' | append: gname -%}
-              {%- endif -%}
+          {%- comment -%} Kids' styles (group:Kids) go after the adult ones, cheapest first in each (Eddie, 21/11/2026). {%- endcomment -%}
+          {%- for pass in (1..2) -%}
+            {%- for product in sorted -%}
+              {%- assign mine = '' -%}
+              {%- for tag in product.tags -%}
+                {%- assign head = tag | slice: 0, 6 | downcase -%}
+                {%- if head == 'group:' -%}
+                  {%- assign gname = tag | slice: 6, 100 | strip | handleize -%}
+                  {%- assign mine = mine | append: ' ' | append: gname -%}
+                {%- endif -%}
+              {%- endfor -%}
+              {%- assign mine = mine | strip -%}
+              {%- assign kids = false -%}
+              {%- assign mine_list = mine | split: ' ' -%}
+              {%- if mine_list contains 'kids' -%}{%- assign kids = true -%}{%- endif -%}
+              {%- if pass == 1 and kids -%}{%- continue -%}{%- endif -%}
+              {%- if pass == 2 and kids == false -%}{%- continue -%}{%- endif -%}
+              <div class="coll-item" data-groups="{{ mine }}">{% render 'garment-card', product: product %}</div>
             {%- endfor -%}
-            <div class="coll-item" data-groups="{{ mine | strip }}">{% render 'garment-card', product: product %}</div>
           {%- endfor -%}
         </div>
       {%- endif -%}
