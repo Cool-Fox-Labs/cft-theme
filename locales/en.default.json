@@ -95,6 +95,7 @@
     "badge_heavy": "Heavyweight · {{ gsm }}gsm",
     "badge_organic": "Organic",
     "badge_oversized": "Oversized fit",
+    "badge_boxy": "Boxy fit",
     "price_buy_html": "<b>{{ price }}</b> each, printed",
     "help_title_all": "Can't find what you need?",
     "help_text_all": "Tell us what it's for and we'll find the garment for you, or browse thousands more in our full catalogue.",

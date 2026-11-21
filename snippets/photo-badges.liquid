@@ -4,7 +4,8 @@
     more, and hoodies and sweatshirts (tag cat-hoodies-sweatshirts, zips too)
     with cft.gsm 300 or more. Never on any other category.
   - "Organic": cft.fabric contains "organic".
-  - "Oversized fit": the title contains "oversized" or "boxy".
+  - "Oversized fit": the title contains "oversized"; else "Boxy fit" when it
+    contains "boxy" (a different cut: wide and shorter).
   Nothing is printed when no badge applies.
 
   @param {product} product - The product.
@@ -31,18 +32,20 @@
     assign organic = true
   endif
 
-  assign oversized = false
-  if title contains 'oversized' or title contains 'boxy'
-    assign oversized = true
+  assign fit = ''
+  if title contains 'oversized'
+    assign fit = 'collections.badge_oversized'
+  elsif title contains 'boxy'
+    assign fit = 'collections.badge_boxy'
   endif
 
   assign shown = 0
 -%}
 
-{%- if heavy or organic or oversized -%}
+{%- if heavy or organic or fit != '' -%}
   <span class="pbadges {{ class }}">
     {%- if heavy -%}<span class="pbadge pbadge-heavy">{{ 'collections.badge_heavy' | t: gsm: gsm }}</span>{%- assign shown = shown | plus: 1 -%}{%- endif -%}
     {%- if organic -%}<span class="pbadge pbadge-organic">{{ 'collections.badge_organic' | t }}</span>{%- assign shown = shown | plus: 1 -%}{%- endif -%}
-    {%- if oversized and shown < 2 -%}<span class="pbadge">{{ 'collections.badge_oversized' | t }}</span>{%- endif -%}
+    {%- if fit != '' and shown < 2 -%}<span class="pbadge">{{ fit | t }}</span>{%- endif -%}
   </span>
 {%- endif -%}
