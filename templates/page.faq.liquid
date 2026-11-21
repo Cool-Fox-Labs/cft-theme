@@ -29,7 +29,8 @@
             <p>{{ t | append: 'a_' | append: q | t }}</p>
             {%- case q -%}
               {%- when 'find' -%}
-                <p><a href="https://coolfoxtees.fullcollection.com/" target="_blank" rel="noopener">{{ 'pages.faq.find_link' | t }}</a></p>
+                {%- assign catalogue_url = settings.full_catalogue_url | strip | default: 'https://coolfoxtees.fullcollection.com/' -%}
+                <p><a href="{{ catalogue_url }}" target="_blank" rel="noopener">{{ 'pages.faq.find_link' | t }}</a></p>
               {%- when 'file' -%}
                 {%- if artwork_page -%}
                   <p><a href="{{ artwork_page.url }}">{{ 'pages.faq.artwork_link' | t }}</a></p>
