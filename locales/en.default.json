@@ -133,6 +133,7 @@
     "services": "Services",
     "how_it_works": "How it works",
     "visit_showroom": "Visit the showroom",
+    "contact": "Contact",
     "get_quote": "Get a quote",
     "menu": "Menu",
     "close": "Close",
@@ -651,6 +652,7 @@
     "returns_text": "If something isn't right",
     "terms": "Terms of service",
     "privacy": "Privacy policy",
-    "contact": "Contact us"
+    "contact": "Contact us",
+    "contact_text": "WhatsApp, call or send us a message"
   }
 }
