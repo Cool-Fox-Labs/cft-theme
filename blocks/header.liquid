@@ -9,7 +9,7 @@
 {%- comment -%} Sign-in lands on the Print Studio dashboard (/apps/account). {%- endcomment -%}
 {%- assign login_base = routes.storefront_login_url | split: '?' | first -%}
 {%- assign login_url = login_base | append: '?return_to=%2Fapps%2Faccount' -%}
-{%- comment -%} "Build your quote" starts at All garments. The Get a quote page holds only the "tell us what you need" form, linked from the bottom of All garments. {%- endcomment -%}
+{%- comment -%} "Get a quote" (Eddie 21/11, was "Build your quote") starts at All garments. The Get a quote page holds only the "tell us what you need" form, linked from the bottom of All garments. {%- endcomment -%}
 {%- assign quote_url = routes.collections_url -%}
 {%- assign showroom_url = routes.root_url | append: '#showroom' -%}
 

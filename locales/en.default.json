@@ -130,7 +130,7 @@
     "services": "Services",
     "how_it_works": "How it works",
     "visit_showroom": "Visit the showroom",
-    "get_quote": "Build your quote",
+    "get_quote": "Get a quote",
     "menu": "Menu",
     "close": "Close",
     "choose_garment": "Choose your garment",
@@ -223,7 +223,7 @@
     "hero": {
       "title": "Your design, printed in Leamington.",
       "intro": "Custom T-shirts, hoodies, sportswear and workwear, printed in our Leamington Spa studio. One item or two hundred.",
-      "start_quote": "Build your quote",
+      "start_quote": "Get a quote",
       "browse": "Browse garments",
       "fact_printing": "DTG and digital transfer (DTF) printing",
       "fact_turnaround": "Quick turnaround",
@@ -594,11 +594,11 @@
       "sent_browse": "Browse garments",
       "sent_home": "Back to home",
       "back_text": "Know what you want?",
-      "back_link": "Choose a garment and build your quote"
+      "back_link": "Choose a garment and get a quote"
     },
     "service": {
       "eyebrow": "Services",
-      "build": "Build your quote",
+      "build": "Get a quote",
       "tell_us": "Tell us what you need",
       "facts_title": "Good to know",
       "fact_minimum": "No minimum order. One item is fine.",
