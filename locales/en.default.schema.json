@@ -67,7 +67,8 @@
     "quote_endpoint": "Quote request address",
     "full_catalogue_url": "Full catalogue address",
     "show_services_menu": "Show Services in the menu",
-    "whatsapp_number": "WhatsApp number"
+    "whatsapp_number": "WhatsApp number",
+    "inhouse_codes": "In-house stock style codes"
   },
   "options": {
     "alignment": {
@@ -95,6 +96,7 @@
     "quote_endpoint": "Where \"Send for quote\" posts the request. Leave blank until the Business Hub app is installed.",
     "full_catalogue_url": "The supplier catalogue site. The Full catalogue link in the Garments menu opens it in a new tab. Leave blank to hide the link.",
     "show_services_menu": "Off for now (Eddie, 19/11/2026) while the service pages are reworked. The pages still exist at their own addresses.",
-    "whatsapp_number": "Shown as a WhatsApp us button on the Contact page. UK format is fine, e.g. 07706 949932. Leave blank to hide it."
+    "whatsapp_number": "Shown as a WhatsApp us button on the Contact page. UK format is fine, e.g. 07706 949932. Leave blank to hide it.",
+    "inhouse_codes": "Products tagged with one of these style codes (comma separated) show in the \"Our classic tees\" section at the top of their category page, without the brand name."
   }
 }

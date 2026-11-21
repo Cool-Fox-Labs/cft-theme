@@ -131,6 +131,13 @@
         "default": "https://coolfoxtees.fullcollection.com/"
       },
       {
+        "type": "text",
+        "id": "inhouse_codes",
+        "label": "t:labels.inhouse_codes",
+        "info": "t:info.inhouse_codes",
+        "default": "UC301, UC318, UC306"
+      },
+      {
         "type": "checkbox",
         "id": "show_services_menu",
         "label": "t:labels.show_services_menu",

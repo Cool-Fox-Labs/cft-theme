@@ -104,7 +104,14 @@
     "price_buy_html": "<b>{{ price }}</b> each, printed",
     "help_title_all": "Can't find what you need?",
     "help_text_all": "Browse thousands more styles in our full catalogue, then send us the style code and we'll quote.",
-    "help_cta_tell": "Get a quote"
+    "help_cta_tell": "Get a quote",
+    "inh_eyebrow": "In-house stock",
+    "inh_title": "Our classic tees",
+    "inh_text": "Kept in stock in our studio, so we can print them fast.",
+    "inh_fact_stock": "In stock in our studio",
+    "inh_fact_fast": "Fast production",
+    "inh_fact_sameday": "Same-day printing on up to 10, order by 10am",
+    "inh_card_meta": "In-house stock"
   },
   "gift_card": {
     "add_to_apple_wallet": "Add to Apple Wallet",

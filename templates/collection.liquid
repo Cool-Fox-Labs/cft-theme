@@ -9,6 +9,11 @@
   order in the admin (the first product of each group decides). With fewer than two groups there are no buttons.
   The groups "Classic" and "Premium" still give their cards a badge.
   The last card links to the full catalogue (theme setting full_catalogue_url).
+
+  In-house stock (Eddie, 21/11/2026): products whose tags include one of the
+  style codes in the theme setting "In-house stock style codes" (default
+  UC301, UC318, UC306) are shown in their own "Our classic tees" section at
+  the top, without the brand name, and left out of the grid below.
 {% endcomment %}
 
 {% block 'container', tag: 'div' %}
@@ -51,11 +56,61 @@
           endfor
         endfor
         assign groups = group_list | split: '|' | uniq
+
+        assign inh_codes = settings.inhouse_codes | upcase | remove: ' ' | split: ','
+        assign inh_handles = '|'
+        assign inh_count = 0
+        if inh_codes.size > 0
+          for product in sorted
+            for tag in product.tags
+              assign t = tag | upcase | strip
+              if inh_codes contains t
+                assign inh_handles = inh_handles | append: product.handle | append: '|'
+                assign inh_count = inh_count | plus: 1
+                break
+              endif
+            endfor
+          endfor
+        endif
+        assign grid_count = collection.products_count | minus: inh_count
       -%}
+
+      {%- if inh_count > 0 -%}
+        <section class="inh" aria-labelledby="inh-title">
+          <div class="inh-head">
+            <div>
+              <span class="eyebrow">{{ 'collections.inh_eyebrow' | t }}</span>
+              <h2 id="inh-title">{{ 'collections.inh_title' | t }}</h2>
+              <p>{{ 'collections.inh_text' | t }}</p>
+            </div>
+            <ul class="inh-facts">
+              <li>{{ 'collections.inh_fact_stock' | t }}</li>
+              <li>{{ 'collections.inh_fact_fast' | t }}</li>
+              <li>{{ 'collections.inh_fact_sameday' | t }}</li>
+            </ul>
+          </div>
+          <div class="coll-grid inh-grid">
+            {%- assign inh_meta = 'collections.inh_card_meta' | t -%}
+            {%- comment -%} Adult styles first, then kids (group:Kids), cheapest first within each. {%- endcomment -%}
+            {%- for pass in (1..2) -%}
+              {%- for product in sorted -%}
+                {%- assign key = '|' | append: product.handle | append: '|' -%}
+                {%- unless inh_handles contains key -%}{%- continue -%}{%- endunless -%}
+                {%- assign is_kids = false -%}
+                {%- for tag in product.tags -%}{%- assign tl = tag | downcase | remove: ' ' -%}{%- if tl == 'group:kids' -%}{%- assign is_kids = true -%}{%- endif -%}{%- endfor -%}
+                {%- if is_kids and pass == 1 -%}{%- continue -%}{%- endif -%}
+                {%- unless is_kids or pass == 1 -%}{%- continue -%}{%- endunless -%}
+                {% render 'garment-card', product: product, meta: inh_meta %}
+              {%- endfor -%}
+            {%- endfor -%}
+          </div>
+        </section>
+        <h2 class="coll-more">{{ 'collections.more' | t }}</h2>
+      {%- endif -%}
 
       <div class="coll-bar" data-coll-filter>
         <p class="coll-count" data-count-one="{{ 'collections.count_one' | t }}" data-count="{{ 'collections.count' | t: n: '%n' }}">
-          {%- if collection.products_count == 1 -%}{{ 'collections.count_one' | t }}{%- else -%}{{ 'collections.count' | t: n: collection.products_count }}{%- endif -%}
+          {%- if grid_count == 1 -%}{{ 'collections.count_one' | t }}{%- else -%}{{ 'collections.count' | t: n: grid_count }}{%- endif -%}
         </p>
         {%- if groups.size > 1 -%}
           <div class="coll-filter" role="group" aria-label="{{ 'collections.filter' | t }}">
@@ -81,6 +136,8 @@
           {%- endcomment -%}
           {%- for pass in (1..4) -%}
             {%- for product in sorted -%}
+              {%- assign key = '|' | append: product.handle | append: '|' -%}
+              {%- if inh_handles contains key -%}{%- continue -%}{%- endif -%}
               {%- assign mine = '' -%}
               {%- for tag in product.tags -%}
                 {%- assign head = tag | slice: 0, 6 | downcase -%}
