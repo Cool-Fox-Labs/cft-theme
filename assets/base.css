@@ -930,8 +930,8 @@ input[type=range] { width: 100%; accent-color: var(--orange); height: 28px }
 .quick-grid { grid-template-columns: repeat(3, minmax(0, 1fr)) }
 @media (max-width: 760px) { .quick-grid { grid-template-columns: 1fr 1fr } }
 /* Homepage quick tees banner: Eddie's photo full width, text over the empty wall on the left */
-.quick-ban { position: relative; margin: 14px 0 0; border-radius: 26px; overflow: hidden; background: #B1A7A5; aspect-ratio: 2 / 1; max-height: 560px; width: 100% }
-.quick-ban-photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: right center; display: block }
+.quick-ban { position: relative; margin: 14px 0 0; border-radius: 26px; overflow: hidden; background: #B1A7A5; aspect-ratio: 1774 / 740; max-height: 560px; width: 100% }
+.quick-ban-photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: right top; display: block }
 .quick-ban-text { position: relative; z-index: 1; height: 100%; max-width: 36%; padding: clamp(22px, 3.4vw, 48px); display: flex; flex-direction: column; justify-content: center; gap: 12px }
 .quick-ban-text h2 { font: 700 clamp(30px, 3.6vw, 52px)/1.02 var(--f-d); letter-spacing: -.025em; margin: 0 }
 .quick-ban-text p { margin: 0; font-size: 17px; line-height: 1.45; max-width: 34ch; color: var(--ink) }
@@ -939,7 +939,7 @@ input[type=range] { width: 100%; accent-color: var(--orange); height: 28px }
 .quick-ban-cta:hover { background: var(--orange); color: var(--ink) }
 @media (max-width: 900px) {
   .quick-ban { aspect-ratio: auto; max-height: none; background: var(--orange-soft, #FBE3D3) }
-  .quick-ban-photo { position: static; aspect-ratio: 16 / 10; height: auto; object-position: 85% center }
+  .quick-ban-photo { position: static; aspect-ratio: 16 / 10; height: auto; object-position: 80% top }
   .quick-ban-text { max-width: none; height: auto }
   .quick-ban-cta { align-self: stretch; justify-content: center }
 }
