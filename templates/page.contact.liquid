@@ -1,0 +1,80 @@
+{% comment %}
+  Contact page (page handle "contact", template "contact"). Eddie, 21/11/2026:
+  a contact form plus a WhatsApp button.
+  Left/top: quick ways to reach us (WhatsApp, call, email, showroom). On phones
+  this card comes first, so WhatsApp is one tap away.
+  Right/below: Shopify's built-in contact form. Messages go to the store's
+  sender email (Shopify admin > Settings > Notifications).
+  Numbers and address come from the theme settings (Cool Fox Tees section).
+  Wording lives in locales/en.default.json under pages.contact.
+{% endcomment %}
+
+{% block 'container', tag: 'section' %}
+  {%- liquid
+    assign wa = settings.whatsapp_number | remove: ' ' | remove: '+' | remove: '-'
+    assign wa_first = wa | slice: 0, 1
+    if wa_first == '0'
+      assign wa_rest = wa | slice: 1, 30
+      assign wa = '44' | append: wa_rest
+    endif
+    assign wa_text = 'pages.contact.wa_prefill' | t | url_encode | replace: '+', '%20'
+    assign shop_email = settings.email
+  -%}
+  <div class="ct">
+    <header class="info-head">
+      <span class="eyebrow">{{ 'pages.contact.eyebrow' | t }}</span>
+      <h1>{{ 'pages.contact.title' | t }}</h1>
+      <p>{{ 'pages.contact.intro' | t }}</p>
+    </header>
+
+    {%- if page.content != blank -%}<div class="ct-extra">{{ page.content }}</div>{%- endif -%}
+
+    <div class="gq-grid ct-grid">
+      <aside class="gq-card ct-ways">
+        <h2>{{ 'pages.contact.quick_title' | t }}</h2>
+        {%- if wa != blank -%}
+          <a class="ct-wa" href="https://wa.me/{{ wa }}?text={{ wa_text }}" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2c-1.5 0-3-.4-4.3-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.8-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.1 5.1 0 0 0 1.1 2.7 11.7 11.7 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.2-.2-.4-.3z"/></svg>
+            <span><b>{{ 'pages.contact.wa_button' | t }}</b><small>{{ 'pages.contact.wa_text' | t }}</small></span>
+          </a>
+        {%- endif -%}
+        <dl class="ct-list">
+          {%- if settings.phone != blank -%}
+            <div><dt>{{ 'pages.contact.call' | t }}</dt><dd><a href="tel:{{ settings.phone | remove: ' ' }}">{{ settings.phone }}</a></dd></div>
+          {%- endif -%}
+          {%- if shop_email != blank -%}
+            <div><dt>{{ 'pages.contact.email' | t }}</dt><dd><a href="mailto:{{ shop_email }}">{{ shop_email }}</a></dd></div>
+          {%- endif -%}
+          {%- if settings.showroom_address != blank -%}
+            {%- assign maps_dest = 'Cool Fox Tees, ' | append: settings.showroom_address | url_encode -%}
+            <div><dt>{{ 'pages.contact.visit' | t }}</dt><dd>{{ settings.showroom_address | escape }}<br><a href="https://www.google.com/maps/dir/?api=1&destination={{ maps_dest }}" target="_blank" rel="noopener">{{ 'home.showroom.plan_visit' | t }} &#8599;</a></dd></div>
+          {%- endif -%}
+          {%- if settings.showroom_hours != blank -%}
+            <div><dt>{{ 'pages.contact.hours' | t }}</dt><dd>{{ settings.showroom_hours | escape }}<br><small>{{ 'footer.call_first' | t }}</small></dd></div>
+          {%- endif -%}
+        </dl>
+      </aside>
+
+      <section class="gq-card ct-form-card">
+        <h2>{{ 'pages.contact.form_title' | t }}</h2>
+        {%- form 'contact', class: 'gq-form ct-form' -%}
+          {%- if form.posted_successfully? -%}
+            <p class="ct-ok" role="status" tabindex="-1">{{ 'pages.contact.sent' | t }}</p>
+          {%- else -%}
+            {%- if form.errors -%}
+              <div class="ct-err" role="alert">{{ form.errors | default_errors }}</div>
+            {%- endif -%}
+            <p class="gq-hint">{{ 'pages.contact.form_hint_html' | t: url: pages['get-a-quote'].url }}</p>
+            <label>{{ 'pages.quote.f_name' | t }} *<input name="contact[name]" autocomplete="name" required value="{% if form.name %}{{ form.name | escape }}{% else %}{{ customer.name | escape }}{% endif %}"></label>
+            <div class="gq-two">
+              <label>{{ 'pages.quote.f_email' | t }} *<input type="email" name="contact[email]" autocomplete="email" required value="{% if form.email %}{{ form.email | escape }}{% else %}{{ customer.email | escape }}{% endif %}"></label>
+              <label>{{ 'pages.contact.f_phone' | t }}<input type="tel" name="contact[phone]" autocomplete="tel" value="{{ form.phone | escape }}"></label>
+            </div>
+            <label>{{ 'pages.contact.f_message' | t }} *<textarea name="contact[body]" rows="5" required>{{ form.body | escape }}</textarea></label>
+            <button type="submit" class="pill pill-o">{{ 'pages.contact.send' | t }}</button>
+          {%- endif -%}
+        {%- endform -%}
+      </section>
+    </div>
+  </div>
+{% endblock %}

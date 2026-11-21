@@ -618,6 +618,25 @@
       "card_one_off": "A single gift, or a one-off piece for you.",
       "card_dtg": "Full-colour, detailed prints on cotton.",
       "card_dtf": "Bright, tough prints on almost any fabric."
+    },
+    "contact": {
+      "eyebrow": "Contact",
+      "title": "Get in touch",
+      "intro": "Questions about garments, printing or an order? Message us on WhatsApp, call, email or send the form. We reply within one working day.",
+      "quick_title": "Quickest ways to reach us",
+      "wa_button": "WhatsApp us",
+      "wa_text": "Opens a chat with us on WhatsApp",
+      "wa_prefill": "Hi Cool Fox Tees, ",
+      "call": "Call",
+      "email": "Email",
+      "visit": "Showroom",
+      "hours": "Opening hours",
+      "form_title": "Send us a message",
+      "form_hint_html": "Want a price? <a href=\"{{ url }}\">Get a quote</a> is quicker.",
+      "f_phone": "Phone (optional)",
+      "f_message": "Your message",
+      "send": "Send message",
+      "sent": "Thanks, your message is sent. We'll reply within one working day."
     }
   },
   "help": {
