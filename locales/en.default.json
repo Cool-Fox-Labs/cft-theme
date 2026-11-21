@@ -321,9 +321,12 @@
       "review3": "\"I take in second hand t-shirts for him to print my company logo on. Even helps out loads with graphic design and sends the designs across.\""
     },
     "quick": {
+      "eyebrow": "Same-day printing",
       "title": "Quick print tees",
+      "fact_time": "Order before 12pm for same day",
+      "fact_print": "Front and back prints",
       "card_meta": "Same-day print",
-      "strip": "Classic tees printed the same day. Order before 12pm.",
+      "strip": "Our classic tee for men, women and kids, kept in stock in our studio and printed the same day.",
       "cta": "See quick tees"
     },
     "faq": {

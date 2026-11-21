@@ -1,24 +1,31 @@
 {% doc %}
-  Renders the homepage "Quick print tees" strip (Eddie, 21/11/2026): one slim
-  line under the hero linking to the quick-tees collection page, which holds
+  Renders the homepage "Quick print tees" banner (Eddie, 21/11/2026): a photo
+  of the classic tee on a man and a woman (theme asset quick-tees-pair.jpg),
+  a short pitch and a button to the quick-tees collection page, which holds
   the same-day tees and their rules. Hidden when that collection is missing
   or empty.
 
-  @param {string} content - Required. The strip's text.
+  @param {string} content - Required. Eyebrow, heading and line.
 
   @example
   {% block 'quick-tees' %}
-    <b>{{ 'home.quick.title' | t }}</b>
+    <h2 id="quick-title">{{ 'home.quick.title' | t }}</h2>
   {% endblock %}
 {% enddoc %}
 
 {%- assign quick = collections['quick-tees'] -%}
 {%- if quick != blank and quick.products.size > 0 -%}
-  <section class="quick-strip" aria-label="{{ 'home.quick.title' | t }}" {{ block.shopify_attributes }}>
-    <a class="quick-strip-in" href="{{ quick.url }}">
-      <span class="quick-strip-dot" aria-hidden="true"></span>
-      <span class="quick-strip-text">{{ content }}</span>
-      <span class="pill pill-d quick-strip-cta">{{ 'home.quick.cta' | t }} <span aria-hidden="true">&rarr;</span></span>
+  <section class="quick-ban" aria-labelledby="quick-title" {{ block.shopify_attributes }}>
+    <div class="quick-ban-text">
+      {{ content }}
+      <ul class="inh-facts">
+        <li>{{ 'home.quick.fact_time' | t }}</li>
+        <li>{{ 'home.quick.fact_print' | t }}</li>
+      </ul>
+      <a class="quick-ban-cta" href="{{ quick.url }}">{{ 'home.quick.cta' | t }} <span aria-hidden="true">&rarr;</span></a>
+    </div>
+    <a class="quick-ban-img" href="{{ quick.url }}" tabindex="-1" aria-hidden="true">
+      <img src="{{ 'quick-tees-pair.jpg' | asset_url }}" alt="" width="1600" height="1066" loading="lazy">
     </a>
   </section>
 {%- endif -%}

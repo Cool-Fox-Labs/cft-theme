@@ -16,8 +16,9 @@
 
 {% block 'container', tag: 'div' %}
   {% block 'quick-tees' %}
-    <b>{{ 'home.quick.title' | t }}</b>
-    <span>{{ 'home.quick.strip' | t }}</span>
+    <span class="eyebrow">{{ 'home.quick.eyebrow' | t }}</span>
+    <h2 id="quick-title">{{ 'home.quick.title' | t }}</h2>
+    <p>{{ 'home.quick.strip' | t }}</p>
   {% endblock %}
 {% endblock %}
 
