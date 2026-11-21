@@ -18,7 +18,8 @@
   assign contact_page = pages['contact']
 -%}
 
-{%- if quick != blank and quick.products.size > 0 -%}
+{%- comment -%} Hidden 21/11 while the slim strip is built (Eddie: too big). {%- endcomment -%}
+{%- if false and quick != blank and quick.products.size > 0 -%}
   <section class="sec sec-tight quick" id="quick-tees" aria-labelledby="quick-title" {{ block.shopify_attributes }}>
     <div class="inh">
       <div class="inh-head">
