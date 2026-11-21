@@ -1,5 +1,5 @@
 {% doc %}
-  Renders the Help link list: FAQ, Artwork guide, Delivery and Returns, plus
+  Renders the Help link list: FAQ, Artwork guide, Delivery, plus Returns (footer only),
   Terms, Privacy and Contact when full is true. Links appear only when their
   page or policy exists. Used by the header Help drop-down, the phone drawer
   (style 'cats', with a short line under each) and the footer (plain links).
@@ -27,8 +27,9 @@
   {%- if shop.shipping_policy -%}
     <a href="{{ shop.shipping_policy.url }}"><b>{{ 'help.delivery' | t }}</b>{% if style == 'cats' %}<span>{{ 'help.delivery_text' | t }}</span>{% endif %}</a>
   {%- endif -%}
-  {%- if shop.refund_policy -%}
-    <a href="{{ shop.refund_policy.url }}"><b>{{ 'help.returns' | t }}</b>{% if style == 'cats' %}<span>{{ 'help.returns_text' | t }}</span>{% endif %}</a>
+  {%- comment -%} Returns stays in the footer only; Eddie took it out of the menu 21/11/2026. {%- endcomment -%}
+  {%- if shop.refund_policy and style != 'cats' -%}
+    <a href="{{ shop.refund_policy.url }}"><b>{{ 'help.returns' | t }}</b></a>
   {%- endif -%}
   {%- if full -%}
     {%- if shop.terms_of_service -%}
