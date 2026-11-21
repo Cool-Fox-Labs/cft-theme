@@ -48,7 +48,6 @@
           <svg viewBox="0 0 10 10" aria-hidden="true"><path d="M1 3l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
         </button>
         {%- endif -%}
-        <a href="{{ how_url }}">{{ 'header.how_it_works' | t }}</a>
         <button class="top" type="button" aria-expanded="false" aria-controls="panel-help">
           {{ 'header.help' | t }}
           <svg viewBox="0 0 10 10" aria-hidden="true"><path d="M1 3l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
@@ -119,7 +118,6 @@
         {% render 'menu-links', list: 'services' %}
       </details>
       {%- endif -%}
-      <a href="{{ how_url }}">{{ 'header.how_it_works' | t }}</a>
       <details>
         <summary>{{ 'header.help' | t }}</summary>
         {% render 'help-links', style: 'cats' %}
