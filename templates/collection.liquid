@@ -83,11 +83,17 @@
               <h2 id="inh-title">{{ 'collections.inh_title' | t }}</h2>
               <p>{{ 'collections.inh_text' | t }}</p>
             </div>
+            <div>
             <ul class="inh-facts">
               <li>{{ 'collections.inh_fact_stock' | t }}</li>
               <li>{{ 'collections.inh_fact_fast' | t }}</li>
               <li>{{ 'collections.inh_fact_sameday' | t }}</li>
             </ul>
+            {%- assign inh_contact_page = pages['contact'] -%}
+            {%- if inh_contact_page != empty and inh_contact_page != nil -%}
+              <a class="inh-contact" href="{{ inh_contact_page.url }}">{{ 'collections.inh_contact' | t }} <span aria-hidden="true">&rarr;</span></a>
+            {%- endif -%}
+            </div>
           </div>
           <div class="coll-grid inh-grid">
             {%- assign inh_meta = 'collections.inh_card_meta' | t -%}

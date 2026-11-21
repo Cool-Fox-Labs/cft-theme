@@ -110,7 +110,8 @@
     "inh_text": "Kept in stock in our studio, so we can print them fast.",
     "inh_fact_stock": "In stock in our studio",
     "inh_fact_fast": "Fast production",
-    "inh_fact_sameday": "Same-day printing on up to 10, order by 10am",
+    "inh_fact_sameday": "Same-day printing available, order before 12pm",
+    "inh_contact": "Need it today? Contact us",
     "inh_card_meta": "In-house stock"
   },
   "gift_card": {
@@ -506,7 +507,7 @@
       "a_change": "Yes, free of charge until you approve the proof. After that we order your garments and start printing, so we may charge for garments bought and work already done.",
       "find_link": "Browse the full catalogue",
       "q_sameday": "Do you offer same-day printing?",
-      "a_sameday": "Sometimes, on our classic t-shirts (in-stock items) only, up to 10 pieces. Please contact us and place your order before 10am. Subject to availability.",
+      "a_sameday": "Sometimes, on our classic t-shirts (in-stock items) only, up to 10 pieces. Please contact us and place your order before 12pm. Subject to availability.",
       "q_method": "How do you print?",
       "a_method": "We use two methods and choose the best one for your garment and design. DTG (direct to garment) prints ink straight into the fabric for a soft feel, and is used on 100% cotton garments. Digital transfer printing prints your design onto film, which is then heat-pressed on. It's bright and durable, and is used on all other garments, including polyester and sportswear."
     },
