@@ -836,3 +836,10 @@ input[type=range] { width: 100%; accent-color: var(--orange); height: 28px }
 .svc-card b { font-size: 18px }
 .svc-card span { font-size: 14px; color: var(--muted) }
 @media (prefers-reduced-motion: reduce) { .svc-card { transition: none } }
+
+/* Garment details box on the product page (Eddie, 21/11/2026) */
+.gdet { border: 1px solid var(--line); border-radius: 16px; padding: 14px 16px; display: grid; gap: 8px }
+.gdet h3 { font-size: 16px; font-weight: 700; margin: 0 }
+.gdet dl { display: grid; grid-template-columns: max-content 1fr; gap: 6px 18px; margin: 0; font-size: 15px }
+.gdet dt { font-family: var(--font-mono, monospace); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); padding-top: 2px }
+.gdet dd { margin: 0 }
