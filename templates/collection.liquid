@@ -29,7 +29,7 @@
 
     {%- assign is_quick = false -%}
     {%- if collection.handle == 'quick-tees' -%}{%- assign is_quick = true -%}{%- endif -%}
-    <header class="coll-head">
+    <header class="coll-head{% if is_quick %} coll-head-solo{% endif %}">
       <div>
         <span class="eyebrow">{% if is_quick %}{{ 'collections.quick_eyebrow' | t }}{% else %}{{ 'collections.eyebrow' | t }}{% endif %}</span>
         <h1>{{ collection.title | escape }}</h1>
@@ -47,7 +47,7 @@
           {%- endif -%}
         {%- endif -%}
       </div>
-      <ul class="coll-facts">
+      <ul class="coll-facts{% if is_quick %} coll-facts-quick{% endif %}">
         {%- if is_quick -%}
           <li><b>{{ 'collections.quick_f1_title' | t }}</b><span>{{ 'collections.quick_f1_text' | t }}</span></li>
           <li><b>{{ 'collections.quick_f2_title' | t }}</b><span>{{ 'collections.quick_f2_text' | t }}</span></li>
