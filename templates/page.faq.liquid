@@ -8,7 +8,7 @@
   {%- liquid
     assign artwork_page = pages['artwork-guide']
     assign t = 'pages.faq.'
-    assign groups = 'ordering:minimum,bulk,price,pay,vat,valid,mix,find,business|artwork:file,proof,preview,design,colour|delivery:time,sameday,change,collect,cost|returns:wash,return,own' | split: '|'
+    assign groups = 'ordering:minimum,bulk,price,pay,vat,valid,mix,find,business|artwork:method,file,proof,preview,design,colour|delivery:time,sameday,change,collect,cost|returns:wash,return,own' | split: '|'
   -%}
 
   <div class="info in">
@@ -31,7 +31,7 @@
               {%- when 'find' -%}
                 {%- assign catalogue_url = settings.full_catalogue_url | strip | default: 'https://coolfoxtees.fullcollection.com/' -%}
                 <p><a href="{{ catalogue_url }}" target="_blank" rel="noopener">{{ 'pages.faq.find_link' | t }}</a></p>
-              {%- when 'file' -%}
+              {%- when 'method', 'file' -%}
                 {%- if artwork_page -%}
                   <p><a href="{{ artwork_page.url }}">{{ 'pages.faq.artwork_link' | t }}</a></p>
                 {%- endif -%}
