@@ -53,7 +53,6 @@
           <li><b>{{ 'collections.quick_f2_title' | t }}</b><span>{{ 'collections.quick_f2_text' | t }}</span></li>
           <li><b>{{ 'collections.quick_f3_title' | t }}</b><span>{{ 'collections.quick_f3_text' | t }}</span></li>
           <li><b>{{ 'collections.quick_f4_title' | t }}</b><span>{{ 'collections.quick_f4_text' | t }}</span></li>
-          <li><b>{{ 'collections.quick_f5_title' | t }}</b><span>{{ 'collections.quick_f5_text' | t }}</span></li>
           <li><b>{{ 'collections.quick_f6_title' | t }}</b><span>{{ 'collections.quick_f6_text' | t }}</span></li>
         {%- else -%}
         <li><b>{{ 'collections.fact_discount_title' | t }}</b><span>{{ 'collections.fact_discount_text' | t }}</span></li>
@@ -61,6 +60,10 @@
         <li><b>{{ 'collections.fact_showroom_title' | t }}</b><span>{{ 'collections.fact_showroom_text' | t }}</span></li>
         {%- endif -%}
       </ul>
+      {%- if is_quick -%}
+        {%- assign q_bulk = collections['t-shirts'].url | default: routes.collections_url -%}
+        <p class="coll-bulk"><b>{{ 'collections.quick_f5_title' | t }}</b> <a href="{{ q_bulk }}">{{ 'collections.quick_f5_text' | t }} <span aria-hidden="true">&rarr;</span></a></p>
+      {%- endif -%}
     </header>
 
     {% paginate collection.products by 50 %}
