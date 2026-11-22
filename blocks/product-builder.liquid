@@ -216,7 +216,7 @@
         <button type="button" class="pill pill-o" data-add>
           {%- if quote_only -%}{{ 'product.add_to_quote' | t }}{%- else -%}{{ 'product.buy_now' | t }}{%- endif -%}
         </button>
-        <p data-add-msg aria-live="polite">{%- if quote_only -%}{{ 'product.quote_note' | t }}{%- else -%}{{ 'product.buy_note' | t }}{%- endif -%}</p>
+        <p data-add-msg aria-live="polite">{%- if quote_only -%}{{ 'product.quote_note' | t }}{%- elsif product.tags contains 'quick-tee' -%}{{ 'product.buy_note_quick' | t }}{%- else -%}{{ 'product.buy_note' | t }}{%- endif -%}</p>
       </div>
 
       {%- if quote_only -%}
@@ -240,10 +240,17 @@
 
       {%- if quote_only -%}{{ price_row }}{%- endif -%}
 
+      {%- comment -%} Quick tees (Eddie, 22/11/2026): same-day facts instead of proof / 5-7 days. {%- endcomment -%}
       <div class="trust">
-        <div><b>{{ 'product.trust_proof_title' | t }}</b>{{ 'product.trust_proof' | t }}</div>
-        <div><b>{{ 'product.trust_time_title' | t }}</b>{{ 'product.trust_time' | t }}</div>
-        <div><b>{{ 'product.trust_showroom_title' | t }}</b>{{ settings.showroom_address | escape }}</div>
+        {%- if product.tags contains 'quick-tee' -%}
+          <div><b>{{ 'product.trust_quick_title' | t }}</b>{{ 'product.trust_quick' | t }}</div>
+          <div><b>{{ 'product.trust_collect_title' | t }}</b>{{ settings.showroom_address | escape }}</div>
+          <div><b>{{ 'product.trust_post_title' | t }}</b>{{ 'product.trust_post' | t }}</div>
+        {%- else -%}
+          <div><b>{{ 'product.trust_proof_title' | t }}</b>{{ 'product.trust_proof' | t }}</div>
+          <div><b>{{ 'product.trust_time_title' | t }}</b>{{ 'product.trust_time' | t }}</div>
+          <div><b>{{ 'product.trust_showroom_title' | t }}</b>{{ settings.showroom_address | escape }}</div>
+        {%- endif -%}
       </div>
     </div>
   </div>
