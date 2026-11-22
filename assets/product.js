@@ -337,6 +337,8 @@
     list.hidden = !on;
     colourToggle.setAttribute('aria-expanded', String(on));
   }
+  // One colour only: nothing to change, so the row is just a label.
+  if (colourToggle && COLOURS.length < 2) colourToggle.disabled = true;
   if (colourToggle) colourToggle.addEventListener('click', () => openColours(colourToggle.getAttribute('aria-expanded') !== 'true'));
 
   function swatches() {
