@@ -952,3 +952,6 @@ input[type=range] { width: 100%; accent-color: var(--orange); height: 28px }
   .quick-ban-text { max-width: none; height: auto }
   .quick-ban-cta { align-self: stretch; justify-content: center; flex: 1 1 100% }
 }
+.buy-bulk { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; margin: 0; padding: 12px 14px; border-radius: 14px; background: var(--orange-soft); font-size: 15px }
+.buy-bulk[hidden] { display: none }
+.buy-bulk a { font-weight: 600 }

@@ -414,12 +414,18 @@
     const n = total() + inBasket;
     const next = nextTier(n);
     q('[data-total]').textContent = items(total());
-    q('[data-nudge-pct]').textContent = rate(n) + '%';
-    q('[data-nudge-bar]').style.width = Math.min(100, n) + '%';
-    q('[data-nudge-text]').textContent = next ? fill(T.addMore, { n: next - n, p: rate(next) }) : T.top;
-    const nb = q('[data-nudge-basket]');
-    nb.hidden = !inBasket;
-    nb.textContent = inBasket ? fill(T.inBasket, { n: inBasket }) : '';
+    const bb = q('[data-buy-bulk]');
+    if (bb) {
+      // Buy-online garments: no discount meter; from 10 items, point to a quote.
+      bb.hidden = n < 10;
+    } else {
+      q('[data-nudge-pct]').textContent = rate(n) + '%';
+      q('[data-nudge-bar]').style.width = Math.min(100, n) + '%';
+      q('[data-nudge-text]').textContent = next ? fill(T.addMore, { n: next - n, p: rate(next) }) : T.top;
+      const nb = q('[data-nudge-basket]');
+      nb.hidden = !inBasket;
+      nb.textContent = inBasket ? fill(T.inBasket, { n: inBasket }) : '';
+    }
     const sum = `${items(total())} · ${st.colour.name}`;
     q('[data-sum]').textContent = sum;
     q('[data-mob-sum]').textContent = sum;
