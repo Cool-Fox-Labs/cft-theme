@@ -6,7 +6,7 @@
   Sections are read from the collection itself, the same way the collection
   page builds them: product tags "group:<Name>", in the collection's product
   order. So adding or renaming a section in the admin updates the menu too.
-  Each section links to its heading on the collection page (#g-<name>).
+  Each section links to the collection page with that filter on (#<name>, read by theme.js).
 
   The phone drawer still uses the plain 'menu-links' list.
 
@@ -51,7 +51,7 @@
       <a class="mega-title" href="{{ url }}">{{ title_key | t }}</a>
       <ul>
         {%- for g in groups -%}
-          <li><a href="{{ url }}#g-{{ g | handleize }}">{{ g | escape }}</a></li>
+          <li><a href="{{ url }}#{{ g | handleize }}">{{ g | escape }}</a></li>
         {%- endfor -%}
         <li><a class="mega-all" href="{{ url }}">{{ 'header.see_all' | t }} &rarr;</a></li>
       </ul>

@@ -382,6 +382,11 @@ document.querySelectorAll('[data-mock]').forEach((box) => {
     apply(b.dataset.filter);
     try { history.replaceState(null, '', b.dataset.filter ? '#' + b.dataset.filter : location.pathname + location.search); } catch (e) {}
   }));
-  const start = decodeURIComponent(location.hash.slice(1));
-  if (start && buttons.some((b) => b.dataset.filter === start)) apply(start);
+  const fromHash = () => {
+    const key = decodeURIComponent(location.hash.slice(1));
+    if (key && buttons.some((b) => b.dataset.filter === key)) apply(key);
+  };
+  fromHash();
+  /* The Garments menu links here as #<group>; follow it when already on the page. */
+  window.addEventListener('hashchange', fromHash);
 })();
