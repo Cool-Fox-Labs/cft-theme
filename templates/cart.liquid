@@ -137,7 +137,7 @@
             {%- if has_buy -%}<p class="gq-hint">{{ 'cart.buy_after_quote' | t }}</p>{%- endif -%}
           {%- else -%}
             <h2>{{ 'cart.buy_title' | t }}</h2>
-            <p>{{ 'cart.buy_text' | t }}</p>
+            <p>{%- if quick_count > 0 -%}{{ 'cart.buy_text_quick' | t }}{%- else -%}{{ 'cart.buy_text' | t }}{%- endif -%}</p>
             <p class="basket-total"><span>{{ 'cart.subtotal' | t }}</span><b>{{ cart.total_price | money }}</b></p>
             {%- comment -%} Quick tees: more than 9 may take longer; a warning only, checkout still works (Eddie, 22/11/2026). {%- endcomment -%}
             {%- if quick_count > 9 -%}
