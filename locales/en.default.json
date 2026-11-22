@@ -449,6 +449,8 @@
     "placement": "size and position",
     "text_line3": "Line 3 (optional)",
     "your_text": "Your text",
+    "type_text_title": "Type your text first",
+    "type_text": "Type the words you want printed in the Line 1 box, or remove the text if you don't need it.",
     "text_align": "Line up",
     "align_left": "Left",
     "align_centre": "Centre",

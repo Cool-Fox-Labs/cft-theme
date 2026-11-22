@@ -613,7 +613,9 @@
   }
 
   // Draws a text design to an image. With no text yet it shows "Your text"
-  // so the customer sees it on the garment straight away.
+  // so the customer sees it on the garment straight away. Full strength
+  // (Eddie, 22/11/2026: the faded version looked broken); Save asks for the
+  // real text instead.
   async function drawText(item) {
     item.placeholder = !item.lines.length;
     const lines = item.placeholder ? [T.yourText] : item.lines;
@@ -627,7 +629,6 @@
     cv.height = lines.length * 200 + 40;
     cx.font = font;
     cx.fillStyle = item.ink;
-    cx.globalAlpha = item.placeholder ? 0.6 : 1;
     cx.textAlign = item.align;
     cx.textBaseline = 'top';
     const x = item.align === 'left' ? 20 : item.align === 'right' ? cv.width - 20 : cv.width / 2;
@@ -944,6 +945,16 @@
   }
   q('[data-dz-close]', dz).addEventListener('click', () => dz.close());
   qa('[data-dz-save]', dz).forEach((b) => b.addEventListener('click', () => {
+    // A text box still showing "Your text": ask for the words instead of
+    // quietly dropping it (Eddie, 22/11/2026).
+    const blank = dzs.items.find((it) => it.kind === 'text' && it.placeholder);
+    if (blank) {
+      dzs.view = blank.view;
+      dzs.sel = blank.uid;
+      dzRender();
+      popup(T.typeTextTitle, T.typeText, () => { const f = q('.text-design input', dz); if (f) f.focus(); });
+      return;
+    }
     // Text that was never typed is left out.
     const items = dzs.items.filter((it) => it.src && !it.placeholder);
     st.design = items.length ? { mode: 'designer', items } : null;
