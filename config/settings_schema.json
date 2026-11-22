@@ -76,6 +76,13 @@
     "settings": [
       {
         "type": "text",
+        "id": "announcement",
+        "label": "t:labels.announcement",
+        "info": "t:info.announcement",
+        "default": "New website and ordering platform. Log in with the email you ordered with, and we'll send you a code."
+      },
+      {
+        "type": "text",
         "id": "showroom_address",
         "label": "t:labels.showroom_address",
         "default": "Unit 12, Bath Place, Leamington Spa CV31 3AQ"

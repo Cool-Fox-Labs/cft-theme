@@ -19,6 +19,9 @@
   </head>
 
   <body>
+    {%- if settings.announcement != blank -%}
+      <div class="announce">{{ settings.announcement | escape }} <a href="/apps/account">{{ 'header.announce_login' | t }} <span aria-hidden="true">&rarr;</span></a></div>
+    {%- endif -%}
     {% block 'container', tag: 'div' %}
       {% block 'header' -%}{%- endblock %}
     {% endblock %}

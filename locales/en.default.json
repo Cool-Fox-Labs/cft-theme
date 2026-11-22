@@ -156,6 +156,7 @@
   },
   "header": {
     "showroom_open": "Showroom open",
+    "announce_login": "Log in",
     "google_rating_html": "<b>{{ rating }}</b> from {{ count }} Google reviews",
     "main_menu": "Main",
     "garments": "Garments",
