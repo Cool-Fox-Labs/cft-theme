@@ -323,18 +323,36 @@
 
   /* ---------- page ---------- */
 
+  // The chosen colour's dot: its hex, or its photo when there is no hex.
+  function paintDot(el, c) {
+    el.style.removeProperty('--c');
+    el.style.backgroundImage = '';
+    if (c.hex) el.style.setProperty('--c', c.hex);
+    else if (c.thumb) el.style.backgroundImage = `url("${c.thumb}")`;
+  }
+  const colourToggle = q('[data-colour-toggle]');
+  function openColours(on) {
+    const list = q('[data-swatches]');
+    if (!colourToggle || !list) return;
+    list.hidden = !on;
+    colourToggle.setAttribute('aria-expanded', String(on));
+  }
+  // One colour only: nothing to change, so the row is just a label.
+  if (colourToggle && COLOURS.length < 2) colourToggle.disabled = true;
+  if (colourToggle) colourToggle.addEventListener('click', () => openColours(colourToggle.getAttribute('aria-expanded') !== 'true'));
+
   function swatches() {
     const box = q('[data-swatches]');
     box.innerHTML = '';
     COLOURS.forEach((c) => {
       const b = make('button');
       b.type = 'button';
-      b.title = c.name;
-      b.setAttribute('aria-label', c.name);
       b.setAttribute('aria-pressed', String(c === st.colour));
-      if (c.hex) b.style.setProperty('--c', c.hex);
-      else if (c.thumb) b.style.backgroundImage = `url("${c.thumb}")`;
+      const dot = make('span', 'cp-dot');
+      paintDot(dot, c);
+      b.append(dot, make('span', 'cl-name', c.name));
       b.addEventListener('click', () => {
+        openColours(false);
         st.colour = c;
         st.photo = null;
         const d = st.design;
@@ -511,6 +529,10 @@
   function render() {
     headFront(st.colour);
     q('[data-colour-name]').textContent = st.colour.name;
+    const cd = q('[data-colour-dot]');
+    if (cd) paintDot(cd, st.colour);
+    const cc = q('[data-colour-count]');
+    if (cc) cc.textContent = COLOURS.length > 1 ? fill(T.colourCount, { n: COLOURS.length }) : '';
     swatches();
     sizes();
     designCard();
