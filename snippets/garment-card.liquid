@@ -7,7 +7,7 @@
   (Eddie, 01/11/2026: CFT sells to trade).
 
   @param {product} product - The product to show.
-  @param {string} [meta] - Replaces the brand and style code line (the in-house section uses this to hide the brand).
+  @param {string} [meta] - Optional small line above the title (the in-house section uses it for "In-house stock").
 
   @example
   {% render 'garment-card', product: product %}
@@ -63,7 +63,8 @@
     {%- endif -%}
   </div>
   <div class="gcard-body">
-    <span class="gcard-meta">{%- if meta != blank -%}{{ meta | escape }}{%- else -%}{{ product.vendor | escape }} · {{ product.handle | upcase }}{%- endif -%}</span>
+    {%- comment -%} No brand or style code next to the title (Eddie, 22/11/2026); the code is in Garment details on the product page. {%- endcomment -%}
+    {%- if meta != blank -%}<span class="gcard-meta">{{ meta | escape }}</span>{%- endif -%}
     <b>{{ product.title | escape }}</b>
     {%- if colours and colours.size > 0 -%}
       {%- assign with_hex = 0 -%}
