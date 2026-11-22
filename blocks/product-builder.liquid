@@ -123,6 +123,17 @@
         <span class="eyebrow eyebrow-muted">{{ product.vendor | escape }} · {{ product.handle | upcase }}</span>
         <h1>{{ product.title | escape }}</h1>
       </div>
+      {%- comment -%} Quick tees (tag quick-tee): same-day facts under the title, for people who land here without seeing the Quick tees page (Eddie, 22/11/2026). {%- endcomment -%}
+      {%- if product.tags contains 'quick-tee' -%}
+        <ul class="quick-strip">
+          <li>{{ 'product.quick_strip_1' | t }}</li>
+          <li>{{ 'product.quick_strip_2' | t }}</li>
+          <li>{{ 'product.quick_strip_3' | t }}</li>
+          <li>{{ 'product.quick_strip_4' | t }}</li>
+          <li>{{ 'product.quick_strip_5' | t }}</li>
+        </ul>
+        <p class="quick-small">{{ 'product.quick_strip_small' | t }}{% if shop.terms_of_service.url %} <a href="{{ shop.terms_of_service.url }}">{{ 'product.quick_strip_terms' | t }}</a>{% endif %}</p>
+      {%- endif -%}
 
       {%- comment -%} Quote-only garments: "Price on quote" sits just above the button (Eddie, 15/11/2026), so the page opens on colour and sizes. Buy-online garments keep their price at the top. {%- endcomment -%}
       {%- capture price_row -%}
