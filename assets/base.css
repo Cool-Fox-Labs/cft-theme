@@ -987,3 +987,6 @@ input[type=range] { width: 100%; accent-color: var(--orange); height: 28px }
 .quick-over { margin: 0; padding: 12px 14px; border-radius: 14px; background: var(--orange-soft); font-size: 15px }
 div.basket-img { aspect-ratio: 1 }
 .basket-qty small { max-width: 9em; text-align: right; color: var(--muted) }
+
+.announce { padding: 8px 16px; background: var(--ink); color: var(--cream); font: 500 14px/1.35 var(--f-b); text-align: center }
+.announce a { color: inherit; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; white-space: nowrap }
