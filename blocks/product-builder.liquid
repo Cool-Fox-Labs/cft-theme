@@ -292,10 +292,38 @@
         assign g_brand = blank
         assign g_code = blank
         assign vendor_own = product.vendor | downcase | strip
-        unless vendor_own == 'uneek' or vendor_own == 'cool fox tees'
+        if vendor_own == 'uneek'
+          comment
+            Uneek code from the first SKU (Eddie, 22/11/2026, to find them easily):
+            the style part before the colour, e.g. 203BG6XL -> UC203, X10BGXS -> UX10,
+            GR21BGXS -> GR21. Quick tee SKUs start "QT-".
+          endcomment
+          assign sku = product.variants.first.sku | remove_first: 'QT-' | upcase
+          assign style = ''
+          assign seen_digit = false
+          assign chars = sku | split: ''
+          for c in chars
+            if '0123456789' contains c
+              assign seen_digit = true
+            elsif seen_digit
+              break
+            endif
+            assign style = style | append: c
+          endfor
+          assign lead = style | slice: 0
+          if style == ''
+            assign g_code = blank
+          elsif '0123456789' contains lead
+            assign g_code = 'UC' | append: style
+          elsif lead == 'X'
+            assign g_code = 'U' | append: style
+          else
+            assign g_code = style
+          endif
+        elsif vendor_own != 'cool fox tees'
           assign g_brand = product.vendor
           assign g_code = product.handle | upcase
-        endunless
+        endif
       -%}
       {%- if g_gsm != blank or g_fabric != blank or g_code != blank -%}
         <div class="gdet">
