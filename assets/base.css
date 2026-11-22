@@ -949,14 +949,14 @@ input[type=range] { width: 100%; accent-color: var(--orange); height: 28px }
 .quick-grid { grid-template-columns: repeat(3, minmax(0, 1fr)) }
 @media (max-width: 760px) { .quick-grid { grid-template-columns: 1fr 1fr } }
 /* Homepage quick tees banner: Eddie's photo full width, text over the empty wall on the left */
-.quick-ban { position: relative; margin: 14px 0 0; border-radius: 26px; overflow: hidden; background: #B1A7A5; min-height: clamp(340px, 28vw, 420px); width: 100%; display: flex; align-items: center }
+.quick-ban { position: relative; margin: 14px 0 0; border-radius: 26px; overflow: hidden; background: #B1A7A5; min-height: clamp(200px, 14vw, 250px); width: 100%; display: flex; align-items: center }
 .quick-ban-photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: right top; display: block }
-.quick-ban-text { position: relative; z-index: 1; max-width: 42%; padding: clamp(20px, 3vw, 44px); display: flex; flex-direction: column; justify-content: center; gap: 10px }
+.quick-ban-text { position: relative; z-index: 1; max-width: 46%; padding: clamp(18px, 2vw, 30px) clamp(20px, 3vw, 44px); display: flex; flex-direction: column; justify-content: center; gap: 6px }
 .quick-ban-row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 6px }
 .quick-ban-row .inh-facts { margin: 0 }
 .quick-ban-text .eyebrow { align-self: flex-start; background: #fff; color: #B4421A; padding: 6px 12px; border-radius: 999px; font-weight: 600 }
-.quick-ban-text h2 { font: 700 clamp(28px, 3vw, 44px)/1.02 var(--f-d); letter-spacing: -.025em; margin: 0 }
-.quick-ban-text p { margin: 0; font-size: 17px; line-height: 1.45; max-width: 34ch; color: var(--ink) }
+.quick-ban-text h2 { font: 700 clamp(26px, 2.4vw, 36px)/1.02 var(--f-d); letter-spacing: -.025em; margin: 0 }
+.quick-ban-text p { margin: 0; font-size: 16px; line-height: 1.4; max-width: 44ch; color: var(--ink) }
 .quick-ban-cta { align-self: flex-start; display: inline-flex; align-items: center; gap: 8px; padding: 13px 22px; border-radius: 999px; background: var(--ink); color: #fff; font: 600 16px/1.2 var(--f-b); text-decoration: none }
 .quick-ban-cta:hover { background: var(--orange); color: var(--ink) }
 @media (max-width: 900px) {
