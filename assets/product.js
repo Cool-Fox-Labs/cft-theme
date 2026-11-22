@@ -414,16 +414,25 @@
   // basketQty: how many of each variant the basket holds, for the stock cap.
   let inBasket = 0;
   let basketQty = {};
+  // Quick tees (Eddie, 22/11/2026): more than 9 across all three quick tee
+  // products, every colour and size, including the basket, shows a warning
+  // that it may take longer. Buy now still works. Their basket lines carry
+  // _quick so they can be counted.
+  const QUICK_CAP = !D.quoteOnly && D.quickCap ? D.quickCap : 0;
+  let quickInBasket = 0;
+  const quickOver = () => QUICK_CAP > 0 && total() + quickInBasket > QUICK_CAP;
   async function loadBasket() {
     try {
       const res = await fetch(D.cartJs, { headers: { Accept: 'application/json' } });
       const cart = await res.json();
       const mine = (cart.items || []).filter((l) => l.product_id === D.productId);
       inBasket = mine.reduce((a, l) => a + l.quantity, 0);
+      quickInBasket = (cart.items || []).filter((l) => l.properties && l.properties._quick).reduce((a, l) => a + l.quantity, 0);
       basketQty = mine.reduce((m, l) => ({ ...m, [l.variant_id]: (m[l.variant_id] || 0) + l.quantity }), {});
     } catch (e) {
       inBasket = 0;
       basketQty = {};
+      quickInBasket = 0;
     }
     totals();
   }
@@ -443,7 +452,10 @@
     const bb = q('[data-buy-bulk]');
     if (bb) {
       // Buy-online garments: no discount meter; from 10 items, point to a quote.
-      bb.hidden = n < 10;
+      // Quick tees: a warning instead, once more than 9 are picked (no hard limit).
+      bb.hidden = QUICK_CAP ? true : n < 10;
+      const qw = q('[data-quick-warn]');
+      if (qw) qw.hidden = !quickOver();
     } else {
       q('[data-nudge-pct]').textContent = rate(n) + '%';
       q('[data-nudge-bar]').style.width = Math.min(100, n) + '%';
@@ -458,6 +470,14 @@
   }
 
   // One line per position: what goes there and how big.
+  // Does the design print on the back? (designer: an item on the back view;
+  // files: a file placed at a back position.)
+  function usesBack(d) {
+    if (!d) return false;
+    if (d.mode === 'designer') return d.items.some((it) => it.view === 'back');
+    return d.files.some((f) => Object.keys(f.at).some((id) => { const p = posById(id); return !!p && (p.view === 'back' || p.id === 'back'); }));
+  }
+
   function describe() {
     const d = st.design;
     if (!d) return [];
@@ -1222,6 +1242,7 @@
       // The same details go on every size of this garment.
       const props = { _group: group };
       if (!D.quoteOnly) props._buy = '1';
+      if (QUICK_CAP) props._quick = '1';
       if (!design) props[T.printLabel] = later ? T.emailArt : T.noDesign;
       else props[T.printLabel] = design.mode === 'designer' ? T.designedOnline : T.filesSent;
       rows.forEach((r) => {
@@ -1263,6 +1284,13 @@
       // The other sizes together in one request.
       if (want.length > 1) {
         res = await postJson(D.cartAdd, { items: want.slice(1).map((w) => ({ ...w, properties: all })) });
+        if (!res.ok) throw new Error(String(res.status));
+      }
+      // Buy now with a back print: one back-print add-on per garment
+      // (Eddie, 22/11/2026: +£3 a garment).
+      if (!D.quoteOnly && D.backPrint && usesBack(design)) {
+        const n = want.reduce((a, w) => a + w.quantity, 0);
+        res = await postJson(D.cartAdd, { items: [{ id: D.backPrint.id, quantity: n, properties: { _group: group, _buy: '1', [T.backFor]: `${D.title} · ${colour.name}` } }] });
         if (!res.ok) throw new Error(String(res.status));
       }
       if (!D.quoteOnly) {

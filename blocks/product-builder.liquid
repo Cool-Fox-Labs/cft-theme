@@ -91,6 +91,18 @@
   if product.price > 0 and product.tags contains 'buy-online'
     assign quote_only = false
   endif
+  comment
+    Back print add-on for Buy now (Eddie, 22/11/2026: +£3 a garment when the
+    back is printed). A hidden product with the handle "back-print" (one
+    variant); one is added per garment when the design uses the back.
+  endcomment
+  assign back_addon = nil
+  unless quote_only
+    assign back_addon = all_products['back-print']
+    unless back_addon.available
+      assign back_addon = nil
+    endunless
+  endunless
 
   assign size_guide = product.metafields.cft.size_guide
 -%}
@@ -123,6 +135,17 @@
         <span class="eyebrow eyebrow-muted">{{ product.vendor | escape }} · {{ product.handle | upcase }}</span>
         <h1>{{ product.title | escape }}</h1>
       </div>
+      {%- comment -%} Quick tees (tag quick-tee): same-day facts under the title, for people who land here without seeing the Quick tees page (Eddie, 22/11/2026). {%- endcomment -%}
+      {%- if product.tags contains 'quick-tee' -%}
+        <ul class="quick-strip">
+          <li>{{ 'product.quick_strip_1' | t }}</li>
+          <li>{{ 'product.quick_strip_2' | t }}</li>
+          <li>{{ 'product.quick_strip_3' | t }}</li>
+          <li>{{ 'product.quick_strip_4' | t }}</li>
+          <li>{{ 'product.quick_strip_5' | t }}</li>
+        </ul>
+        <p class="quick-small">{{ 'product.quick_strip_small' | t }}{% if shop.terms_of_service.url %} <a href="{{ shop.terms_of_service.url }}">{{ 'product.quick_strip_terms' | t }}</a>{% endif %}</p>
+      {%- endif -%}
 
       {%- comment -%} Quote-only garments: "Price on quote" sits just above the button (Eddie, 15/11/2026), so the page opens on colour and sizes. Buy-online garments keep their price at the top. {%- endcomment -%}
       {%- capture price_row -%}
@@ -131,7 +154,12 @@
             <b>{{ 'product.price_on_quote' | t }}</b>
           {%- else -%}
             {%- assign price_min = product.price_min | money -%}
-            <span class="price-from">{{ 'product.price_buy_html' | t: price: price_min }}</span>
+            {%- if back_addon -%}
+              {%- assign back_price = back_addon.price | money_without_trailing_zeros -%}
+              <span class="price-from">{{ 'product.price_buy_front_html' | t: price: price_min, back: back_price }}</span>
+            {%- else -%}
+              <span class="price-from">{{ 'product.price_buy_html' | t: price: price_min }}</span>
+            {%- endif -%}
           {%- endif -%}
           {%- if quote_only -%}<span>{{ 'product.bulk_line' | t }}</span>{%- else -%}<span>{{ 'product.buy_bulk_line' | t }}</span>{%- endif -%}
         </div>
@@ -200,6 +228,9 @@
           pays the listed price. From 10 items this note points to a quotation instead.
         {%- endcomment -%}
         {%- assign quote_page = pages['get-a-quote'] -%}
+        {%- if product.tags contains 'quick-tee' -%}
+          <p class="buy-bulk" data-quick-warn hidden><span>{{ 'product.quick_over' | t }}</span><a class="text-btn" href="{% if quote_page.url %}{{ quote_page.url }}{% else %}{{ routes.root_url }}#how{% endif %}">{{ 'product.buy_bulk_cta' | t }} <span aria-hidden="true">&rarr;</span></a></p>
+        {%- endif -%}
         <p class="buy-bulk" data-buy-bulk hidden>
           <b>{{ 'product.buy_bulk_title' | t }}</b>
           <span>{{ 'product.buy_bulk_text' | t }}</span>
@@ -350,6 +381,8 @@
     "productId": {{ product.id | json }},
     "cartJs": {{ routes.cart_url | append: '.js' | json }},
     "quoteOnly": {{ quote_only | json }},
+    "quickCap": {% if product.tags contains 'quick-tee' %}9{% else %}null{% endif %},
+    "backPrint": {% if back_addon %}{ "id": {{ back_addon.selected_or_first_available_variant.id | json }} }{% else %}null{% endif %},
     "cartAdd": {{ routes.cart_add_url | append: '.js' | json }},
     "cartChange": {{ routes.cart_change_url | append: '.js' | json }},
     "cartUpdate": {{ routes.cart_update_url | append: '.js' | json }},
@@ -482,6 +515,7 @@
       "toCheckout": {{ 'product.to_checkout' | t | json }},
       "addFail": {{ 'product.add_fail' | t | json }},
       "artwork": {{ 'product.artwork' | t | json }},
+      "backFor": {{ 'product.back_print_for' | t | json }},
       "printLabel": {{ 'product.print_label' | t | json }}
     }
   }

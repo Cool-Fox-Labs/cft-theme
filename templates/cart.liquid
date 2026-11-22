@@ -7,7 +7,11 @@
 {%- liquid
   assign has_quote = false
   assign has_buy = false
+  assign quick_count = 0
   for item in cart.items
+    if item.product.tags contains 'quick-tee'
+      assign quick_count = quick_count | plus: item.quantity
+    endif
     if item.final_price > 0 and item.product.tags contains 'buy-online'
       assign has_buy = true
     else
@@ -105,6 +109,10 @@
             <h2>{{ 'cart.buy_title' | t }}</h2>
             <p>{{ 'cart.buy_text' | t }}</p>
             <p class="basket-total"><span>{{ 'cart.subtotal' | t }}</span><b>{{ cart.total_price | money }}</b></p>
+            {%- comment -%} Quick tees: more than 9 may take longer; a warning only, checkout still works (Eddie, 22/11/2026). {%- endcomment -%}
+            {%- if quick_count > 9 -%}
+              <p class="quick-over">{{ 'cart.quick_over' | t }}{% if pages['get-a-quote'].url %} <a href="{{ pages['get-a-quote'].url }}">{{ 'product.buy_bulk_cta' | t }}</a>{% endif %}</p>
+            {%- endif -%}
             <button type="submit" class="pill pill-o" name="checkout">{{ 'cart.checkout' | t }}</button>
           {%- endif -%}
         </div>

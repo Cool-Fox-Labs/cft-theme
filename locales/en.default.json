@@ -49,7 +49,8 @@
     "buy_title": "Ready to buy",
     "buy_text": "These items are priced, so you can pay for them now. We still send a proof before printing.",
     "buy_after_quote": "Send your quote request first. Your buy-now items stay here, ready for checkout.",
-    "quote_sent": "Quote request sent"
+    "quote_sent": "Quote request sent",
+    "quick_over": "More than 9 quick tees may take longer than same day. For 10 or more, get a quote for a better price."
   },
   "customers": {
     "login": {
@@ -471,6 +472,8 @@
     "save_files": "Save files",
     "in_basket": "Includes {{ n }} of this garment already in your basket, any colour",
     "price_buy_html": "<b>{{ price }}</b> each, printing included",
+    "price_buy_front_html": "<b>{{ price }}</b> each, front print included. Back print +{{ back }} each",
+    "back_print_for": "For",
     "buy_now": "Buy now",
     "quote_note": "Nothing is charged now. We reply with a price and a proof.",
     "buy_note": "Pay now. We still send you a proof before anything is printed.",
@@ -479,8 +482,16 @@
     "buy_bulk_text": "Get a quote for a better price.",
     "buy_bulk_cta": "Get a quote",
     "to_checkout": "Added. Taking you to checkout…",
+    "quick_strip_1": "Same-day print if ordered before 12pm",
+    "quick_strip_2": "Collect by 4pm or posted same day",
+    "quick_strip_3": "Front and back print only",
+    "quick_strip_4": "Up to 9 pieces",
+    "quick_strip_5": "Print-ready artwork only",
+    "quick_strip_small": "Subject to stock levels.",
+    "quick_strip_terms": "Terms apply",
     "colour_change": "Change",
-    "colour_count": "{{ n }} colours"
+    "colour_count": "{{ n }} colours",
+    "quick_over": "More than 9 quick tees may take longer than same day. For 10 or more, get a quote for a better price."
   },
   "pages": {
     "faq": {
