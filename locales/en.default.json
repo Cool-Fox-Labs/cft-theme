@@ -471,6 +471,8 @@
     "save_files": "Save files",
     "in_basket": "Includes {{ n }} of this garment already in your basket, any colour",
     "price_buy_html": "<b>{{ price }}</b> each, printing included",
+    "price_buy_front_html": "<b>{{ price }}</b> each, front print included. Back print +{{ back }} each",
+    "back_print_for": "For",
     "buy_now": "Buy now",
     "quote_note": "Nothing is charged now. We reply with a price and a proof.",
     "buy_note": "Pay now. We still send you a proof before anything is printed.",
