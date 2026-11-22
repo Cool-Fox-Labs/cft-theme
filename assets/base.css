@@ -956,8 +956,8 @@ input[type=range] { width: 100%; accent-color: var(--orange); height: 28px }
 .quick-ban-cta { align-self: flex-start; display: inline-flex; align-items: center; gap: 8px; padding: 13px 22px; border-radius: 999px; background: var(--ink); color: #fff; font: 600 16px/1.2 var(--f-b); text-decoration: none }
 .quick-ban-cta:hover { background: var(--orange); color: var(--ink) }
 @media (max-width: 900px) {
-  .quick-ban { aspect-ratio: auto; max-height: none; background: var(--orange-soft, #FBE3D3) }
-  .quick-ban-photo { position: static; aspect-ratio: 16 / 10; height: auto; object-position: 90% top }
+  .quick-ban { flex-direction: column; align-items: stretch; min-height: 0; background: var(--orange-soft, #FBE3D3) }
+  .quick-ban-photo { position: static; width: 100%; aspect-ratio: 16 / 10; height: auto; object-position: 90% top }
   .quick-ban-text { max-width: none; height: auto }
   .quick-ban-cta { align-self: stretch; justify-content: center; flex: 1 1 100% }
 }
