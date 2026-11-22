@@ -410,6 +410,14 @@
     totals();
   }
 
+  // After a design is saved, take the customer on to Sizes (the next step)
+  // if they have not picked any yet.
+  function toSizes() {
+    if (total() > 0) return;
+    const el = q('[data-sizes]');
+    if (el) el.closest('.step').scrollIntoView({ block: 'start', behavior: 'smooth' });
+  }
+
   function totals() {
     const n = total() + inBasket;
     const next = nextTier(n);
@@ -962,6 +970,7 @@
     st.photo = null;
     dz.close();
     render();
+    if (st.design) toSizes();
   }));
 
   /* ---------- just send us your files pop-up ---------- */
@@ -1034,6 +1043,7 @@
     st.design = fzs.files.length ? { mode: 'files', files: fzs.files, note } : null;
     fz.close();
     render();
+    if (st.design) toSizes();
   });
 
   /* ---------- design card buttons ---------- */
