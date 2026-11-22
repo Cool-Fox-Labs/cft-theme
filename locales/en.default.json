@@ -701,6 +701,8 @@
       "form_hint_html": "Want a price? <a href=\"{{ url }}\">Get a quote</a> is quicker.",
       "f_phone": "Phone (optional)",
       "f_message": "Your message",
+      "reorder_text": "I'd like to reorder from order %o.",
+      "reorder_item": "I'd like to reorder %i from order %o.",
       "send": "Send message",
       "sent": "Thanks, your message is sent. We'll reply within one working day."
     }

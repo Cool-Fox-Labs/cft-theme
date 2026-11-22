@@ -70,7 +70,21 @@
               <label>{{ 'pages.quote.f_email' | t }} *<input type="email" name="contact[email]" autocomplete="email" required value="{% if form.email %}{{ form.email | escape }}{% else %}{{ customer.email | escape }}{% endif %}"></label>
               <label>{{ 'pages.contact.f_phone' | t }}<input type="tel" name="contact[phone]" autocomplete="tel" value="{{ form.phone | escape }}"></label>
             </div>
-            <label>{{ 'pages.contact.f_message' | t }} *<textarea name="contact[body]" rows="5" required>{{ form.body | escape }}</textarea></label>
+            <label>{{ 'pages.contact.f_message' | t }} *<textarea name="contact[body]" rows="5" required data-reorder-text="{{ 'pages.contact.reorder_text' | t | escape }}" data-reorder-item="{{ 'pages.contact.reorder_item' | t | escape }}">{{ form.body | escape }}</textarea></label>
+            {%- comment -%}
+              Reorder from the account page links here with ?order=CFL2640 (and maybe &item=).
+              Pre-fill the message so the customer doesn't explain it again (Eddie, 22/11/2026).
+            {%- endcomment -%}
+            <script>
+              (() => {
+                const box = document.querySelector('[data-reorder-text]');
+                const q = new URLSearchParams(location.search);
+                const order = (q.get('order') || '').trim();
+                if (!box || box.value || !/^[A-Za-z]{1,5}-?\d{1,7}$/.test(order)) return;
+                const item = (q.get('item') || '').trim().slice(0, 120);
+                box.value = (item ? box.dataset.reorderItem.replace('%i', item) : box.dataset.reorderText).replace('%o', order.toUpperCase()) + '\n\n';
+              })();
+            </script>
             <button type="submit" class="pill pill-o">{{ 'pages.contact.send' | t }}</button>
           {%- endif -%}
         {%- endform -%}
