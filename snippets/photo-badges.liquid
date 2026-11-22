@@ -1,8 +1,8 @@
 {% doc %}
   Up to two small badges on a product photo (Eddie, 21/11/2026), in this order:
-  - "Heavyweight · 240gsm": t-shirts (tag cat-t-shirts) with cft.gsm 200 or
-    more, and hoodies and sweatshirts (tag cat-hoodies-sweatshirts, zips too)
-    with cft.gsm 300 or more. Never on any other category.
+  - The fabric weight, e.g. "180gsm", on every product with a cft.gsm value
+    (Eddie, 22/11/2026: weight only, no "Heavyweight" word, which could
+    mislead).
   - "Organic": cft.fabric contains "organic".
   - "Oversized fit": the title contains "oversized"; else "Boxy fit" when it
     contains "boxy" (a different cut: wide and shorter).
@@ -21,9 +21,7 @@
   assign title = product.title | downcase
 
   assign heavy = false
-  if product.tags contains 'cat-t-shirts' and gsm >= 200
-    assign heavy = true
-  elsif product.tags contains 'cat-hoodies-sweatshirts' and gsm >= 300
+  if gsm > 0
     assign heavy = true
   endif
 
@@ -44,7 +42,7 @@
 
 {%- if heavy or organic or fit != '' -%}
   <span class="pbadges {{ class }}">
-    {%- if heavy -%}<span class="pbadge pbadge-heavy">{{ 'collections.badge_heavy' | t: gsm: gsm }}</span>{%- assign shown = shown | plus: 1 -%}{%- endif -%}
+    {%- if heavy -%}<span class="pbadge pbadge-heavy">{{ 'collections.badge_gsm' | t: gsm: gsm }}</span>{%- assign shown = shown | plus: 1 -%}{%- endif -%}
     {%- if organic -%}<span class="pbadge pbadge-organic">{{ 'collections.badge_organic' | t }}</span>{%- assign shown = shown | plus: 1 -%}{%- endif -%}
     {%- if fit != '' and shown < 2 -%}<span class="pbadge">{{ fit | t }}</span>{%- endif -%}
   </span>

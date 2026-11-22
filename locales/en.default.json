@@ -97,7 +97,7 @@
     "range_premium": "5–7 working days · organic and designer brands",
     "badge_classic": "In stock",
     "badge_premium": "5–7 days",
-    "badge_heavy": "Heavyweight · {{ gsm }}gsm",
+    "badge_gsm": "{{ gsm }}gsm",
     "badge_organic": "Organic",
     "badge_oversized": "Oversized fit",
     "badge_boxy": "Boxy fit",
