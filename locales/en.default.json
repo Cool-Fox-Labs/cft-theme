@@ -485,7 +485,9 @@
     "quick_strip_4": "Up to 9 pieces",
     "quick_strip_5": "Print-ready artwork only",
     "quick_strip_small": "Subject to stock levels.",
-    "quick_strip_terms": "Terms apply"
+    "quick_strip_terms": "Terms apply",
+    "colour_change": "Change",
+    "colour_count": "{{ n }} colours"
   },
   "pages": {
     "faq": {
