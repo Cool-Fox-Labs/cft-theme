@@ -122,10 +122,10 @@
     "quick_f2_text": "Send artwork that is ready to print",
     "quick_f3_title": "Front and back only",
     "quick_f3_text": "No sleeve prints on same-day orders",
-    "quick_f4_title": "Up to 10 pieces",
+    "quick_f4_title": "Up to 9 pieces",
     "quick_f4_text": "Subject to stock availability",
-    "quick_f5_title": "Need more than 10?",
-    "quick_f5_text": "Ask for a quotation for bulk pricing",
+    "quick_f5_title": "Ordering 10 or more?",
+    "quick_f5_text": "Get a quote for a better price",
     "quick_f6_title": "Collect or post",
     "quick_f6_text": "Free collection from Bath Place, or Royal Mail"
   },
@@ -472,6 +472,10 @@
     "buy_now": "Buy now",
     "quote_note": "Nothing is charged now. We reply with a price and a proof.",
     "buy_note": "Pay now. We still send you a proof before anything is printed.",
+    "buy_bulk_line": "Ordering 10 or more? Get a quote for a better price",
+    "buy_bulk_title": "Ordering 10 or more?",
+    "buy_bulk_text": "Get a quote for a better price.",
+    "buy_bulk_cta": "Get a quote",
     "to_checkout": "Added. Taking you to checkout…"
   },
   "pages": {

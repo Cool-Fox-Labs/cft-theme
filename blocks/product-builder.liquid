@@ -133,7 +133,7 @@
             {%- assign price_min = product.price_min | money -%}
             <span class="price-from">{{ 'product.price_buy_html' | t: price: price_min }}</span>
           {%- endif -%}
-          <span>{{ 'product.bulk_line' | t }}</span>
+          {%- if quote_only -%}<span>{{ 'product.bulk_line' | t }}</span>{%- else -%}<span>{{ 'product.buy_bulk_line' | t }}</span>{%- endif -%}
         </div>
       {%- endcapture -%}
       {%- unless quote_only -%}{{ price_row }}{%- endunless -%}
@@ -177,8 +177,21 @@
         </label>
       </section>
 
-      <div class="nudge"><b data-nudge-pct>0%</b><div class="bar"><span data-nudge-bar></span></div><span data-nudge-text></span></div>
-      <p class="nudge-basket" data-nudge-basket hidden></p>
+      {%- if quote_only -%}
+        <div class="nudge"><b data-nudge-pct>0%</b><div class="bar"><span data-nudge-bar></span></div><span data-nudge-text></span></div>
+        <p class="nudge-basket" data-nudge-basket hidden></p>
+      {%- else -%}
+        {%- comment -%}
+          Buy-online garments (Eddie, 22/11/2026): no discount meter, since Buy now
+          pays the listed price. From 10 items this note points to a quotation instead.
+        {%- endcomment -%}
+        {%- assign quote_page = pages['get-a-quote'] -%}
+        <p class="buy-bulk" data-buy-bulk hidden>
+          <b>{{ 'product.buy_bulk_title' | t }}</b>
+          <span>{{ 'product.buy_bulk_text' | t }}</span>
+          <a class="text-btn" href="{% if quote_page.url %}{{ quote_page.url }}{% else %}{{ routes.root_url }}#how{% endif %}">{{ 'product.buy_bulk_cta' | t }} <span aria-hidden="true">&rarr;</span></a>
+        </p>
+      {%- endif -%}
 
       {%- if quote_only -%}{{ price_row }}{%- endif -%}
       <div class="cta-box">
