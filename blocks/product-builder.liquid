@@ -91,6 +91,18 @@
   if product.price > 0 and product.tags contains 'buy-online'
     assign quote_only = false
   endif
+  comment
+    Back print add-on for Buy now (Eddie, 22/11/2026: +£3 a garment when the
+    back is printed). A hidden product with the handle "back-print" (one
+    variant); one is added per garment when the design uses the back.
+  endcomment
+  assign back_addon = nil
+  unless quote_only
+    assign back_addon = all_products['back-print']
+    unless back_addon.available
+      assign back_addon = nil
+    endunless
+  endunless
 
   assign size_guide = product.metafields.cft.size_guide
 -%}
@@ -131,7 +143,12 @@
             <b>{{ 'product.price_on_quote' | t }}</b>
           {%- else -%}
             {%- assign price_min = product.price_min | money -%}
-            <span class="price-from">{{ 'product.price_buy_html' | t: price: price_min }}</span>
+            {%- if back_addon -%}
+              {%- assign back_price = back_addon.price | money_without_trailing_zeros -%}
+              <span class="price-from">{{ 'product.price_buy_front_html' | t: price: price_min, back: back_price }}</span>
+            {%- else -%}
+              <span class="price-from">{{ 'product.price_buy_html' | t: price: price_min }}</span>
+            {%- endif -%}
           {%- endif -%}
           {%- if quote_only -%}<span>{{ 'product.bulk_line' | t }}</span>{%- else -%}<span>{{ 'product.buy_bulk_line' | t }}</span>{%- endif -%}
         </div>
@@ -343,6 +360,7 @@
     "productId": {{ product.id | json }},
     "cartJs": {{ routes.cart_url | append: '.js' | json }},
     "quoteOnly": {{ quote_only | json }},
+    "backPrint": {% if back_addon %}{ "id": {{ back_addon.selected_or_first_available_variant.id | json }} }{% else %}null{% endif %},
     "cartAdd": {{ routes.cart_add_url | append: '.js' | json }},
     "cartChange": {{ routes.cart_change_url | append: '.js' | json }},
     "cartUpdate": {{ routes.cart_update_url | append: '.js' | json }},
@@ -472,6 +490,7 @@
       "toCheckout": {{ 'product.to_checkout' | t | json }},
       "addFail": {{ 'product.add_fail' | t | json }},
       "artwork": {{ 'product.artwork' | t | json }},
+      "backFor": {{ 'product.back_print_for' | t | json }},
       "printLabel": {{ 'product.print_label' | t | json }}
     }
   }

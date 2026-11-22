@@ -432,6 +432,14 @@
   }
 
   // One line per position: what goes there and how big.
+  // Does the design print on the back? (designer: an item on the back view;
+  // files: a file placed at a back position.)
+  function usesBack(d) {
+    if (!d) return false;
+    if (d.mode === 'designer') return d.items.some((it) => it.view === 'back');
+    return d.files.some((f) => Object.keys(f.at).some((id) => { const p = posById(id); return !!p && (p.view === 'back' || p.id === 'back'); }));
+  }
+
   function describe() {
     const d = st.design;
     if (!d) return [];
@@ -1220,6 +1228,13 @@
       // The other sizes together in one request.
       if (want.length > 1) {
         res = await postJson(D.cartAdd, { items: want.slice(1).map((w) => ({ ...w, properties: all })) });
+        if (!res.ok) throw new Error(String(res.status));
+      }
+      // Buy now with a back print: one back-print add-on per garment
+      // (Eddie, 22/11/2026: +£3 a garment).
+      if (!D.quoteOnly && D.backPrint && usesBack(design)) {
+        const n = want.reduce((a, w) => a + w.quantity, 0);
+        res = await postJson(D.cartAdd, { items: [{ id: D.backPrint.id, quantity: n, properties: { _group: group, _buy: '1', [T.backFor]: `${D.title} · ${colour.name}` } }] });
         if (!res.ok) throw new Error(String(res.status));
       }
       if (!D.quoteOnly) {
