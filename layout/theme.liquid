@@ -20,7 +20,7 @@
 
   <body>
     {%- if settings.announcement != blank -%}
-      <div class="announce">{{ settings.announcement | escape }} <a href="/apps/account">{{ 'header.announce_login' | t }} <span aria-hidden="true">&rarr;</span></a></div>
+      <div class="announce">{{ settings.announcement | escape }}{% unless customer %} <a href="/apps/account">{{ 'header.announce_login' | t }} <span aria-hidden="true">&rarr;</span></a>{% endunless %}</div>
     {%- endif -%}
     {% block 'container', tag: 'div' %}
       {% block 'header' -%}{%- endblock %}

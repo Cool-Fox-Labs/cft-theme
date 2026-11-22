@@ -143,6 +143,7 @@
       {%- if shop.customer_accounts_enabled -%}
         {%- if customer -%}
           <a href="/apps/account">{{ 'header.account' | t }}</a>
+          <a href="{{ routes.account_logout_url }}">{{ 'header.log_out' | t }}</a>
         {%- else -%}
           <a href="{{ login_url }}">{{ 'header.log_in' | t }}</a>
         {%- endif -%}
