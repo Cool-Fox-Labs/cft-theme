@@ -61,6 +61,7 @@
         {%- endif -%}
       </ul>
       {%- if is_quick -%}
+        {%- comment -%} 10+ band: bigger than the facts, button to the T-shirts page (classic tees first). {%- endcomment -%}
         {%- assign q_bulk = collections['t-shirts'].url | default: routes.collections_url -%}
         <p class="coll-bulk"><b>{{ 'collections.quick_f5_title' | t }}</b> <a href="{{ q_bulk }}">{{ 'collections.quick_f5_text' | t }} <span aria-hidden="true">&rarr;</span></a></p>
       {%- endif -%}
