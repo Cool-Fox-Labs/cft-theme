@@ -316,6 +316,11 @@ input[type=range] { width: 100%; accent-color: var(--orange); height: 28px }
 .price-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; padding-block: 14px; border-block: 1px solid var(--line) }
 .price-row b { font: 700 24px/1 var(--f-d); letter-spacing: -.02em }
 .price-row span { font-size: 14px; color: var(--muted) }
+.price-row .bulk-cta { flex-basis: 100%; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; margin: 4px 0 0; font-size: 18px }
+.price-row .bulk-cta b { font: 600 18px/1.3 var(--f-b); letter-spacing: 0 }
+.price-row .bulk-cta a { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 18px; border-radius: 999px; background: var(--orange-soft); color: var(--ink); font-weight: 600; text-decoration: none; box-shadow: inset 0 0 0 1.5px var(--orange) }
+.price-row .bulk-cta a span { font-size: inherit; color: inherit }
+.price-row .bulk-cta a:hover { background: var(--orange) }
 
 .step { display: grid; gap: 12px }
 .step-h { display: flex; align-items: center; gap: 10px }

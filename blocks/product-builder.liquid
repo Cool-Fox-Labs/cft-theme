@@ -148,6 +148,25 @@
       {%- endif -%}
 
       {%- comment -%} Quote-only garments: "Price on quote" sits just above the button (Eddie, 15/11/2026), so the page opens on colour and sizes. Buy-online garments keep their price at the top. {%- endcomment -%}
+      {%- comment -%}
+        "Get a quote" from a quick tee (Eddie, 22/11/2026) opens the matching
+        quote-only classic tee, so 10+ orders get the discount. Else the Get a quote page.
+      {%- endcomment -%}
+      {%- liquid
+        assign bulk_url = pages['get-a-quote'].url | default: routes.collections_url
+        assign classic = nil
+        case product.handle
+          when 'quick-print-tee-mens'
+            assign classic = all_products['classic-t-shirt']
+          when 'quick-print-tee-womens'
+            assign classic = all_products['ladies-classic-t-shirt']
+          when 'quick-print-tee-kids'
+            assign classic = all_products['childrens-classic-t-shirt']
+        endcase
+        if classic and classic.url
+          assign bulk_url = classic.url
+        endif
+      -%}
       {%- capture price_row -%}
         <div class="price-row">
           {%- if quote_only -%}
@@ -161,7 +180,9 @@
               <span class="price-from">{{ 'product.price_buy_html' | t: price: price_min }}</span>
             {%- endif -%}
           {%- endif -%}
-          {%- if quote_only -%}<span>{{ 'product.bulk_line' | t }}</span>{%- else -%}<span>{{ 'product.buy_bulk_line' | t }}</span>{%- endif -%}
+          {%- if quote_only -%}<span>{{ 'product.bulk_line' | t }}</span>{%- else -%}
+            <p class="bulk-cta"><b>{{ 'product.buy_bulk_title' | t }}</b> <a href="{{ bulk_url }}">{{ 'product.buy_bulk_link' | t }} <span aria-hidden="true">&rarr;</span></a></p>
+          {%- endif -%}
         </div>
       {%- endcapture -%}
       {%- unless quote_only -%}{{ price_row }}{%- endunless -%}
@@ -227,14 +248,13 @@
           Buy-online garments (Eddie, 22/11/2026): no discount meter, since Buy now
           pays the listed price. From 10 items this note points to a quotation instead.
         {%- endcomment -%}
-        {%- assign quote_page = pages['get-a-quote'] -%}
         {%- if product.tags contains 'quick-tee' -%}
-          <p class="buy-bulk" data-quick-warn hidden><span>{{ 'product.quick_over' | t }}</span><a class="text-btn" href="{% if quote_page.url %}{{ quote_page.url }}{% else %}{{ routes.root_url }}#how{% endif %}">{{ 'product.buy_bulk_cta' | t }} <span aria-hidden="true">&rarr;</span></a></p>
+          <p class="buy-bulk" data-quick-warn hidden><span>{{ 'product.quick_over' | t }}</span><a class="text-btn" href="{{ bulk_url }}">{{ 'product.buy_bulk_cta' | t }} <span aria-hidden="true">&rarr;</span></a></p>
         {%- endif -%}
         <p class="buy-bulk" data-buy-bulk hidden>
           <b>{{ 'product.buy_bulk_title' | t }}</b>
           <span>{{ 'product.buy_bulk_text' | t }}</span>
-          <a class="text-btn" href="{% if quote_page.url %}{{ quote_page.url }}{% else %}{{ routes.root_url }}#how{% endif %}">{{ 'product.buy_bulk_cta' | t }} <span aria-hidden="true">&rarr;</span></a>
+          <a class="text-btn" href="{{ bulk_url }}">{{ 'product.buy_bulk_cta' | t }} <span aria-hidden="true">&rarr;</span></a>
         </p>
       {%- endif -%}
 

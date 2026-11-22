@@ -8,9 +8,20 @@
   assign has_quote = false
   assign has_buy = false
   assign quick_count = 0
+  assign quick_url = blank
   for item in cart.items
     if item.product.tags contains 'quick-tee'
       assign quick_count = quick_count | plus: item.quantity
+      if quick_url == blank
+        case item.product.handle
+          when 'quick-print-tee-mens'
+            assign quick_url = all_products['classic-t-shirt'].url
+          when 'quick-print-tee-womens'
+            assign quick_url = all_products['ladies-classic-t-shirt'].url
+          when 'quick-print-tee-kids'
+            assign quick_url = all_products['childrens-classic-t-shirt'].url
+        endcase
+      endif
     endif
     if item.final_price > 0 and item.product.tags contains 'buy-online' or item.product.handle == 'back-print'
       assign has_buy = true
@@ -141,7 +152,8 @@
             <p class="basket-total"><span>{{ 'cart.subtotal' | t }}</span><b>{{ cart.total_price | money }}</b></p>
             {%- comment -%} Quick tees: more than 9 may take longer; a warning only, checkout still works (Eddie, 22/11/2026). {%- endcomment -%}
             {%- if quick_count > 9 -%}
-              <p class="quick-over">{{ 'cart.quick_over' | t }}{% if pages['get-a-quote'].url %} <a href="{{ pages['get-a-quote'].url }}">{{ 'product.buy_bulk_cta' | t }}</a>{% endif %}</p>
+              {%- if quick_url == blank -%}{%- assign quick_url = pages['get-a-quote'].url -%}{%- endif -%}
+              <p class="quick-over">{{ 'cart.quick_over' | t }}{% if quick_url != blank %} <a href="{{ quick_url }}">{{ 'product.buy_bulk_cta' | t }} <span aria-hidden="true">&rarr;</span></a>{% endif %}</p>
             {%- endif -%}
             <button type="submit" class="pill pill-o" name="checkout">{{ 'cart.checkout' | t }}</button>
           {%- endif -%}
