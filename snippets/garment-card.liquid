@@ -7,7 +7,7 @@
   (Eddie, 01/11/2026: CFT sells to trade).
 
   @param {product} product - The product to show.
-  @param {string} [meta] - Replaces the brand and style code line (the in-house section uses this to hide the brand).
+  @param {string} [meta] - Optional small line above the title (the in-house section uses it for "In-house stock").
 
   @example
   {% render 'garment-card', product: product %}
@@ -63,15 +63,8 @@
     {%- endif -%}
   </div>
   <div class="gcard-body">
-    {%- comment -%} Uneek garments are sold as CFT's own range: no brand or code line (Eddie, 22/11/2026). {%- endcomment -%}
-    {%- assign own_range = false -%}
-    {%- assign vendor_lc = product.vendor | downcase | strip -%}
-    {%- if vendor_lc == 'uneek' -%}{%- assign own_range = true -%}{%- endif -%}
-    {%- if meta != blank -%}
-      <span class="gcard-meta">{{ meta | escape }}</span>
-    {%- elsif own_range == false -%}
-      <span class="gcard-meta">{{ product.vendor | escape }} · {{ product.handle | upcase }}</span>
-    {%- endif -%}
+    {%- comment -%} No brand or style code next to the title (Eddie, 22/11/2026); the code is in Garment details on the product page. {%- endcomment -%}
+    {%- if meta != blank -%}<span class="gcard-meta">{{ meta | escape }}</span>{%- endif -%}
     <b>{{ product.title | escape }}</b>
     {%- if colours and colours.size > 0 -%}
       {%- assign with_hex = 0 -%}

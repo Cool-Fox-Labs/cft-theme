@@ -388,6 +388,8 @@
     "gd_weight": "Fabric weight",
     "gd_gsm": "{{ n }} gsm",
     "gd_fabric": "Fabric",
+    "gd_brand": "Brand",
+    "gd_code": "Style code",
     "inches": "{{ w }} inches",
     "pos_fr": "Front",
     "pos_fb": "Back",

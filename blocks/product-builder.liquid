@@ -132,9 +132,7 @@
 
     <div class="info">
       <div class="ttl">
-        {%- comment -%} Uneek garments are sold as CFT's own range: no brand or code line (Eddie, 22/11/2026). {%- endcomment -%}
-        {%- assign vendor_lc = product.vendor | downcase | strip -%}
-        {%- unless vendor_lc == 'uneek' -%}<span class="eyebrow eyebrow-muted">{{ product.vendor | escape }} · {{ product.handle | upcase }}</span>{%- endunless -%}
+        {%- comment -%} No brand or style code by the title (Eddie, 22/11/2026): they sit in Garment details. {%- endcomment -%}
         <h1>{{ product.title | escape }}</h1>
       </div>
       {%- comment -%} Quick tees (tag quick-tee): same-day facts under the title, for people who land here without seeing the Quick tees page (Eddie, 22/11/2026). {%- endcomment -%}
@@ -287,13 +285,26 @@
       {%- liquid
         assign g_gsm = product.metafields.cft.gsm.value
         assign g_fabric = product.metafields.cft.fabric.value
+        comment
+          Brand and style code (Eddie, 22/11/2026): here, not by the title. Uneek is
+          sold as CFT's own Classic range, so it shows neither.
+        endcomment
+        assign g_brand = blank
+        assign g_code = blank
+        assign vendor_own = product.vendor | downcase | strip
+        unless vendor_own == 'uneek' or vendor_own == 'cool fox tees'
+          assign g_brand = product.vendor
+          assign g_code = product.handle | upcase
+        endunless
       -%}
-      {%- if g_gsm != blank or g_fabric != blank -%}
+      {%- if g_gsm != blank or g_fabric != blank or g_code != blank -%}
         <div class="gdet">
           <h3>{{ 'product.garment_details' | t }}</h3>
           <dl>
             {%- if g_gsm != blank -%}<dt>{{ 'product.gd_weight' | t }}</dt><dd>{{ 'product.gd_gsm' | t: n: g_gsm }}</dd>{%- endif -%}
             {%- if g_fabric != blank -%}<dt>{{ 'product.gd_fabric' | t }}</dt><dd>{{ g_fabric | escape }}</dd>{%- endif -%}
+            {%- if g_brand != blank -%}<dt>{{ 'product.gd_brand' | t }}</dt><dd>{{ g_brand | escape }}</dd>{%- endif -%}
+            {%- if g_code != blank -%}<dt>{{ 'product.gd_code' | t }}</dt><dd>{{ g_code }}</dd>{%- endif -%}
           </dl>
         </div>
       {%- endif -%}
