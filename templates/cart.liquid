@@ -12,7 +12,7 @@
     if item.product.tags contains 'quick-tee'
       assign quick_count = quick_count | plus: item.quantity
     endif
-    if item.final_price > 0 and item.product.tags contains 'buy-online'
+    if item.final_price > 0 and item.product.tags contains 'buy-online' or item.product.handle == 'back-print'
       assign has_buy = true
     else
       assign has_quote = true
@@ -33,7 +33,7 @@
         <ul class="basket-items">
           {%- for item in cart.items -%}
             {%- assign buy = false -%}
-            {%- if item.final_price > 0 and item.product.tags contains 'buy-online' -%}{%- assign buy = true -%}{%- endif -%}
+            {%- if item.final_price > 0 and item.product.tags contains 'buy-online' or item.product.handle == 'back-print' -%}{%- assign buy = true -%}{%- endif -%}
             <li class="basket-item"{% unless buy %} data-quote-key="{{ item.key }}"{% endunless %}>
               {%- comment -%} A design made online shows on the garment (_Mock, drawn by theme.js), else the plain photo. {%- endcomment -%}
               {%- assign mock = item.properties['_Mock'] -%}
@@ -43,10 +43,12 @@
                 </div>
               {%- elsif item.image -%}
                 {{ item.image | image_url: width: 240 | image_tag: class: 'basket-img', alt: item.product.title, loading: 'lazy' }}
+              {%- else -%}
+                <div class="basket-img" aria-hidden="true"></div>
               {%- endif -%}
               <div class="basket-info">
                 <a href="{{ item.url }}"><b>{{ item.product.title | escape }}</b></a>
-                <span>{{ item.variant.title | escape }}</span>
+                {%- unless item.variant.title == 'Default Title' -%}<span>{{ item.variant.title | escape }}</span>{%- endunless -%}
                 {%- if buy -%}<span>{{ item.final_line_price | money }}</span>{%- endif -%}
                 <dl class="basket-props">
                   {%- for p in item.properties -%}
@@ -64,10 +66,24 @@
                   {%- endfor -%}
                 </dl>
               </div>
-              <div class="basket-qty">
-                <label>{{ 'cart.qty' | t }}<input type="number" name="updates[]" min="0" value="{{ item.quantity }}"></label>
-                <a href="{{ item.url_to_remove }}">{{ 'cart.remove' | t }}</a>
-              </div>
+              {%- if item.product.handle == 'back-print' -%}
+                {%- comment -%} Follows the tees it belongs to: not typed, and put right on load if it differs. {%- endcomment -%}
+                {%- comment -%} Back print add-on (Eddie, 22/11/2026): one per garment with the same _group. {%- endcomment -%}
+                {%- assign want = 0 -%}
+                {%- for other in cart.items -%}
+                  {%- if other.product.handle != 'back-print' and other.properties['_group'] == item.properties['_group'] -%}{%- assign want = want | plus: other.quantity -%}{%- endif -%}
+                {%- endfor -%}
+                <div class="basket-qty">
+                  <span>{{ 'cart.qty' | t }} <b data-back-show>{{ item.quantity }}</b></span>
+                  <input type="hidden" name="updates[]" value="{{ want }}" data-back-group="{{ item.properties['_group'] | escape }}"{% if want != item.quantity %} data-back-fix="{{ item.key }}" data-back-want="{{ want }}" data-update-url="{{ routes.cart_update_url }}.js"{% endif %}>
+                  <small>{{ 'cart.back_follows' | t }}</small>
+                </div>
+              {%- else -%}
+                <div class="basket-qty">
+                  <label>{{ 'cart.qty' | t }}<input type="number" name="updates[]" min="0" value="{{ item.quantity }}"{% if item.properties['_group'] != blank %} data-group="{{ item.properties['_group'] | escape }}"{% endif %}></label>
+                  <a href="{{ item.url_to_remove }}">{{ 'cart.remove' | t }}</a>
+                </div>
+              {%- endif -%}
             </li>
           {%- endfor -%}
         </ul>
