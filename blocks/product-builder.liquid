@@ -340,6 +340,8 @@
     </section>
     {%- assign faq_page = pages['faq'] -%}
     {%- assign artwork_page = pages['artwork-guide'] -%}
+    {%- comment -%} Not on quick tees: they are printed as sent, no proof (Eddie, 22/11/2026), and this box promises a proof. {%- endcomment -%}
+    {%- unless product.tags contains 'quick-tee' -%}
     <section class="panel-c" aria-labelledby="p-h">
       <h2 id="p-h">{{ 'product.know_title' | t }}</h2>
       <ul class="know">
@@ -354,6 +356,7 @@
         </p>
       {%- endif -%}
     </section>
+    {%- endunless -%}
   </div>
 
   <div class="mob-bar"><span data-mob-sum></span><button type="button" class="pill pill-o" data-add>
