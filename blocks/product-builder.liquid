@@ -139,8 +139,12 @@
       {%- unless quote_only -%}{{ price_row }}{%- endunless -%}
 
       <section class="step" aria-labelledby="s-colour">
-        <div class="step-h"><i>1</i><h2 id="s-colour">{{ 'product.step_colour' | t }}</h2><small data-colour-name></small></div>
-        <div class="swatches" data-swatches></div>
+        <div class="step-h"><i>1</i><h2 id="s-colour">{{ 'product.step_colour' | t }}</h2><small data-colour-count></small></div>
+        {%- comment -%} Colour drawer (Eddie, 22/11/2026): one row showing the chosen colour; it opens to a list of dots with names. {%- endcomment -%}
+        <button type="button" class="colour-pick" data-colour-toggle aria-expanded="false" aria-controls="colour-list">
+          <span class="cp-dot" data-colour-dot></span><b data-colour-name></b><span class="cp-hint">{{ 'product.colour_change' | t }}</span><span class="cp-chev" aria-hidden="true"></span>
+        </button>
+        <div class="swatches colour-list" id="colour-list" data-swatches hidden></div>
       </section>
 
       {%- comment -%} Order: colour, design, sizes (Eddie, 22/11/2026), so sizes sit right above the price and button. {%- endcomment -%}
@@ -470,6 +474,7 @@
       "failTitle": {{ 'product.fail_title' | t | json }},
       "emailArt": {{ 'product.email_art_line' | t | json }},
       "qtyFor": {{ 'product.qty_for' | t: s: '%s' | json }},
+      "colourCount": {{ 'product.colour_count' | t: n: '%n' | json }},
       "less": {{ 'product.qty_less' | t: s: '%s' | json }},
       "more": {{ 'product.qty_more' | t: s: '%s' | json }},
       "adding": {{ 'product.adding' | t | json }},
