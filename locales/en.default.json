@@ -50,7 +50,8 @@
     "buy_text": "These items are priced, so you can pay for them now. We still send a proof before printing.",
     "buy_after_quote": "Send your quote request first. Your buy-now items stay here, ready for checkout.",
     "quote_sent": "Quote request sent",
-    "quick_over": "More than 9 quick tees may take longer than same day. For 10 or more, get a quote for a better price."
+    "quick_over": "More than 9 quick tees may take longer than same day. For 10 or more, get a quote for a better price.",
+    "back_follows": "One per tee, changes with your tees"
   },
   "customers": {
     "login": {

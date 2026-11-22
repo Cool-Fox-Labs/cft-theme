@@ -976,3 +976,5 @@ input[type=range] { width: 100%; accent-color: var(--orange); height: 28px }
 .colour-pick:disabled { cursor: default; box-shadow: inset 0 0 0 1px var(--line) }
 .colour-pick:disabled .cp-hint, .colour-pick:disabled .cp-chev { display: none }
 .quick-over { margin: 0; padding: 12px 14px; border-radius: 14px; background: var(--orange-soft); font-size: 15px }
+div.basket-img { aspect-ratio: 1 }
+.basket-qty small { max-width: 9em; text-align: right; color: var(--muted) }

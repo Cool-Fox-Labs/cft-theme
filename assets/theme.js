@@ -390,3 +390,35 @@ document.querySelectorAll('[data-mock]').forEach((box) => {
   /* The Garments menu links here as #<group>; follow it when already on the page. */
   window.addEventListener('hashchange', fromHash);
 })();
+
+/**
+ * Basket page: a back print add-on always matches the number of tees it
+ * belongs to (same _group). Typing a new tee quantity updates it before the
+ * form is sent; if it is ever out of step on load (a tee removed, say), it
+ * is put right and the page reloads.
+ */
+(() => {
+  const backs = [...document.querySelectorAll('[data-back-group]')];
+  if (!backs.length) return;
+  const sync = () => backs.forEach((b) => {
+    const n = [...document.querySelectorAll(`[data-group="${CSS.escape(b.dataset.backGroup)}"]`)]
+      .reduce((a, i) => a + Math.max(0, parseInt(i.value, 10) || 0), 0);
+    b.value = n;
+    const show = b.closest('.basket-qty').querySelector('[data-back-show]');
+    if (show) show.textContent = n;
+  });
+  document.querySelectorAll('[data-group]').forEach((i) => i.addEventListener('input', sync));
+  const form = document.querySelector('[data-basket]');
+  if (form) form.addEventListener('submit', sync);
+  const fix = backs.filter((b) => b.dataset.backFix);
+  // Only once per page visit, so a failed fix can never loop.
+  let tried = false;
+  try { tried = sessionStorage.getItem('cft-back-fix') === location.href; sessionStorage.removeItem('cft-back-fix'); } catch (e) { /* no storage */ }
+  if (fix.length && !tried) {
+    const updates = Object.fromEntries(fix.map((b) => [b.dataset.backFix, parseInt(b.dataset.backWant, 10) || 0]));
+    try { sessionStorage.setItem('cft-back-fix', location.href); } catch (e) { /* no storage */ }
+    fetch(fix[0].dataset.updateUrl, { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify({ updates }) })
+      .then((r) => { if (r.ok) window.location.reload(); })
+      .catch(() => {});
+  }
+})();
