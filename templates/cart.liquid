@@ -22,7 +22,21 @@
 
 {% block 'container', tag: 'div' %}
   <div class="basket">
-    <h1>{{ 'cart.title' | t }}</h1>
+    {%- comment -%}
+      Title (Eddie, 22/11/2026): quote items only = "Your quote"; Buy now
+      items only = "Your order"; both = "Your basket".
+    {%- endcomment -%}
+    {%- liquid
+      assign title_key = 'cart.title'
+      if cart.item_count == 0
+        assign title_key = 'cart.title_empty'
+      elsif has_buy and has_quote
+        assign title_key = 'cart.title_mixed'
+      elsif has_buy
+        assign title_key = 'cart.title_buy'
+      endif
+    -%}
+    <h1>{{ title_key | t }}</h1>
 
     {%- if cart.item_count == 0 -%}
       <p>{{ 'cart.empty' | t }}</p>
