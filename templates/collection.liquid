@@ -79,6 +79,13 @@
           endfor
         endfor
         assign groups = group_list | split: '|' | uniq
+        comment
+          T-shirts: no filter buttons (Eddie, 22/11/2026: too few styles per section).
+          Same rule in snippets/menu-mega. group:Kids still puts kids' styles last.
+        endcomment
+        if collection.handle == 't-shirts'
+          assign groups = ''
+        endif
 
         assign inh_codes = settings.inhouse_codes | upcase | remove: ' ' | split: ','
         assign inh_handles = '|'

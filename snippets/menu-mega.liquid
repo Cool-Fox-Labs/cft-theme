@@ -43,6 +43,13 @@
         endfor
       endfor
       assign groups = group_list | split: '|' | uniq
+      comment
+        T-shirts: no sections in the menu or filter buttons on the page (Eddie, 22/11/2026:
+        too few styles per section). Its group: tags still order kids' styles last.
+      endcomment
+      if handle == 't-shirts'
+        assign groups = ''
+      endif
     -%}
     <div class="mega-col">
       <a class="mega-img" href="{{ url }}" style="--tint: {{ tints[i] }}" tabindex="-1" aria-hidden="true">
