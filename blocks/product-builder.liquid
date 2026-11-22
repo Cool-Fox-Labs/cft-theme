@@ -228,6 +228,9 @@
           pays the listed price. From 10 items this note points to a quotation instead.
         {%- endcomment -%}
         {%- assign quote_page = pages['get-a-quote'] -%}
+        {%- if product.tags contains 'quick-tee' -%}
+          <p class="buy-bulk" data-quick-warn hidden><span>{{ 'product.quick_over' | t }}</span><a class="text-btn" href="{% if quote_page.url %}{{ quote_page.url }}{% else %}{{ routes.root_url }}#how{% endif %}">{{ 'product.buy_bulk_cta' | t }} <span aria-hidden="true">&rarr;</span></a></p>
+        {%- endif -%}
         <p class="buy-bulk" data-buy-bulk hidden>
           <b>{{ 'product.buy_bulk_title' | t }}</b>
           <span>{{ 'product.buy_bulk_text' | t }}</span>
@@ -378,6 +381,7 @@
     "productId": {{ product.id | json }},
     "cartJs": {{ routes.cart_url | append: '.js' | json }},
     "quoteOnly": {{ quote_only | json }},
+    "quickCap": {% if product.tags contains 'quick-tee' %}9{% else %}null{% endif %},
     "backPrint": {% if back_addon %}{ "id": {{ back_addon.selected_or_first_available_variant.id | json }} }{% else %}null{% endif %},
     "cartAdd": {{ routes.cart_add_url | append: '.js' | json }},
     "cartChange": {{ routes.cart_change_url | append: '.js' | json }},

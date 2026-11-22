@@ -975,3 +975,4 @@ input[type=range] { width: 100%; accent-color: var(--orange); height: 28px }
 @media (max-width: 600px) { .swatches.colour-list { grid-template-columns: 1fr 1fr } }
 .colour-pick:disabled { cursor: default; box-shadow: inset 0 0 0 1px var(--line) }
 .colour-pick:disabled .cp-hint, .colour-pick:disabled .cp-chev { display: none }
+.quick-over { margin: 0; padding: 12px 14px; border-radius: 14px; background: var(--orange-soft); font-size: 15px }
