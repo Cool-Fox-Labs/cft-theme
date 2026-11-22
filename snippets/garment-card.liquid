@@ -63,7 +63,15 @@
     {%- endif -%}
   </div>
   <div class="gcard-body">
-    <span class="gcard-meta">{%- if meta != blank -%}{{ meta | escape }}{%- else -%}{{ product.vendor | escape }} · {{ product.handle | upcase }}{%- endif -%}</span>
+    {%- comment -%} Uneek garments are sold as CFT's own range: no brand or code line (Eddie, 22/11/2026). {%- endcomment -%}
+    {%- assign own_range = false -%}
+    {%- assign vendor_lc = product.vendor | downcase | strip -%}
+    {%- if vendor_lc == 'uneek' -%}{%- assign own_range = true -%}{%- endif -%}
+    {%- if meta != blank -%}
+      <span class="gcard-meta">{{ meta | escape }}</span>
+    {%- elsif own_range == false -%}
+      <span class="gcard-meta">{{ product.vendor | escape }} · {{ product.handle | upcase }}</span>
+    {%- endif -%}
     <b>{{ product.title | escape }}</b>
     {%- if colours and colours.size > 0 -%}
       {%- assign with_hex = 0 -%}

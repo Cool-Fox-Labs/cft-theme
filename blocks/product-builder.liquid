@@ -132,7 +132,9 @@
 
     <div class="info">
       <div class="ttl">
-        <span class="eyebrow eyebrow-muted">{{ product.vendor | escape }} · {{ product.handle | upcase }}</span>
+        {%- comment -%} Uneek garments are sold as CFT's own range: no brand or code line (Eddie, 22/11/2026). {%- endcomment -%}
+        {%- assign vendor_lc = product.vendor | downcase | strip -%}
+        {%- unless vendor_lc == 'uneek' -%}<span class="eyebrow eyebrow-muted">{{ product.vendor | escape }} · {{ product.handle | upcase }}</span>{%- endunless -%}
         <h1>{{ product.title | escape }}</h1>
       </div>
       {%- comment -%} Quick tees (tag quick-tee): same-day facts under the title, for people who land here without seeing the Quick tees page (Eddie, 22/11/2026). {%- endcomment -%}
