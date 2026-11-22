@@ -145,7 +145,7 @@ function showSent() {
 if (window.location.hash === '#sent') showSent();
 
 /**
- * Header "Your quote (n)": shows and updates as soon as something is added,
+ * Header "Your quote (n)" / "Basket (n)": shows and updates as soon as something is added,
  * without a page refresh.
  */
 document.addEventListener('cft:basket-changed', async () => {
@@ -155,6 +155,9 @@ document.addEventListener('cft:basket-changed', async () => {
     const cart = await (await fetch(link.dataset.cartJs)).json();
     // The header link and the phone drawer's "Your quote (n)".
     document.querySelectorAll('[data-basket-count]').forEach((el) => { el.textContent = cart.item_count; });
+    // "Basket" once a Buy now item (quick tee) is in, else "Your quote".
+    const buy = cart.items.some((i) => (i.properties && i.properties._buy === '1') || i.handle === 'back-print');
+    document.querySelectorAll('[data-basket-label]').forEach((el) => { el.textContent = buy ? el.dataset.buy : el.dataset.quote; });
     link.hidden = !cart.item_count;
     link.dataset.count = cart.item_count;
   } catch (e) { /* leave as it is */ }

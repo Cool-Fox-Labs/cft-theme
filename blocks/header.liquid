@@ -4,6 +4,19 @@
   phone menu drawer. Composed directly in layout/theme.liquid so it wraps
   every page. Business details come from the Cool Fox Tees theme settings.
 {% enddoc %}
+{%- comment -%}
+  Basket link wording (Eddie, 22/11/2026): "Your quote" while the basket holds
+  only quote items; "Basket" once it holds any Buy now items (quick tees).
+{%- endcomment -%}
+{%- liquid
+  assign basket_label = 'header.basket' | t
+  for item in cart.items
+    if item.final_price > 0 and item.product.tags contains 'buy-online' or item.product.handle == 'back-print'
+      assign basket_label = 'header.basket_buy' | t
+      break
+    endif
+  endfor
+-%}
 
 {%- assign how_url = routes.root_url | append: '#how' -%}
 {%- comment -%} Sign-in lands on the Print Studio dashboard (/apps/account). {%- endcomment -%}
@@ -62,7 +75,7 @@
             <a class="basket-link acc-link" href="{{ login_url }}"><svg class="hd-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M4 21c1.2-4.2 4.3-6.2 8-6.2s6.8 2 8 6.2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span class="hd-txt">{{ 'header.log_in' | t }}</span></a>
           {%- endif -%}
         {%- endif -%}
-        <a class="basket-link q-link" href="{{ routes.cart_url }}" data-basket-link data-cart-js="{{ routes.cart_url }}.js" data-count="{{ cart.item_count }}"{% if cart.item_count == 0 %} hidden{% endif %}><svg class="hd-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M9 4.5V3h6v1.5M8.5 10h7M8.5 14h7M8.5 18h4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span class="hd-txt">{{ 'header.basket' | t }} (</span><span class="q-count" data-basket-count>{{ cart.item_count }}</span><span class="hd-txt">)</span></a>
+        <a class="basket-link q-link" href="{{ routes.cart_url }}" data-basket-link data-cart-js="{{ routes.cart_url }}.js" data-count="{{ cart.item_count }}"{% if cart.item_count == 0 %} hidden{% endif %}><svg class="hd-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M9 4.5V3h6v1.5M8.5 10h7M8.5 14h7M8.5 18h4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span class="hd-txt"><span data-basket-label data-quote="{{ 'header.basket' | t | escape }}" data-buy="{{ 'header.basket_buy' | t | escape }}">{{ basket_label }}</span> (</span><span class="q-count" data-basket-count>{{ cart.item_count }}</span><span class="hd-txt">)</span></a>
         <a class="pill pill-o" href="{{ quote_url }}">{{ 'header.get_quote' | t }}</a>
         <button class="burger" type="button" id="menu-btn" aria-expanded="false" aria-controls="drawer" data-open-label="{{ 'header.close' | t }}" data-closed-label="{{ 'header.menu' | t }}">
           {{- 'header.menu' | t -}}
@@ -126,7 +139,7 @@
       </details>
       <a href="{{ showroom_url }}">{{ 'header.visit_showroom' | t }}</a>
       {%- if contact_page != empty and contact_page != nil -%}<a href="{{ contact_page.url }}">{{ 'header.contact' | t }}</a>{%- endif -%}
-      <a href="{{ routes.cart_url }}">{{ 'header.basket' | t }} (<span data-basket-count>{{ cart.item_count }}</span>)</a>
+      <a href="{{ routes.cart_url }}"><span data-basket-label data-quote="{{ 'header.basket' | t | escape }}" data-buy="{{ 'header.basket_buy' | t | escape }}">{{ basket_label }}</span> (<span data-basket-count>{{ cart.item_count }}</span>)</a>
       {%- if shop.customer_accounts_enabled -%}
         {%- if customer -%}
           <a href="/apps/account">{{ 'header.account' | t }}</a>
