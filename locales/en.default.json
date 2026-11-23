@@ -506,6 +506,9 @@
     "quick_strip_5": "Print-ready artwork only",
     "quick_strip_small": "Subject to stock levels.",
     "quick_strip_terms": "Terms apply",
+    "quick_twin_title": "Need fewer than 10?",
+    "quick_twin_text": "Order our quick print tee online, no quote needed, printed the same day.",
+    "quick_twin_cta": "Order online",
     "colour_change": "Change",
     "colour_count": "{{ n }} colours",
     "quick_over": "More than 9 quick tees may take longer than same day. For 10 or more, get a quote for a better price."

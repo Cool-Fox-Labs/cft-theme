@@ -258,6 +258,26 @@
         </p>
       {%- endif -%}
 
+      {%- comment -%}
+        Under 10 pieces (Eddie, 23/11/2026): the three classic tees point to their
+        same-day quick tee, ordered online with no quote. Only UC301, UC318 and UC306
+        are printed same day, so no other product shows this.
+      {%- endcomment -%}
+      {%- liquid
+        assign quick_twin = nil
+        case product.handle
+          when 'classic-t-shirt'
+            assign quick_twin = all_products['quick-print-tee-mens']
+          when 'ladies-classic-t-shirt'
+            assign quick_twin = all_products['quick-print-tee-womens']
+          when 'childrens-classic-t-shirt'
+            assign quick_twin = all_products['quick-print-tee-kids']
+        endcase
+      -%}
+      {%- if quote_only and quick_twin and quick_twin.url -%}
+        <p class="buy-bulk"><b>{{ 'product.quick_twin_title' | t }}</b> <span>{{ 'product.quick_twin_text' | t }}</span> <a class="text-btn" href="{{ quick_twin.url }}">{{ 'product.quick_twin_cta' | t }} <span aria-hidden="true">&rarr;</span></a></p>
+      {%- endif -%}
+
       {%- if quote_only -%}{{ price_row }}{%- endif -%}
 
       {%- comment -%} Quick tees (Eddie, 22/11/2026): same-day facts instead of proof / 5-7 days. {%- endcomment -%}
