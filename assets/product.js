@@ -697,24 +697,43 @@
   async function drawText(item) {
     item.placeholder = !item.lines.length;
     const lines = item.placeholder ? [T.yourText] : item.lines;
+    Object.assign(item, await textImage(item, lines, 160));
+  }
+
+  // The text as a trimmed PNG with its lines drawn size px high (line pitch
+  // 1.25x). 160 is the on-screen preview; textForPrint redraws it bigger.
+  async function textImage(item, lines, size) {
     await loadFonts();
-    const font = `${item.weight} 160px "${item.font}"`;
+    const font = `${item.weight} ${size}px "${item.font}"`;
     try { await document.fonts.load(font, lines.join('')); } catch (e) { /* draw with whatever has loaded */ }
     const cv = make('canvas');
     const cx = cv.getContext('2d');
     cx.font = font;
-    cv.width = Math.ceil(Math.max(...lines.map((l) => cx.measureText(l).width))) + 40;
-    cv.height = lines.length * 200 + 40;
+    const pad = Math.ceil(size / 8), pitch = size * 1.25;
+    cv.width = Math.ceil(Math.max(...lines.map((l) => cx.measureText(l).width))) + pad * 2;
+    cv.height = Math.ceil(lines.length * pitch + pad * 2);
     cx.font = font;
     cx.fillStyle = item.ink;
     cx.textAlign = item.align;
     cx.textBaseline = 'top';
-    const x = item.align === 'left' ? 20 : item.align === 'right' ? cv.width - 20 : cv.width / 2;
-    lines.forEach((l, i) => cx.fillText(l, x, 20 + i * 200));
+    const x = item.align === 'left' ? pad : item.align === 'right' ? cv.width - pad : cv.width / 2;
+    lines.forEach((l, i) => cx.fillText(l, x, pad + i * pitch));
     const img = new Image();
     await new Promise((r) => { img.onload = r; img.src = cv.toDataURL('image/png'); });
-    Object.assign(item, trim(img));
+    return trim(img);
   }
+
+  // The text file sent with the quote: redrawn at print quality, at least
+  // 300 dpi at the width the customer chose (Eddie, 24/11/2026: the 160px
+  // preview printed at about 100 dpi). Kept under 8000px a side.
+  async function textForPrint(it) {
+    const want = Math.max(1, it.w || 1) * 300;
+    let size = Math.ceil(160 * want / Math.max(1, it.px || 1));
+    const longest = Math.max(1, it.px || 1) / 160, tall = it.lines.length * 1.25 + 0.25;
+    size = Math.max(160, Math.min(size, Math.floor(8000 / Math.max(longest, tall))));
+    return (await textImage(it, it.lines, size)).src;
+  }
+  const WEIGHT = { 400: 'Regular', 700: 'Bold' };
 
   function fileButton(label, onFile) {
     const lab = make('label', 'pill pill-l', label);
@@ -1171,7 +1190,7 @@
     const out = [];
     for (const it of d.items) {
       if (it.kind === 'upload') out.push([it.file, it.name]);
-      else out.push([await dataUrlToBlob(it.src), `${it.view}-text.png`]);
+      else out.push([await dataUrlToBlob(await textForPrint(it)), `${it.view}-text.png`]);
     }
     return out;
   }
@@ -1217,7 +1236,8 @@
           location: areaName(it.view, it.area),
           name: it.kind === 'text' ? `${it.view}-text.png` : it.name,
           kind: it.kind === 'text' ? 'text' : 'logo',
-          text: it.kind === 'text' ? it.lines.join(' / ') : null,
+          // Font, weight and colour too, so staff can retype it if needed.
+          text: it.kind === 'text' ? `${it.lines.join(' / ')} (${it.font} ${WEIGHT[it.weight] || it.weight}, ${it.ink.toUpperCase()})` : null,
           widthIn: tenth(it.w),
           topIn: tenth((box(it).top - a.y) / (a.inch * ASPECT)),
           fromCentreIn: tenth((it.x - a.x) / a.inch),
