@@ -48,9 +48,12 @@
     (x/y the box centre, w/h its size, % of the photo; inW its real width in
     inches). The front's boxes apply on whichever front photo shows (Print
     Studio draws garment fronts on the colour's own photo); back and sleeves
-    only while that view's own photo shows. The print area is then the widest
-    box, moved for the colour when listed, at its real size, on a photo of
-    any shape.
+    only while that view's own photo shows. With several boxes on a side
+    (Front, Left Chest, Right Chest) the designer lists them all in its panel
+    with their sizes and the customer picks one; the widest is picked at
+    first. Each design keeps its box, and the basket sends that box's name
+    as the print location. The box is moved for the colour when listed, at
+    its real size, on a photo of any shape.
   - Metafield cft.print_sides (JSON list of "Front", "Back", "Left sleeve",
     "Right sleeve", set in Print Studio) hides the other sides' positions
     and views. Missing: headwear Front only, bags Front and Back, else all.
@@ -573,6 +576,7 @@
       "chestTag": {{ 'product.chest_tag' | t | json }},
       "sizeLabel": {{ 'product.size_label' | t | json }},
       "areaTag": {{ 'product.area_tag' | t | json }},
+      "areaUsed": {{ 'product.area_used' | t | json }},
       "addAnother": {{ 'product.add_another' | t | json }},
       "placement": {{ 'product.placement' | t | json }},
       "emptyView": {{ 'product.empty_view' | t | json }},
