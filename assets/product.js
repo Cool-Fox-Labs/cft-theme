@@ -168,13 +168,32 @@
   // Studio draws garment fronts on the colour's own shop photo); back and
   // sleeves only while that view's own photo shows.
   const shownPhoto = (view) => photoFor(view) || (view === 'front' ? st.colour.img : null);
-  function areaOf(view) {
+  // A view can have several boxes (Front, Left chest, Right chest). The
+  // customer picks one in the designer's panel; idx is its place in psAreas.
+  // Without one (or a wrong one) it is the widest box, as before.
+  const viewOf = (view) => VIEW_LIST.find((x) => x.id === view);
+  function mainIdx(v) {
+    return v.ps.reduce((m, b, i) => (b.inW > v.ps[m].inW ? i : m), 0);
+  }
+  function boxIdx(view, idx) {
+    const v = viewOf(view);
+    if (!v || !v.ps.length) return null;
+    return Number.isInteger(idx) && v.ps[idx] ? idx : mainIdx(v);
+  }
+  // The area's name for the quote and basket: Print Studio's box name
+  // (it matches the print location in Print Studio), else the view's name.
+  function areaName(view, idx) {
+    const v = viewOf(view);
+    const i = boxIdx(view, idx);
+    return (i != null && v.ps[i].name) || VIEW_NAME[view];
+  }
+  function areaOf(view, idx) {
     const base = { ...AREAS[view], inch: INCH, rot: 0 };
     base.hb = base.h;
-    const v = VIEW_LIST.find((x) => x.id === view);
+    const v = viewOf(view);
     const shown = v && v.ps.length ? shownPhoto(view) : null;
     if (!shown) return base;
-    const main = v.ps.reduce((a, b) => (b.inW > a.inW ? b : a));
+    const main = v.ps[boxIdx(view, idx)];
     const own = main.colours && main.colours[colourKey(st.colour.name)];
     const b = toStage({ ...main, ...(own || {}) }, photoRatio(shown));
     if (!(b.w > 0 && b.h > 0)) return base;
@@ -224,14 +243,14 @@
 
   // A placed design: x and y are its centre as % of the photo, w its width in inches.
   function box(it) {
-    const { inch } = areaOf(it.view);
+    const { inch } = areaOf(it.view, it.area);
     const w = pw(it.w, inch);
     const h = ph(it.w / it.ratio, inch);
     return { left: it.x - w / 2, top: it.y - h / 2, w, h };
   }
   // Keep a design inside its print area.
   function fit(it) {
-    const a = areaOf(it.view);
+    const a = areaOf(it.view, it.area);
     it.w = Math.max(1, Math.min(it.w, a.w, Math.min(a.h, a.hb) * it.ratio));
     const b = box(it);
     const left = a.x - pw(a.w, a.inch) / 2;
@@ -253,7 +272,7 @@
   const sizeLabel = (it) => fill(T.wxh, { w: half(it.w), h: half(it.w / it.ratio) });
   const dragSize = (it) => `${half(it.w)} × ${half(it.w / it.ratio)}in`;
   function whereText(it) {
-    const a = areaOf(it.view);
+    const a = areaOf(it.view, it.area);
     const down = half((box(it).top - a.y) / (a.inch * ASPECT));
     const off = half((it.x - a.x) / a.inch);
     const side = Math.abs(off) < 0.5 ? T.centred : fill(off > 0 ? T.rightOf : T.leftOf, { n: Math.abs(off) });
@@ -265,11 +284,12 @@
   function placeAll(holder, view, list, selUid, edit) {
     holder.innerHTML = '';
     if (edit) {
-      const a = areaOf(view);
+      const ai = curArea(view);
+      const a = areaOf(view, ai);
       const area = make('div', 'area');
       area.style.cssText = `left:${a.x - pw(a.w, a.inch) / 2}%;top:${a.y}%;width:${pw(a.w, a.inch)}%;height:${ph(a.hb, a.inch)}%`;
       if (a.rot) area.style.transform = `rotate(${a.rot}deg)`;
-      area.append(make('span', 'ph-tag', T.areaTag));
+      area.append(make('span', 'ph-tag', viewOf(view).ps.length > 1 ? areaName(view, ai) : T.areaTag));
       holder.append(area);
     }
     list.filter((it) => it.src && it.view === view).forEach((it) => {
@@ -483,12 +503,20 @@
     if (!d) return [];
     if (d.mode === 'designer') {
       const what = (it) => (it.kind === 'text' ? `${T.text}: "${it.lines.join(' / ')}" (${it.font}, ${it.ink.toUpperCase()})` : it.name);
-      return VIEWS.filter((v) => d.items.some((it) => it.view === v)).map((v) => ({
-        name: VIEW_NAME[v],
-        text: d.items.filter((it) => it.view === v).map(what).join('; '),
-        // Studio only: hidden from the customer (underscore property).
-        detail: d.items.filter((it) => it.view === v).map((it) => `${what(it)} · ${sizeLabel(it)}, ${whereText(it)}${it.rot ? ', ' + fill(T.rotated, { n: it.rot }) : ''}`).join('; '),
-      }));
+      // One line per print area (Front, Left chest...), sides in order.
+      const keyOf = (it) => `${it.view}|${boxIdx(it.view, it.area)}`;
+      const keys = [];
+      VIEWS.forEach((v) => d.items.filter((it) => it.view === v).forEach((it) => { if (!keys.includes(keyOf(it))) keys.push(keyOf(it)); }));
+      return keys.map((k) => {
+        const here = d.items.filter((it) => keyOf(it) === k);
+        const it0 = here[0];
+        return {
+          name: viewOf(it0.view).ps.length > 1 ? areaName(it0.view, it0.area) : VIEW_NAME[it0.view],
+          text: here.map(what).join('; '),
+          // Studio only: hidden from the customer (underscore property).
+          detail: here.map((it) => `${what(it)} · ${sizeLabel(it)}, ${whereText(it)}${it.rot ? ', ' + fill(T.rotated, { n: it.rot }) : ''}`).join('; '),
+        };
+      });
     }
     const out = [];
     POS.forEach((p) => {
@@ -639,7 +667,7 @@
   /* ---------- designer pop-up ---------- */
 
   const dz = q('[data-designer]');
-  const dzs = { view: 'front', sel: null, items: [] };
+  const dzs = { view: 'front', sel: null, items: [], area: {} };
 
   // Text fonts (Google Fonts, free to print with), loaded the first time
   // someone adds text. [family, weight]
@@ -804,13 +832,21 @@
   }
 
   const selected = () => dzs.items.find((it) => it.uid === dzs.sel);
+  // The area being worked on for a view (dzs.area), else the widest.
+  const curArea = (view) => boxIdx(view, dzs.area[view]);
+  // Selecting a design also shows its own print area.
+  function pick(it) {
+    dzs.sel = it.uid;
+    if (it.area != null) dzs.area[it.view] = it.area;
+  }
   let uidN = 0;
   const uid = () => 'd' + Date.now().toString(36) + (uidN++);
 
   // A new design starts in the middle of the print area at 60% of its width.
   async function place(it) {
-    const a = areaOf(dzs.view);
-    Object.assign(it, { uid: uid(), view: dzs.view, w: a.w * 0.6, x: a.x, y: a.y + ph(a.hb, a.inch) / 2 });
+    const ai = curArea(dzs.view);
+    const a = areaOf(dzs.view, ai);
+    Object.assign(it, { uid: uid(), view: dzs.view, area: ai, w: a.w * 0.6, x: a.x, y: a.y + ph(a.hb, a.inch) / 2 });
     if (it.kind === 'text') await drawText(it);
     fit(it);
     dzs.items.push(it);
@@ -831,6 +867,35 @@
     const panel = q('[data-dz-panel]', dz);
     panel.innerHTML = '';
     panel.append(make('h3', '', VIEW_NAME[dzs.view]));
+    // Every print area of this side, with its size: tap one to work on it.
+    // A tick shows the areas that already have a design (Eddie, 24/11/2026).
+    const pv = viewOf(dzs.view);
+    if (pv && pv.ps.length) {
+      const cur = curArea(dzs.view);
+      const list = make('div', 'dz-areas');
+      pv.ps.forEach((b, i) => {
+        const btn = make('button', 'dz-area');
+        btn.type = 'button';
+        btn.setAttribute('aria-pressed', String(i === cur));
+        const used = dzs.items.some((it) => it.view === dzs.view && it.src && boxIdx(it.view, it.area) === i);
+        const size = b.inH > 0 ? `${half(b.inW)} × ${half(b.inH)}in` : fill(T.inches, { w: half(b.inW) });
+        btn.append(make('span', 'dz-area-name', b.name || VIEW_NAME[dzs.view]), make('span', 'dz-area-size', size));
+        if (used) {
+          const tick = make('span', 'dz-area-tick', '\u2713');
+          tick.setAttribute('aria-label', T.areaUsed);
+          btn.append(tick);
+        }
+        btn.addEventListener('click', () => {
+          dzs.area[dzs.view] = i;
+          const first = dzs.items.find((it) => it.view === dzs.view && boxIdx(it.view, it.area) === i);
+          dzs.sel = first ? first.uid : null;
+          dzStage();
+          dzPanel();
+        });
+        list.append(btn);
+      });
+      panel.append(list);
+    }
 
     const here = dzs.items.filter((it) => it.view === dzs.view);
     if (!here.length) { panel.append(make('p', 'muted', T.emptyView)); return; }
@@ -840,7 +905,7 @@
         const b = make('button', '', it.kind === 'text' ? `${T.text} ${i + 1}` : it.name);
         b.type = 'button';
         b.setAttribute('aria-pressed', String(it.uid === dzs.sel));
-        b.addEventListener('click', () => { dzs.sel = it.uid; dzStage(); dzPanel(); });
+        b.addEventListener('click', () => { pick(it); dzStage(); dzPanel(); });
         chips.append(b);
       });
       panel.append(chips);
@@ -938,7 +1003,7 @@
     const it = dzs.items.find((x) => x.uid === el.dataset.uid);
     const resize = !!e.target.closest('[data-handle]');
     const turn = !!e.target.closest('[data-rotate]');
-    if (dzs.sel !== it.uid) { dzs.sel = it.uid; dzStage(); dzPanel(); }
+    if (dzs.sel !== it.uid) { pick(it); dzStage(); dzPanel(); }
     const rect = q('[data-stage="designer"] [data-zoom]', dz).getBoundingClientRect();
     const node = () => q(`.ph[data-uid="${it.uid}"]`, dz);
     const start = { cx: e.clientX, cy: e.clientY, x: it.x, y: it.y, w: it.w, rot: it.rot || 0 };
@@ -963,7 +1028,7 @@
         return;
       }
       if (resize) {
-        const { inch } = areaOf(it.view);
+        const { inch } = areaOf(it.view, it.area);
         it.w = start.w + Math.max((dx * 2) / inch, ((dy * 2) / (inch * ASPECT)) * it.ratio);
       }
       else { it.x = start.x + dx; it.y = start.y + dy; }
@@ -990,6 +1055,7 @@
     dzs.items = d && d.mode === 'designer' ? d.items.map((it) => ({ ...it })) : [];
     dzs.view = VIEWS.includes(st.view) ? st.view : 'front';
     dzs.sel = null;
+    dzs.area = {};
     dzRender();
     dz.showModal();
   }
@@ -1145,10 +1211,10 @@
     if (!d) return [];
     if (d.mode === 'designer') {
       return d.items.map((it) => {
-        const a = areaOf(it.view);
+        const a = areaOf(it.view, it.area);
         return [{
           view: PS_VIEW[it.view] || 'Front',
-          location: VIEW_NAME[it.view],
+          location: areaName(it.view, it.area),
           name: it.kind === 'text' ? `${it.view}-text.png` : it.name,
           kind: it.kind === 'text' ? 'text' : 'logo',
           text: it.kind === 'text' ? it.lines.join(' / ') : null,
