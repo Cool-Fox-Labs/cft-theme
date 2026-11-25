@@ -168,10 +168,9 @@
   // Studio draws garment fronts on the colour's own shop photo); back and
   // sleeves only while that view's own photo shows.
   const shownPhoto = (view) => photoFor(view) || (view === 'front' ? st.colour.img : null);
-  // A view can have several boxes (Front, Left chest, Right chest). The shop
-  // uses the widest one: its name is the print location sent to Print
-  // Studio (one print per side, Eddie 25/11/2026) and its inches set the
-  // scale. Where designs may go is the design area (frameOf).
+  // A view can have several boxes (Front, Left chest, Right chest). The
+  // widest sets the scale; each design's print location is the box it sits
+  // in (whereIdx). Where designs may go is the design area (frameOf).
   const viewOf = (view) => VIEW_LIST.find((x) => x.id === view);
   function mainIdx(v) {
     return v.ps.reduce((m, b, i) => (b.inW > v.ps[m].inW ? i : m), 0);
@@ -179,7 +178,27 @@
   function boxIdx(view, idx) {
     const v = viewOf(view);
     if (!v || !v.ps.length) return null;
-    return mainIdx(v);
+    return idx != null && v.ps[idx] ? idx : mainIdx(v);
+  }
+  // Which Print Studio box a design sits in, for naming and pricing its
+  // print on the quotation (Eddie, 25/11/2026): the smallest box holding
+  // the design's centre, so a logo inside Left Chest comes through as
+  // Left chest. Outside every box: the side's main box. Staff only;
+  // customers never see these boxes.
+  function whereIdx(it) {
+    const v = viewOf(it.view);
+    const shown = v && v.ps.length ? shownPhoto(it.view) : null;
+    if (!shown) return null;
+    const r = photoRatio(shown);
+    let best = null, bestA = Infinity;
+    v.ps.forEach((p, i) => {
+      const own = p.colours && p.colours[colourKey(st.colour.name)];
+      const b = toStage({ ...p, ...(own || {}) }, r);
+      if (!(b.w > 0 && b.h > 0)) return;
+      const inside = Math.abs(it.x - b.x) <= b.w / 2 && Math.abs(it.y - b.y) <= b.h / 2;
+      if (inside && b.w * b.h < bestA) { best = i; bestA = b.w * b.h; }
+    });
+    return best == null ? mainIdx(v) : best;
   }
   // The area's name for the quote and basket: Print Studio's box name
   // (it matches the print location in Print Studio), else the view's name.
@@ -1293,12 +1312,13 @@
     if (!d) return [];
     if (d.mode === 'designer') {
       return d.items.map((it) => {
-        // One print location per side: the side's main print area (Eddie,
-        // 25/11/2026), positions measured from it.
-        const a = areaOf(it.view);
+        // Print location: the Print Studio box the design sits in (Eddie,
+        // 25/11/2026), positions measured from that box.
+        const idx = whereIdx(it);
+        const a = areaOf(it.view, idx);
         return [{
           view: PS_VIEW[it.view] || 'Front',
-          location: areaName(it.view),
+          location: areaName(it.view, idx),
           name: it.kind === 'text' ? `${it.view}-text.png` : it.name,
           kind: it.kind === 'text' ? 'text' : 'logo',
           // Font, weight and colour too, so staff can retype it if needed.
