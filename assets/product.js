@@ -185,6 +185,20 @@
   // the design's centre, so a logo inside Left Chest comes through as
   // Left chest. Outside every box: the side's main box. Staff only;
   // customers never see these boxes.
+  // Print Studio's guide box (Eddie, 25/11/2026): one box per side, and the
+  // print is named from where the design sits, as Print Studio does
+  // (model.js autoLocation): small (chest logos max 4") and off-centre on
+  // the front is a chest print, the wearer's left on the right of the photo.
+  const guided = (view) => { const v = viewOf(view); return !HEADWEAR && (!v || !v.ps.length || v.ps.some((b) => b.guide)); };
+  function autoName(it) {
+    const a = areaOf(it.view);
+    const off = (it.x - a.x) / a.inch;
+    if (it.view === 'back') return 'Back';
+    if (it.view === 'ls') return 'Left Sleeve';
+    if (it.view === 'rs') return 'Right Sleeve';
+    if (it.w <= 4.25 && Math.abs(off) >= 1.5) return off > 0 ? 'Left Chest' : 'Right Chest';
+    return 'Front';
+  }
   function whereIdx(it) {
     const v = viewOf(it.view);
     const shown = v && v.ps.length ? shownPhoto(it.view) : null;
@@ -1314,11 +1328,12 @@
       return d.items.map((it) => {
         // Print location: the Print Studio box the design sits in (Eddie,
         // 25/11/2026), positions measured from that box.
-        const idx = whereIdx(it);
+        const g = guided(it.view);
+        const idx = g ? null : whereIdx(it);
         const a = areaOf(it.view, idx);
         return [{
           view: PS_VIEW[it.view] || 'Front',
-          location: areaName(it.view, idx),
+          location: g ? autoName(it) : areaName(it.view, idx),
           name: it.kind === 'text' ? `${it.view}-text.png` : it.name,
           kind: it.kind === 'text' ? 'text' : 'logo',
           // Font, weight and colour too, so staff can retype it if needed.
