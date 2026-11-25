@@ -403,7 +403,7 @@
     <div class="dz-body">
       <div class="dz-left">
       <div class="stage-p" data-stage="designer">
-        <p class="back-note" data-back-note hidden>{{ 'product.back_note' | t }}</p>
+        <p class="back-note" data-back-note data-front="{{ 'product.back_note' | t | escape }}" data-other="{{ 'product.other_colour_note' | t | escape }}" hidden>{{ 'product.back_note' | t }}</p>
         <div class="zoom" data-zoom>
           <img class="shirt" data-shirt src="{{ 'logo-fox-head.svg' | asset_url }}" width="500" height="600" alt="">
           <div data-placements></div>

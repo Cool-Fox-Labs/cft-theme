@@ -272,8 +272,23 @@
     // regenerated photos included), then the straight-on headwear photo
     // found by name in Files. No "default" - the colour's own photo is better.
     if (id === 'front') return own || st.colour.front || null;
-    return own || (v && v.images && v.images.default) || null;
+    return own || (v && v.images && v.images.default) || borrowed(id) || null;
   }
+  // Another colour's photo of this side, when the chosen colour has none
+  // (Eddie, 25/11/2026: TR010 has back and sleeve photos for Black Melange
+  // only, so the sleeve tabs showed the front photo). Shown with a note.
+  function borrowed(id) {
+    const v = VIEW_LIST.find((x) => x.id === id);
+    if (!v || !v.images) return null;
+    const k = Object.keys(v.images).find((n) => n !== 'default' && v.images[n]);
+    return k ? v.images[k] : null;
+  }
+  const isBorrowed = (id) => {
+    if (id === 'front') return false;
+    const v = VIEW_LIST.find((x) => x.id === id);
+    const im = (v && v.images) || {};
+    return !im[st.colour.name] && !im.default && !!borrowed(id);
+  };
 
   // A placed design: x and y are its centre as % of the photo, w its width in inches.
   function box(it) {
@@ -408,7 +423,11 @@
     }
     shirt.alt = `${D.title}, ${c.name}`;
     const note = q('[data-back-note]', stage);
-    if (note) note.hidden = view === 'front' || !!own;
+    if (note) {
+      const other = !plain && isBorrowed(view);
+      note.hidden = view === 'front' || (!!own && !other);
+      note.textContent = other ? note.dataset.other : note.dataset.front;
+    }
     placeAll(q('[data-placements]', stage), view, list, selUid, edit);
   }
 

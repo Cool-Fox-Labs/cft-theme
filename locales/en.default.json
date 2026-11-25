@@ -355,6 +355,7 @@
     "front": "Front",
     "back": "Back",
     "back_note": "Shown on the front photo, for size only",
+    "other_colour_note": "Shown in another colour, for position only",
     "ref_note": "Placement is a guide. We'll confirm exact print sizes and positions on your quotation.",
     "outside_warning": "Part of your design is outside the print area. Move it back inside or make it smaller.",
     "size_request_ask": "Need a specific print size? Tell us here",
