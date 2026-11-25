@@ -48,12 +48,15 @@
     (x/y the box centre, w/h its size, % of the photo; inW its real width in
     inches). The front's boxes apply on whichever front photo shows (Print
     Studio draws garment fronts on the colour's own photo); back and sleeves
-    only while that view's own photo shows. With several boxes on a side
-    (Front, Left Chest, Right Chest) the designer lists them all in its panel
-    with their sizes and the customer picks one; the widest is picked at
-    first. Each design keeps its box, and the basket sends that box's name
-    as the print location. The box is moved for the colour when listed, at
-    its real size, on a photo of any shape.
+    only while that view's own photo shows. The widest box on a side is
+    its print location: every design on that side is sent under its name
+    (one print per side), measured from it. The box is moved for the colour
+    when listed, at its real size, on a photo of any shape.
+    A view may also carry "shopArea" ({x, y, w, h, colours}, % of the photo,
+    no inches): Print Studio's "Shop design area", where customers may put
+    designs on that side. Without it the designer uses a box 14 wide by 16
+    tall in shape around the side's print areas. Customers don't see it; it
+    turns red with a message only when a design goes outside.
   - Metafield cft.print_sides (JSON list of "Front", "Back", "Left sleeve",
     "Right sleeve", set in Print Studio) hides the other sides' positions
     and views. Missing: headwear Front only, bags Front and Back, else all.
@@ -406,13 +409,17 @@
           <div data-placements></div>
         </div>
       </div>
+      <p class="dz-warn" data-dz-warn role="status" hidden>{{ 'product.outside_warning' | t }}</p>
       <p class="ref-note">{{ 'product.ref_note' | t }}</p>
       <div class="dz-views" role="group" aria-label="{{ 'product.view' | t }}" data-dz-views></div>
       </div>
       <div class="dz-side">
         <div class="dz-add" data-dz-add></div>
         <div class="dz-panel" data-dz-panel></div>
-        <p class="check-note">{{ 'product.check_note' | t }}</p>
+        <label class="dz-note">
+          <span class="field-label">{{ 'product.size_request_ask' | t }} <span class="opt">{{ 'product.optional' | t }}</span></span>
+          <textarea data-dz-note rows="2" maxlength="400" placeholder="{{ 'product.size_request_placeholder' | t }}"></textarea>
+        </label>
         <button type="button" class="pill pill-o dz-save-big" data-dz-save>{{ 'product.save_design' | t }}</button>
       </div>
     </div>
@@ -551,11 +558,8 @@
       "replace": {{ 'product.replace' | t | json }},
       "remove": {{ 'product.remove' | t | json }},
       "emptyPos": {{ 'product.empty_position' | t | json }},
-      "line1": {{ 'product.text_line1' | t | json }},
-      "line2": {{ 'product.text_line2' | t | json }},
       "font": {{ 'product.text_font' | t | json }},
       "colour": {{ 'product.text_colour' | t | json }},
-      "line3": {{ 'product.text_line3' | t | json }},
       "yourText": {{ 'product.your_text' | t | json }},
       "typeTextTitle": {{ 'product.type_text_title' | t | json }},
       "typeText": {{ 'product.type_text' | t | json }},
@@ -563,7 +567,11 @@
       "alignLeft": {{ 'product.align_left' | t | json }},
       "alignCentre": {{ 'product.align_centre' | t | json }},
       "alignRight": {{ 'product.align_right' | t | json }},
-      "customColour": {{ 'product.custom_colour' | t | json }},
+      "inkNames": {{ 'product.ink_names' | t | json }},
+      "bold": {{ 'product.text_bold' | t | json }},
+      "italic": {{ 'product.text_italic' | t | json }},
+      "enterHint": {{ 'product.text_enter_hint' | t | json }},
+      "sizeRequest": {{ 'product.size_request' | t | json }},
       "rotate": {{ 'product.rotate' | t | json }},
       "rotated": {{ 'product.rotated' | t: n: '%n' | json }},
       "vector": {{ 'product.check_vector' | t | json }},
@@ -575,8 +583,6 @@
       "chestLogo": {{ 'product.chest_logo' | t | json }},
       "chestTag": {{ 'product.chest_tag' | t | json }},
       "sizeLabel": {{ 'product.size_label' | t | json }},
-      "areaTag": {{ 'product.area_tag' | t | json }},
-      "areaUsed": {{ 'product.area_used' | t | json }},
       "addAnother": {{ 'product.add_another' | t | json }},
       "placement": {{ 'product.placement' | t | json }},
       "emptyView": {{ 'product.empty_view' | t | json }},

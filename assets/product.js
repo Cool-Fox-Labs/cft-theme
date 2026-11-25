@@ -152,7 +152,7 @@
   const listed = D.print && Array.isArray(D.print.views) ? D.print.views.filter((v) => v && v.id && (!HEADWEAR || v.id === 'front') && sideOk(v.id)) : [];
   const VIEW_LIST = ['front', ...listed.map((v) => v.id).filter((id) => id !== 'front')].map((id) => {
     const v = listed.find((x) => x.id === id) || {};
-    return { id, name: v.name || DEFAULT_NAME[id] || id, area: { ...(BASE_AREA[id] || BASE_AREA.front), ...(v.area || {}) }, images: v.images || null, ps: Array.isArray(v.psAreas) ? v.psAreas.filter((a) => a && a.w > 0 && a.h > 0 && a.inW > 0) : [] };
+    return { id, name: v.name || DEFAULT_NAME[id] || id, area: { ...(BASE_AREA[id] || BASE_AREA.front), ...(v.area || {}) }, images: v.images || null, ps: Array.isArray(v.psAreas) ? v.psAreas.filter((a) => a && a.w > 0 && a.h > 0 && a.inW > 0) : [], shop: v.shopArea && v.shopArea.w > 0 && v.shopArea.h > 0 ? v.shopArea : null };
   });
   const VIEWS = VIEW_LIST.map((v) => v.id);
   const AREAS = Object.fromEntries(VIEW_LIST.map((v) => [v.id, v.area]));
@@ -168,9 +168,10 @@
   // Studio draws garment fronts on the colour's own shop photo); back and
   // sleeves only while that view's own photo shows.
   const shownPhoto = (view) => photoFor(view) || (view === 'front' ? st.colour.img : null);
-  // A view can have several boxes (Front, Left chest, Right chest). The
-  // customer picks one in the designer's panel; idx is its place in psAreas.
-  // Without one (or a wrong one) it is the widest box, as before.
+  // A view can have several boxes (Front, Left chest, Right chest). The shop
+  // uses the widest one: its name is the print location sent to Print
+  // Studio (one print per side, Eddie 25/11/2026) and its inches set the
+  // scale. Where designs may go is the design area (frameOf).
   const viewOf = (view) => VIEW_LIST.find((x) => x.id === view);
   function mainIdx(v) {
     return v.ps.reduce((m, b, i) => (b.inW > v.ps[m].inW ? i : m), 0);
@@ -178,7 +179,7 @@
   function boxIdx(view, idx) {
     const v = viewOf(view);
     if (!v || !v.ps.length) return null;
-    return Number.isInteger(idx) && v.ps[idx] ? idx : mainIdx(v);
+    return mainIdx(v);
   }
   // The area's name for the quote and basket: Print Studio's box name
   // (it matches the print location in Print Studio), else the view's name.
@@ -243,20 +244,66 @@
 
   // A placed design: x and y are its centre as % of the photo, w its width in inches.
   function box(it) {
-    const { inch } = areaOf(it.view, it.area);
+    const { inch } = areaOf(it.view);
     const w = pw(it.w, inch);
     const h = ph(it.w / it.ratio, inch);
     return { left: it.x - w / 2, top: it.y - h / 2, w, h };
   }
-  // Keep a design inside its print area.
+  // The design area of a view (Eddie, 25/11/2026): one box per side where
+  // the customer may put designs, any number, anywhere inside. Customers
+  // don't see it; it turns red only when a design goes outside. Print
+  // Studio's "Shop design area" when set (views[].shopArea, % of the photo
+  // like psAreas), else a box 14 wide by 16 tall in shape around the side's
+  // print areas (Print Studio starts its own the same way). Headwear keeps
+  // its small print area. Returns { l, t, w, h } as % of the stage.
+  function frameOf(view) {
+    const v = viewOf(view);
+    const shown = v && (v.ps.length || v.shop) ? shownPhoto(view) : null;
+    const r = shown ? photoRatio(shown) : null;
+    const ck = colourKey(st.colour.name);
+    const own = (b) => ({ ...b, ...((b.colours && b.colours[ck]) || {}) });
+    if (shown && v.shop) {
+      const b = toStage(own(v.shop), r);
+      return { l: b.x - b.w / 2, t: b.y - b.h / 2, w: b.w, h: b.h };
+    }
+    let boxes;
+    if (shown && v.ps.length) boxes = v.ps.map((b) => toStage(own(b), r)).map((b) => ({ l: b.x - b.w / 2, t: b.y - b.h / 2, w: b.w, h: b.h }));
+    else {
+      const a = areaOf(view);
+      boxes = [{ l: a.x - pw(a.w, a.inch) / 2, t: a.y, w: pw(a.w, a.inch), h: ph(a.hb, a.inch) }];
+    }
+    if (HEADWEAR) return boxes[0];
+    const big = boxes.reduce((m, b) => (b.w * b.h > m.w * m.h ? b : m), boxes[0]);
+    const left = Math.min(...boxes.map((b) => b.l)), right = Math.max(...boxes.map((b) => b.l + b.w));
+    let w = Math.max(right - left, big.w);
+    let h = w * (16 / 14) * ASPECT;
+    if (h > 90) { w = (w * 90) / h; h = 90; }
+    w = Math.min(w, 96);
+    const x = Math.min(Math.max(big.l + big.w / 2, w / 2), 100 - w / 2);
+    const t = Math.max(2, Math.min(Math.min(...boxes.map((b) => b.t)), 98 - h));
+    return { l: x - w / 2, t, w, h };
+  }
+  // A design keeps to the garment photo and is never bigger than the design
+  // area; it can be moved outside the area, which shows the warning.
   function fit(it) {
-    const a = areaOf(it.view, it.area);
-    it.w = Math.max(1, Math.min(it.w, a.w, Math.min(a.h, a.hb) * it.ratio));
+    const a = areaOf(it.view);
+    const f = frameOf(it.view);
+    const maxW = Math.min(f.w / a.inch, (f.h / (a.inch * ASPECT)) * it.ratio);
+    it.w = Math.max(0.5, Math.min(it.w, maxW));
+    it.x = Math.min(Math.max(it.x, 0), 100);
+    it.y = Math.min(Math.max(it.y, 0), 100);
+  }
+  // Is any part of the design outside its design area? Worked out with the
+  // design's turn, in stage-width units (the stage is 5:6).
+  function outside(it) {
+    if (!it.src) return false;
+    const f = frameOf(it.view);
     const b = box(it);
-    const left = a.x - pw(a.w, a.inch) / 2;
-    const right = a.x + pw(a.w, a.inch) / 2;
-    it.x = Math.min(Math.max(it.x, left + b.w / 2), right - b.w / 2);
-    it.y = Math.min(Math.max(it.y, a.y + b.h / 2), a.y + ph(a.hb, a.inch) - b.h / 2);
+    const t = ((it.rot || 0) * Math.PI) / 180, c = Math.abs(Math.cos(t)), sn = Math.abs(Math.sin(t));
+    const hw = b.w / 2, hh = b.h / 2 / ASPECT;
+    const ex = c * hw + sn * hh, ey = sn * hw + c * hh;
+    const cx = it.x, cy = it.y / ASPECT, tol = 0.3;
+    return cx - ex < f.l - tol || cx + ex > f.l + f.w + tol || cy - ey < f.t / ASPECT - tol || cy + ey > (f.t + f.h) / ASPECT + tol;
   }
   // The print areas changed (another colour, or a photo arrived): keep every
   // design inside its area and redraw.
@@ -270,9 +317,8 @@
     }
   }
   const sizeLabel = (it) => fill(T.wxh, { w: half(it.w), h: half(it.w / it.ratio) });
-  const dragSize = (it) => `${half(it.w)} × ${half(it.w / it.ratio)}in`;
   function whereText(it) {
-    const a = areaOf(it.view, it.area);
+    const a = areaOf(it.view);
     const down = half((box(it).top - a.y) / (a.inch * ASPECT));
     const off = half((it.x - a.x) / a.inch);
     const side = Math.abs(off) < 0.5 ? T.centred : fill(off > 0 ? T.rightOf : T.leftOf, { n: Math.abs(off) });
@@ -284,12 +330,11 @@
   function placeAll(holder, view, list, selUid, edit) {
     holder.innerHTML = '';
     if (edit) {
-      const ai = curArea(view);
-      const a = areaOf(view, ai);
+      // The design area: hidden until a design goes outside it.
+      const f = frameOf(view);
       const area = make('div', 'area');
-      area.style.cssText = `left:${a.x - pw(a.w, a.inch) / 2}%;top:${a.y}%;width:${pw(a.w, a.inch)}%;height:${ph(a.hb, a.inch)}%`;
-      if (a.rot) area.style.transform = `rotate(${a.rot}deg)`;
-      area.append(make('span', 'ph-tag', viewOf(view).ps.length > 1 ? areaName(view, ai) : T.areaTag));
+      area.dataset.frame = '';
+      area.style.cssText = `left:${f.l}%;top:${f.t}%;width:${f.w}%;height:${f.h}%`;
       holder.append(area);
     }
     list.filter((it) => it.src && it.view === view).forEach((it) => {
@@ -502,19 +547,17 @@
     const d = st.design;
     if (!d) return [];
     if (d.mode === 'designer') {
-      const what = (it) => (it.kind === 'text' ? `${T.text}: "${it.lines.join(' / ')}" (${it.font}, ${it.ink.toUpperCase()})` : it.name);
-      // One line per print area (Front, Left chest...), sides in order.
-      const keyOf = (it) => `${it.view}|${boxIdx(it.view, it.area)}`;
-      const keys = [];
-      VIEWS.forEach((v) => d.items.filter((it) => it.view === v).forEach((it) => { if (!keys.includes(keyOf(it))) keys.push(keyOf(it)); }));
-      return keys.map((k) => {
-        const here = d.items.filter((it) => keyOf(it) === k);
-        const it0 = here[0];
+      // The customer sees the colour's name only; the studio also gets RGB.
+      const what = (it) => (it.kind === 'text' ? `${T.text}: "${it.lines.join(' / ')}" (${it.font}${styleOf(it)}, ${inkName(it.ink)})` : it.name);
+      const studio = (it) => (it.kind === 'text' ? `${T.text}: "${it.lines.join(' / ')}" (${textSpec(it)})` : it.name);
+      // One line per side (Front, Back...), in order.
+      return VIEWS.filter((v) => d.items.some((it) => it.view === v)).map((v) => {
+        const here = d.items.filter((it) => it.view === v);
         return {
-          name: viewOf(it0.view).ps.length > 1 ? areaName(it0.view, it0.area) : VIEW_NAME[it0.view],
+          name: VIEW_NAME[v],
           text: here.map(what).join('; '),
           // Studio only: hidden from the customer (underscore property).
-          detail: here.map((it) => `${what(it)} · ${sizeLabel(it)}, ${whereText(it)}${it.rot ? ', ' + fill(T.rotated, { n: it.rot }) : ''}`).join('; '),
+          detail: here.map((it) => `${studio(it)} · ${sizeLabel(it)}, ${whereText(it)}${it.rot ? ', ' + fill(T.rotated, { n: it.rot }) : ''}`).join('; '),
         };
       });
     }
@@ -545,6 +588,11 @@
     if (d.mode === 'files' && d.note) {
       const li = make('li');
       li.append(make('b', '', T.note), make('span', '', d.note));
+      list.append(li);
+    }
+    if (d.mode === 'designer' && d.note) {
+      const li = make('li');
+      li.append(make('b', '', T.sizeRequest), make('span', '', d.note));
       list.append(li);
     }
   }
@@ -667,20 +715,29 @@
   /* ---------- designer pop-up ---------- */
 
   const dz = q('[data-designer]');
-  const dzs = { view: 'front', sel: null, items: [], area: {} };
+  const dzs = { view: 'front', sel: null, items: [], note: '' };
 
   // Text fonts (Google Fonts, free to print with), loaded the first time
-  // someone adds text. [family, weight]
+  // someone adds text. [family, starting weight, what Google has of it]
   const FONTS = [
-    ['Anton', 400], ['Bebas Neue', 400], ['Oswald', 700], ['Archivo Black', 400],
-    ['Graduate', 400], ['Black Ops One', 400], ['Permanent Marker', 400], ['Pacifico', 400],
-    ['Lobster', 400], ['Playfair Display', 700], ['Roboto Slab', 700], ['Montserrat', 700],
+    ['Anton', 400, 'wght@400'], ['Bebas Neue', 400, 'wght@400'], ['Oswald', 700, 'wght@400;700'], ['Archivo Black', 400, 'wght@400'],
+    ['Graduate', 400, 'wght@400'], ['Black Ops One', 400, 'wght@400'], ['Permanent Marker', 400, 'wght@400'], ['Pacifico', 400, 'wght@400'],
+    ['Lobster', 400, 'wght@400'], ['Playfair Display', 700, 'ital,wght@0,400;0,700;1,400;1,700'], ['Roboto Slab', 700, 'wght@400;700'], ['Montserrat', 700, 'ital,wght@0,400;0,700;1,400;1,700'],
   ];
+  // Text colours: a short list of named colours only, no picker and no
+  // codes, so nothing needs colour matching (Eddie, 25/11/2026). Print
+  // Studio gets the RGB too.
   const SWATCHES = ['#FFFFFF', '#1D1D1B', '#C8102E', '#1F2A44', '#0057B8', '#EB7024', '#FFD100', '#00843D', '#E56DB1', '#8A8D8F', '#B3A369', '#5F259F'];
+  const INK_NAMES = String(T.inkNames || '').split(',').map((n) => n.trim());
+  const inkName = (hex) => INK_NAMES[SWATCHES.findIndex((x) => x.toLowerCase() === String(hex).toLowerCase())] || String(hex).toUpperCase();
+  const rgbOf = (hex) => { const n = parseInt(String(hex).slice(1), 16); return `RGB ${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}`; };
+  const styleOf = (it) => `${it.weight >= 700 ? ' ' + WEIGHT[700] : ''}${it.italic ? ' ' + T.italic : ''}`;
+  // For Print Studio: font, style, colour name with RGB, and alignment.
+  const textSpec = (it) => `${it.font}${styleOf(it)}, ${inkName(it.ink)} ${rgbOf(it.ink)}${it.lines.length > 1 ? ', ' + ({ left: T.alignLeft, center: T.alignCentre, right: T.alignRight }[it.align] || '').toLowerCase() : ''}`;
   let fontsReady;
   function loadFonts() {
     if (!fontsReady) {
-      const families = FONTS.map(([f, w]) => `family=${f.replace(/ /g, '+')}:wght@${w}`).join('&');
+      const families = FONTS.map(([f, , spec]) => `family=${f.replace(/ /g, '+')}:${spec}`).join('&');
       const link = make('link');
       link.rel = 'stylesheet';
       link.href = `https://fonts.googleapis.com/css2?${families}&display=swap`;
@@ -695,7 +752,7 @@
   // (Eddie, 22/11/2026: the faded version looked broken); Save asks for the
   // real text instead.
   async function drawText(item) {
-    item.placeholder = !item.lines.length;
+    item.placeholder = !item.lines.some((l) => l.trim());
     const lines = item.placeholder ? [T.yourText] : item.lines;
     Object.assign(item, await textImage(item, lines, 160));
   }
@@ -704,13 +761,13 @@
   // 1.25x). 160 is the on-screen preview; textForPrint redraws it bigger.
   async function textImage(item, lines, size) {
     await loadFonts();
-    const font = `${item.weight} ${size}px "${item.font}"`;
+    const font = `${item.italic ? 'italic ' : ''}${item.weight} ${size}px "${item.font}"`;
     try { await document.fonts.load(font, lines.join('')); } catch (e) { /* draw with whatever has loaded */ }
     const cv = make('canvas');
     const cx = cv.getContext('2d');
     cx.font = font;
     const pad = Math.ceil(size / 8), pitch = size * 1.25;
-    cv.width = Math.ceil(Math.max(...lines.map((l) => cx.measureText(l).width))) + pad * 2;
+    cv.width = Math.ceil(Math.max(1, ...lines.map((l) => cx.measureText(l).width))) + pad * 2 + (item.italic ? Math.ceil(size / 4) : 0);
     cv.height = Math.ceil(lines.length * pitch + pad * 2);
     cx.font = font;
     cx.fillStyle = item.ink;
@@ -779,14 +836,15 @@
     return row;
   }
 
+  // Text works like a text editor (Eddie, 25/11/2026): one box to type in,
+  // Enter for a new line, and a toolbar with font, bold, italic and
+  // left/centre/right. Then a few named colours.
   function textForm(item) {
     const form = make('div', 'text-design');
-    const field = (label, el, cls) => { const l = make('label', cls || '', label); l.append(el); form.append(l); return el; };
-    const line = (label, i) => field(label, Object.assign(make('input'), { type: 'text', maxLength: 30, value: item.lines[i] || '', placeholder: i === 0 ? T.yourText : '' }), 'wide');
-    const l1 = line(T.line1, 0);
-    const l2 = line(T.line2, 1);
-    const l3 = line(T.line3, 2);
+    const ed = make('div', 'text-ed wide');
+    const bar = make('div', 'text-bar');
     const fontSel = make('select');
+    fontSel.setAttribute('aria-label', T.font);
     FONTS.forEach(([f]) => {
       const o = make('option', '', f);
       o.value = f;
@@ -794,50 +852,67 @@
       o.selected = f === item.font;
       fontSel.append(o);
     });
-    field(T.font, fontSel, 'wide');
+    const tool = (label, title, on) => {
+      const b = make('button', 'tb', label);
+      b.type = 'button';
+      b.title = title;
+      b.setAttribute('aria-label', title);
+      b.addEventListener('click', on);
+      return b;
+    };
+    const bold = tool('B', T.bold, () => { item.weight = item.weight >= 700 ? 400 : 700; update(); });
+    bold.classList.add('tb-b');
+    const ital = tool('I', T.italic, () => { item.italic = !item.italic; update(); });
+    ital.classList.add('tb-i');
+    const lines = (d) => `<svg width="16" height="14" viewBox="0 0 16 14" aria-hidden="true"><path d="${d}" stroke="currentColor" stroke-width="2"/></svg>`;
+    const aligns = [['left', T.alignLeft, 'M1 2h14M1 7h9M1 12h12'], ['center', T.alignCentre, 'M1 2h14M4 7h8M2 12h12'], ['right', T.alignRight, 'M1 2h14M6 7h9M3 12h12']].map(([v, t, d]) => {
+      const b = tool('', t, () => { item.align = v; update(); });
+      b.innerHTML = lines(d);
+      b.dataset.align = v;
+      return b;
+    });
+    bar.append(fontSel, make('span', 'tb-sep'), bold, ital, make('span', 'tb-sep'), ...aligns);
+    const box = make('textarea');
+    box.rows = 3;
+    box.maxLength = 300;
+    box.placeholder = T.yourText;
+    box.setAttribute('aria-label', T.yourText);
+    box.value = item.lines.join('\n');
+    ed.append(bar, box);
+    const el = make('div', 'wide');
+    el.append(make('span', 'field-label', T.yourText), ed, make('span', 'text-hint', T.enterHint));
+    form.append(el);
 
     const colours = make('div', 'ink-row');
-    const picker = Object.assign(make('input'), { type: 'color', value: item.ink });
-    picker.setAttribute('aria-label', T.customColour);
+    const inkLabel = make('span', 'ink-name');
     SWATCHES.forEach((hex) => {
       const b = make('button', 'ink');
       b.type = 'button';
       b.style.setProperty('--c', hex);
-      b.setAttribute('aria-label', hex);
-      b.setAttribute('aria-pressed', String(hex.toLowerCase() === item.ink.toLowerCase()));
-      b.addEventListener('click', () => { picker.value = hex; update(); });
+      b.dataset.ink = hex;
+      b.title = inkName(hex);
+      b.setAttribute('aria-label', inkName(hex));
+      b.addEventListener('click', () => { item.ink = hex; update(); });
       colours.append(b);
     });
-    const pl = make('label', 'ink-custom', T.customColour);
-    pl.prepend(picker);
-    colours.append(pl);
     const cl = make('div', 'wide');
-    cl.append(make('span', 'field-label', T.colour), colours);
+    const head = make('span', 'field-label', T.colour + ': ');
+    head.append(inkLabel);
+    cl.append(head, colours);
     form.append(cl);
-
-    const align = make('div', 'align-row');
-    [['left', T.alignLeft], ['center', T.alignCentre], ['right', T.alignRight]].forEach(([v, t]) => {
-      const b = make('button', '', t);
-      b.type = 'button';
-      b.dataset.align = v;
-      b.setAttribute('aria-pressed', String(item.align === v));
-      b.addEventListener('click', () => { item.align = v; update(); });
-      align.append(b);
-    });
-    const al = make('div', 'wide');
-    al.append(make('span', 'field-label', T.align), align);
-    form.append(al);
 
     let busy = Promise.resolve();
     function update() {
-      Object.assign(item, {
-        lines: [l1.value.trim(), l2.value.trim(), l3.value.trim()].filter(Boolean),
-        font: fontSel.value,
-        weight: (FONTS.find(([f]) => f === fontSel.value) || FONTS[0])[1],
-        ink: picker.value,
-      });
-      qa('.ink', colours).forEach((b) => b.setAttribute('aria-pressed', String(b.getAttribute('aria-label').toLowerCase() === item.ink.toLowerCase())));
-      qa('[data-align]', align).forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.align === item.align)));
+      const font = fontSel.value;
+      if (font !== item.font) Object.assign(item, { font, weight: (FONTS.find(([f]) => f === font) || FONTS[0])[1] });
+      // Spaces at the ends of lines and empty lines at the end are dropped.
+      item.lines = box.value.replace(/\s+$/, '').split('\n').map((l) => l.replace(/\s+$/, '')).slice(0, 12);
+      if (!item.lines.some((l) => l.trim())) item.lines = [];
+      bold.setAttribute('aria-pressed', String(item.weight >= 700));
+      ital.setAttribute('aria-pressed', String(!!item.italic));
+      aligns.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.align === item.align)));
+      qa('.ink', colours).forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.ink.toLowerCase() === item.ink.toLowerCase())));
+      inkLabel.textContent = inkName(item.ink);
       busy = busy.then(async () => {
         await drawText(item);
         fit(item);
@@ -846,26 +921,31 @@
         dzInfo();
       });
     }
-    [l1, l2, l3, fontSel, picker].forEach((el) => el.addEventListener('input', update));
+    box.addEventListener('input', update);
+    fontSel.addEventListener('change', update);
+    // The buttons show their state straight away; nothing is redrawn yet.
+    bold.setAttribute('aria-pressed', String(item.weight >= 700));
+    ital.setAttribute('aria-pressed', String(!!item.italic));
+    aligns.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.align === item.align)));
+    qa('.ink', colours).forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.ink.toLowerCase() === item.ink.toLowerCase())));
+    inkLabel.textContent = inkName(item.ink);
     return form;
   }
 
   const selected = () => dzs.items.find((it) => it.uid === dzs.sel);
-  // The area being worked on for a view (dzs.area), else the widest.
-  const curArea = (view) => boxIdx(view, dzs.area[view]);
-  // Selecting a design also shows its own print area.
   function pick(it) {
     dzs.sel = it.uid;
-    if (it.area != null) dzs.area[it.view] = it.area;
   }
   let uidN = 0;
   const uid = () => 'd' + Date.now().toString(36) + (uidN++);
 
-  // A new design starts in the middle of the print area at 60% of its width.
+  // A new design starts centred in the design area at 60% of its width,
+  // in the upper part (lower down when the side already has a design).
   async function place(it) {
-    const ai = curArea(dzs.view);
-    const a = areaOf(dzs.view, ai);
-    Object.assign(it, { uid: uid(), view: dzs.view, area: ai, w: a.w * 0.6, x: a.x, y: a.y + ph(a.hb, a.inch) / 2 });
+    const a = areaOf(dzs.view);
+    const f = frameOf(dzs.view);
+    const more = dzs.items.some((x) => x.view === dzs.view && x.src);
+    Object.assign(it, { uid: uid(), view: dzs.view, w: (f.w / a.inch) * 0.6, x: f.l + f.w / 2, y: f.t + f.h * (more ? 0.68 : 0.32) });
     if (it.kind === 'text') await drawText(it);
     fit(it);
     dzs.items.push(it);
@@ -886,36 +966,6 @@
     const panel = q('[data-dz-panel]', dz);
     panel.innerHTML = '';
     panel.append(make('h3', '', VIEW_NAME[dzs.view]));
-    // Every print area of this side, with its size: tap one to work on it.
-    // A tick shows the areas that already have a design (Eddie, 24/11/2026).
-    const pv = viewOf(dzs.view);
-    if (pv && pv.ps.length) {
-      const cur = curArea(dzs.view);
-      const list = make('div', 'dz-areas');
-      pv.ps.forEach((b, i) => {
-        const btn = make('button', 'dz-area');
-        btn.type = 'button';
-        btn.setAttribute('aria-pressed', String(i === cur));
-        const used = dzs.items.some((it) => it.view === dzs.view && it.src && boxIdx(it.view, it.area) === i);
-        const size = b.inH > 0 ? `${half(b.inW)} × ${half(b.inH)}in` : fill(T.inches, { w: half(b.inW) });
-        btn.append(make('span', 'dz-area-name', b.name || VIEW_NAME[dzs.view]), make('span', 'dz-area-size', size));
-        if (used) {
-          const tick = make('span', 'dz-area-tick', '\u2713');
-          tick.setAttribute('aria-label', T.areaUsed);
-          btn.append(tick);
-        }
-        btn.addEventListener('click', () => {
-          dzs.area[dzs.view] = i;
-          const first = dzs.items.find((it) => it.view === dzs.view && boxIdx(it.view, it.area) === i);
-          dzs.sel = first ? first.uid : null;
-          dzStage();
-          dzPanel();
-        });
-        list.append(btn);
-      });
-      panel.append(list);
-    }
-
     const here = dzs.items.filter((it) => it.view === dzs.view);
     if (!here.length) { panel.append(make('p', 'muted', T.emptyView)); return; }
     if (here.length > 1) {
@@ -1001,6 +1051,15 @@
 
   function dzStage() {
     drawStage(q('[data-stage="designer"]', dz), dzs.view, dzs.items, dzs.sel, true);
+    dzWarn();
+  }
+  // A design outside the design area: the area shows in red with a message
+  // (Eddie, 25/11/2026). Saving still works; we check it on the quotation.
+  function dzWarn() {
+    const out = dzs.items.some((it) => it.view === dzs.view && outside(it));
+    const frame = q('[data-stage="designer"] [data-frame]', dz);
+    if (frame) frame.classList.toggle('out', out);
+    q('[data-dz-warn]', dz).hidden = !out;
   }
 
   function dzRender() {
@@ -1030,9 +1089,10 @@
     const mid = () => { const r = node().getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; };
     const angle = (x, y) => { const m = mid(); return (Math.atan2(y - m.y, x - m.x) * 180) / Math.PI; };
     const a0 = turn ? angle(e.clientX, e.clientY) : 0;
-    const label = () => (turn ? `${it.rot || 0}°` : dragSize(it));
+    // Only turning shows a label (its angle); sizes are agreed on the quotation.
+    const label = () => `${it.rot || 0}°`;
     const tag = make('span', 'ph-tag', label());
-    node().append(tag);
+    if (turn) node().append(tag);
     const move = (ev) => {
       const dx = ((ev.clientX - start.cx) / rect.width) * 100;
       const dy = ((ev.clientY - start.cy) / rect.height) * 100;
@@ -1044,18 +1104,19 @@
         it.rot = r === -180 ? 180 : r;
         node().style.transform = it.rot ? `rotate(${it.rot}deg)` : '';
         tag.textContent = label();
+        dzWarn();
         return;
       }
       if (resize) {
-        const { inch } = areaOf(it.view, it.area);
+        const { inch } = areaOf(it.view);
         it.w = start.w + Math.max((dx * 2) / inch, ((dy * 2) / (inch * ASPECT)) * it.ratio);
       }
       else { it.x = start.x + dx; it.y = start.y + dy; }
       fit(it);
       const b = box(it);
       Object.assign(node().style, { left: b.left + '%', top: b.top + '%', width: b.w + '%', height: b.h + '%' });
-      tag.textContent = label();
       dzInfo();
+      dzWarn();
     };
     const up = () => {
       tag.remove();
@@ -1074,7 +1135,8 @@
     dzs.items = d && d.mode === 'designer' ? d.items.map((it) => ({ ...it })) : [];
     dzs.view = VIEWS.includes(st.view) ? st.view : 'front';
     dzs.sel = null;
-    dzs.area = {};
+    dzs.note = d && d.mode === 'designer' ? d.note || '' : '';
+    q('[data-dz-note]', dz).value = dzs.note;
     dzRender();
     dz.showModal();
   }
@@ -1087,12 +1149,13 @@
       dzs.view = blank.view;
       dzs.sel = blank.uid;
       dzRender();
-      popup(T.typeTextTitle, T.typeText, () => { const f = q('.text-design input', dz); if (f) f.focus(); });
+      popup(T.typeTextTitle, T.typeText, () => { const f = q('.text-design textarea', dz); if (f) f.focus(); });
       return;
     }
     // Text that was never typed is left out.
     const items = dzs.items.filter((it) => it.src && !it.placeholder);
-    st.design = items.length ? { mode: 'designer', items } : null;
+    const note = q('[data-dz-note]', dz).value.trim().slice(0, 400);
+    st.design = items.length ? { mode: 'designer', items, ...(note ? { note } : {}) } : null;
     st.view = dzs.view === 'back' ? 'back' : 'front';
     st.photo = null;
     dz.close();
@@ -1230,14 +1293,16 @@
     if (!d) return [];
     if (d.mode === 'designer') {
       return d.items.map((it) => {
-        const a = areaOf(it.view, it.area);
+        // One print location per side: the side's main print area (Eddie,
+        // 25/11/2026), positions measured from it.
+        const a = areaOf(it.view);
         return [{
           view: PS_VIEW[it.view] || 'Front',
-          location: areaName(it.view, it.area),
+          location: areaName(it.view),
           name: it.kind === 'text' ? `${it.view}-text.png` : it.name,
           kind: it.kind === 'text' ? 'text' : 'logo',
           // Font, weight and colour too, so staff can retype it if needed.
-          text: it.kind === 'text' ? `${it.lines.join(' / ')} (${it.font} ${WEIGHT[it.weight] || it.weight}, ${it.ink.toUpperCase()})` : null,
+          text: it.kind === 'text' ? `${it.lines.join(' / ')} (${textSpec(it)})` : null,
           widthIn: tenth(it.w),
           topIn: tenth((box(it).top - a.y) / (a.inch * ASPECT)),
           fromCentreIn: tenth((it.x - a.x) / a.inch),
@@ -1336,6 +1401,7 @@
         if (r.detail) props[`_${r.name} ${T.placement}`] = r.detail;
       });
       if (design && design.mode === 'files' && design.note) props[T.note] = design.note;
+      if (design && design.mode === 'designer' && design.note) props[T.sizeRequest] = design.note;
       // The first size carries the artwork files (they need a file upload).
       const first = new FormData();
       first.append('id', want[0].id);
