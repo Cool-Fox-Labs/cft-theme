@@ -461,8 +461,8 @@
   if (colourToggle && COLOURS.length < 2) colourToggle.disabled = true;
   if (colourToggle) colourToggle.addEventListener('click', () => openColours(colourToggle.getAttribute('aria-expanded') !== 'true'));
 
-  function swatches() {
-    const box = q('[data-swatches]');
+  // The colour list: on the page, and in the design window.
+  function colourList(box, pick) {
     box.innerHTML = '';
     COLOURS.forEach((c) => {
       const b = make('button');
@@ -471,15 +471,21 @@
       const dot = make('span', 'cp-dot');
       paintDot(dot, c);
       b.append(dot, make('span', 'cl-name', c.name));
-      b.addEventListener('click', () => {
-        openColours(false);
-        st.colour = c;
-        st.photo = null;
-        const d = st.design;
-        if (d && d.mode === 'designer') d.items.forEach(fit);
-        render();
-      });
+      b.addEventListener('click', () => pick(c));
       box.append(b);
+    });
+  }
+  function setColour(c) {
+    st.colour = c;
+    st.photo = null;
+    const d = st.design;
+    if (d && d.mode === 'designer') d.items.forEach(fit);
+  }
+  function swatches() {
+    colourList(q('[data-swatches]'), (c) => {
+      openColours(false);
+      setColour(c);
+      render();
     });
   }
 
@@ -1136,7 +1142,33 @@
     q('[data-dz-warn]', dz).hidden = !out;
   }
 
+  // Colour inside the design window (Eddie, 26/11/2026): swaps the garment
+  // photo on every side, keeps the designs, and changes the page's colour too.
+  const dzColBtn = q('[data-dz-colour-toggle]', dz);
+  const dzColList = q('[data-dz-swatches]', dz);
+  function dzColourOpen(on) {
+    if (!dzColBtn || !dzColList) return;
+    dzColList.hidden = !on;
+    dzColBtn.setAttribute('aria-expanded', String(on));
+  }
+  function dzColour() {
+    if (!dzColBtn) return;
+    dzColBtn.disabled = COLOURS.length < 2;
+    q('[data-dz-colour-name]', dz).textContent = st.colour.name;
+    paintDot(q('[data-dz-colour-dot]', dz), st.colour);
+    if (dzColList.hidden) return;
+    colourList(dzColList, (c) => {
+      dzColourOpen(false);
+      setColour(c);
+      dzs.items.forEach(fit);
+      render();
+      dzRender();
+    });
+  }
+  if (dzColBtn) dzColBtn.addEventListener('click', () => { dzColourOpen(dzColBtn.getAttribute('aria-expanded') !== 'true'); dzColour(); });
+
   function dzRender() {
+    dzColour();
     dzThumbs();
     dzAdd();
     dzStage();
@@ -1211,6 +1243,7 @@
     dzs.sel = uid && dzs.items.some((it) => it.uid === uid) ? uid : null;
     dzs.note = d && d.mode === 'designer' ? d.note || '' : '';
     q('[data-dz-note]', dz).value = dzs.note;
+    dzColourOpen(false);
     dzRender();
     dz.showModal();
   }
