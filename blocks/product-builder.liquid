@@ -421,6 +421,12 @@
       <div class="dz-views" role="group" aria-label="{{ 'product.view' | t }}" data-dz-views></div>
       </div>
       <div class="dz-side">
+        <div class="dz-colour">
+          <button type="button" class="colour-pick" data-dz-colour-toggle aria-expanded="false" aria-controls="dz-colour-list">
+            <span class="cp-dot" data-dz-colour-dot></span><b data-dz-colour-name></b><span class="cp-hint">{{ 'product.colour_change' | t }}</span><span class="cp-chev" aria-hidden="true"></span>
+          </button>
+          <div class="swatches colour-list" id="dz-colour-list" data-dz-swatches hidden></div>
+        </div>
         <div class="dz-add" data-dz-add></div>
         <div class="dz-panel" data-dz-panel></div>
         <label class="dz-note">
