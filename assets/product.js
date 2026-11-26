@@ -5,11 +5,33 @@
  * as line item properties. Reads its data from the JSON the
  * product-builder block writes.
  */
-(() => {
+(async () => {
   const root = document.getElementById('pdp');
   const dataEl = document.querySelector('[data-pdp-data]');
   if (!root || !dataEl) return;
   const D = JSON.parse(dataEl.textContent);
+  // Liquid lists 250 variants at most; fetch the rest (templates/
+  // product.variants.liquid), 250 a page, so no colour goes missing.
+  // A colour with no photo of its own takes the page's fallback photo.
+  if (D.variantCount > D.variants.length && D.handle) {
+    const fall = D.variants.find((v) => !v.own && v.img) || {};
+    const pages = Math.ceil(D.variantCount / 250);
+    const more = await Promise.all(Array.from({ length: pages - 1 }, (_, i) =>
+      fetch(`/products/${encodeURIComponent(D.handle)}?view=variants&page=${i + 2}`)
+        .then((r) => (r.ok ? r.json() : []))
+        .catch(() => [])));
+    const seen = new Set(D.variants.map((v) => v.id));
+    more.flat().forEach((v) => {
+      if (seen.has(v.id)) return;
+      seen.add(v.id);
+      D.variants.push(v.img ? v : { ...v, img: fall.img || null, thumb: fall.thumb || null });
+    });
+  }
+  // Extra photos under the main one: never a colour's own photo (those
+  // showed as loose thumbnails without the design).
+  const bare = (u) => String(u || '').split('?')[0];
+  const variantPics = new Set(D.variants.filter((v) => v.own).map((v) => bare(v.img)));
+  D.extras = (D.extras || []).filter((x) => !variantPics.has(bare(x.img)));
   // Shopify's t filter HTML-escapes text (' becomes &#39;), and these
   // strings are shown with textContent, so turn the entities back first.
   const unescape = (v) => { const el = document.createElement('textarea'); el.innerHTML = v; return el.value; };
@@ -588,6 +610,9 @@
         const here = d.items.filter((it) => it.view === v);
         return {
           name: VIEW_NAME[v],
+          view: v,
+          uid: here[0].uid,
+          pics: here.map((it) => it.src).filter(Boolean),
           text: here.map(what).join('; '),
           // Studio only: hidden from the customer (underscore property).
           detail: here.map((it) => `${studio(it)} · ${sizeLabel(it)}, ${whereText(it)}${it.rot ? ', ' + fill(T.rotated, { n: it.rot }) : ''}`).join('; '),
@@ -596,8 +621,9 @@
     }
     const out = [];
     POS.forEach((p) => {
-      const parts = d.files.filter((f) => p.id in f.at).map((f) => `${f.name} · ${sizeText(p, sizeOf(f.at[p.id]))}`);
-      if (parts.length) out.push({ name: p.name, text: parts.join('; ') });
+      const here = d.files.filter((f) => p.id in f.at);
+      const parts = here.map((f) => `${f.name} · ${sizeText(p, sizeOf(f.at[p.id]))}`);
+      if (parts.length) out.push({ name: p.name, pics: here.map((f) => f.thumb).filter(Boolean), text: parts.join('; ') });
     });
     return out;
   }
@@ -613,9 +639,24 @@
     if (!d) return;
     const head = make('li', 'head', d.mode === 'designer' ? T.designedOnline : T.filesSent);
     list.append(head);
+    // Each side's row opens the design window on that side with its design
+    // picked, ready to move (Eddie, 26/11/2026).
     describe().forEach((row) => {
-      const li = make('li');
-      li.append(make('b', '', row.name), make('span', '', row.text));
+      const li = make('li', 'pick');
+      li.tabIndex = 0;
+      li.setAttribute('role', 'button');
+      li.setAttribute('aria-label', fill(T.editSide, { side: row.name }));
+      const pics = make('i', 'pics');
+      (row.pics || []).slice(0, 3).forEach((src) => {
+        const img = make('img');
+        img.src = src;
+        img.alt = '';
+        pics.append(img);
+      });
+      li.append(make('b', '', row.name), pics, make('span', '', row.text), make('em', 'go', '›'));
+      const open = () => (d.mode === 'designer' ? openDesigner(row.view, row.uid) : openFiles());
+      li.addEventListener('click', open);
+      li.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } });
       list.append(li);
     });
     if (d.mode === 'files' && d.note) {
@@ -1163,11 +1204,11 @@
     window.addEventListener('pointercancel', up);
   });
 
-  function openDesigner() {
+  function openDesigner(view, uid) {
     const d = st.design;
     dzs.items = d && d.mode === 'designer' ? d.items.map((it) => ({ ...it })) : [];
-    dzs.view = VIEWS.includes(st.view) ? st.view : 'front';
-    dzs.sel = null;
+    dzs.view = VIEWS.includes(view) ? view : VIEWS.includes(st.view) ? st.view : 'front';
+    dzs.sel = uid && dzs.items.some((it) => it.uid === uid) ? uid : null;
     dzs.note = d && d.mode === 'designer' ? d.note || '' : '';
     q('[data-dz-note]', dz).value = dzs.note;
     dzRender();
