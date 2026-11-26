@@ -1,0 +1,38 @@
+{%- comment -%}
+  Variants past the first 250, as JSON, for the product page builder.
+  Liquid's product.variants stops at 250, so products with more (TR010,
+  JH001, JC001...) lost whole colours (Eddie, 26/11/2026).
+  product.js fetches /products/<handle>?view=variants&page=2 (and on), 250 a page.
+  Same fields as the builder's own variant list; "img" is the variant's own
+  photo only (product.js uses the colour's fallback when it is null).
+{%- endcomment -%}
+{%- layout none -%}
+{%- liquid
+  assign colour_i = 0
+  assign size_i = 1
+  for option in product.options_with_values
+    assign n = option.name | downcase
+    if n == 'colour' or n == 'color'
+      assign colour_i = forloop.index0
+    elsif n == 'size'
+      assign size_i = forloop.index0
+    endif
+  endfor
+-%}
+{%- paginate product.variants by 250 -%}
+[
+  {%- for variant in product.variants -%}
+    {%- assign img = variant.featured_image -%}
+    {
+      "id": {{ variant.id | json }},
+      "colour": {{ variant.options[colour_i] | json }},
+      "size": {{ variant.options[size_i] | json }},
+      "available": {{ variant.available | json }},
+      "max": {% if variant.inventory_management == 'shopify' and variant.inventory_policy == 'deny' %}{{ variant.inventory_quantity | at_least: 0 | json }}{% else %}null{% endif %},
+      "img": {% if img %}{{ img | image_url: width: 1000 | json }}{% else %}null{% endif %},
+      "thumb": {% if img %}{{ img | image_url: width: 160 | json }}{% else %}null{% endif %},
+      "own": {% if img %}true{% else %}false{% endif %}
+    }{% unless forloop.last %},{% endunless %}
+  {%- endfor -%}
+]
+{%- endpaginate -%}

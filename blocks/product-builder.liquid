@@ -525,6 +525,7 @@
         {%- endunless -%}{%- endif -%}
       {%- endfor -%}
     ],
+    "variantCount": {{ product.variants_count | json }},
     "variants": [
       {%- for variant in product.variants -%}
         {%- assign img = variant.featured_image | default: fallback_image -%}
@@ -603,6 +604,7 @@
       "removeFile": {{ 'product.remove_file' | t | json }},
       "needPosition": {{ 'product.need_position' | t | json }},
       "designedOnline": {{ 'product.designed_online' | t | json }},
+      "editSide": {{ 'product.edit_side' | t | json }},
       "filesSent": {{ 'product.files_sent' | t | json }},
       "text": {{ 'product.text_design' | t | json }},
       "note": {{ 'product.note' | t | json }},

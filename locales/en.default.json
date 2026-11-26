@@ -430,6 +430,7 @@
     "remove_file": "Remove",
     "need_position": "Tick at least one position for each file.",
     "designed_online": "Designed online",
+    "edit_side": "Edit %side design",
     "files_sent": "Files received, we'll place them for you",
     "text_design": "Text",
     "note": "Note",
