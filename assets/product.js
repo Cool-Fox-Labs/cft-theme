@@ -100,7 +100,13 @@
     'green': '#2f8a4a', 'kelly green': '#1f9a4b', 'bottle green': '#1e4733', 'forest green': '#244a34', 'forest': '#244a34', 'olive': '#6b6b3a', 'military green': '#55583a', 'khaki green': '#6d6a47', 'lime': '#9ccc3b', 'mint': '#b6e2c8', 'sage': '#a3b69a', 'apple green': '#7fbf3f', 'emerald': '#14845a',
     'purple': '#5f3a8a', 'lilac': '#c3a9d8', 'lavender': '#bfaedb', 'violet': '#6b4aa0',
   };
+  // First the supplier's own code for the colour name (colour-hex.js, made from
+  // the supplier catalogue by cft-shopify scripts/build_colour_hex.py); two-tone
+  // names ("Black/Red") use the first colour. Then a guess from the words.
+  const SUPPLIER_HEX = window.CFT_COLOUR_HEX || {};
+  const ckey = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
   const namedHex = (name) => {
+    for (const p of [name, ...String(name || '').split('/')]) if (SUPPLIER_HEX[ckey(p)]) return SUPPLIER_HEX[ckey(p)];
     const n = String(name || '').toLowerCase().replace(/\s+/g, ' ').trim();
     if (NAMED[n]) return NAMED[n];
     const key = Object.keys(NAMED).filter((k) => n.includes(k)).sort((a, b) => b.length - a.length)[0];
