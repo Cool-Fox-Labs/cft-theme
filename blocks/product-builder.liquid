@@ -84,10 +84,17 @@
     endif
   endfor
 
+  comment
+    The fallback photo (a colour with no photo of its own) is never a model
+    photo: Ralawise _LS00_ files, or Uneek and own ones whose file name or
+    alt text says "model" (Eddie, 26/11/2026: model photos are the main
+    image, but never used in the designer).
+  endcomment
   assign fallback_image = null
   for image in product.images
     assign src = image.src | downcase
-    unless src contains '_ls00_'
+    assign alt_lc = image.alt | downcase
+    unless src contains '_ls00_' or src contains 'model' or alt_lc contains 'model'
       assign fallback_image = image
       break
     endunless
