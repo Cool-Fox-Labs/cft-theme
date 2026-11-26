@@ -618,6 +618,15 @@ input[type=range] { width: 100%; accent-color: var(--orange); height: 28px }
 /* designer: view thumbnails under the canvas, text tools, big save */
 .dz-views { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center }
 .dz-views[hidden] { display: none }
+/* computers: the sides in a column left of the garment (Eddie, 26/11/2026) */
+@media (min-width: 901px) {
+  .dz-left { grid-template-columns: auto minmax(0, 1fr); grid-template-areas: "views stage" "views warn" "views ref"; column-gap: 16px }
+  .dz-left > .stage-p { grid-area: stage; margin-inline: 0 auto }
+  .dz-left > .dz-warn { grid-area: warn }
+  .dz-left > .ref-note { grid-area: ref }
+  .dz-left > .dz-views { grid-area: views; flex-direction: column; flex-wrap: nowrap; justify-content: flex-start; align-self: start; gap: 6px }
+  .dz-left .vt-pic { width: 72px }
+}
 .vthumb { display: grid; gap: 4px; justify-items: center; padding: 4px; border: 0; border-radius: 10px; background: none; cursor: pointer; font: inherit; color: var(--ink) }
 .vt-pic { position: relative; display: block; width: 64px; aspect-ratio: 5 / 6; overflow: hidden; border-radius: 8px; background: var(--card); box-shadow: inset 0 0 0 1px var(--line) }
 .vt-pic img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover }
