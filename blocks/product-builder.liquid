@@ -130,7 +130,7 @@
   <div class="pdp" id="pdp">
     <div class="gallery">
       <div class="stage-p" data-stage="page">
-        {% render 'photo-badges', product: product, class: 'pb-page' %}
+        {%- comment -%} No weight badge on the product page: it is in Garment details (Eddie, 26/11/2026). Catalogue cards keep it. {%- endcomment -%}
         <div class="zoom" data-zoom>
           {%- if fallback_image -%}
             {{ fallback_image | image_url: width: 1000 | image_tag: class: 'shirt', data-shirt: '', alt: product.title, sizes: '(min-width: 900px) 50vw, 100vw' }}
