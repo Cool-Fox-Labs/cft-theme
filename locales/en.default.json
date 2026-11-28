@@ -335,8 +335,8 @@
     },
     "xmas": {
       "eyebrow": "Christmas opening",
-      "title": "We close on 18 December and reopen on 4 January",
-      "line": "Need it for Christmas? Get your order to us by 14 December.",
+      "title_html": "We close on <em>18 December</em> and reopen on <em>4 January</em>",
+      "line_html": "Need it for Christmas? Get your order to us by <em>14 December</em>.",
       "d1_day": "14 Dec",
       "d1_text": "Last orders",
       "d2_day": "18 Dec",
