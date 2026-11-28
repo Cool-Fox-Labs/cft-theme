@@ -333,6 +333,17 @@
       "review2": "\"Needed a last minute bespoke T-shirt for a very fussy young customer and the guys went above and beyond to help.\"",
       "review3": "\"I take in second hand t-shirts for him to print my company logo on. Even helps out loads with graphic design and sends the designs across.\""
     },
+    "xmas": {
+      "eyebrow": "Christmas opening",
+      "title": "We close on 18 December and reopen on 4 January",
+      "line": "Need it for Christmas? Get your order to us by 14 December.",
+      "d1_day": "14 Dec",
+      "d1_text": "Last orders",
+      "d2_day": "18 Dec",
+      "d2_text": "We close",
+      "d3_day": "4 Jan",
+      "d3_text": "Back open"
+    },
     "quick": {
       "eyebrow": "No quote needed",
       "title": "Quick print tees",
