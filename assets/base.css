@@ -1035,16 +1035,16 @@ div.basket-img { aspect-ratio: 1 }
 .announce a { color: inherit; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; white-space: nowrap }
 
 /* Christmas opening strip under the hero (Eddie, 28/11/2026); hides itself from 4 Jan 2027 */
-.xmas { margin: 14px 0 0; border-radius: 26px; overflow: hidden; display: flex; align-items: center; justify-content: space-between; gap: 18px 32px; flex-wrap: wrap; padding: clamp(20px, 2.4vw, 32px) clamp(20px, 3vw, 44px); background: var(--xmas-bg) repeat center / 240px 160px, linear-gradient(120deg, #1E3A2C, #2A4A37 60%, #882A1B); color: var(--cream) }
+.xmas { margin: 14px 0 0; border-radius: 26px; overflow: hidden; display: flex; align-items: center; justify-content: space-between; gap: 18px 32px; flex-wrap: wrap; padding: clamp(20px, 2.4vw, 32px) clamp(20px, 3vw, 44px); background: var(--xmas-bg) repeat center / 240px 160px, linear-gradient(120deg, #9E1B1B, #B8231F 55%, #7A1414); color: var(--cream) }
 .xmas-text { display: flex; flex-direction: column; gap: 6px; max-width: 46ch }
-.xmas-eyebrow { align-self: flex-start; padding: 5px 12px; border-radius: 999px; background: var(--cream); color: #882A1B; font: 600 13px/1.2 var(--f-m); letter-spacing: .08em; text-transform: uppercase }
+.xmas-eyebrow { align-self: flex-start; padding: 5px 12px; border-radius: 999px; background: var(--cream); color: #9E1B1B; font: 600 13px/1.2 var(--f-m); letter-spacing: .08em; text-transform: uppercase }
 .xmas h2 { margin: 4px 0 0; font: 700 clamp(24px, 2.3vw, 34px)/1.12 var(--f-d); color: var(--cream) }
 .xmas p { margin: 0; font-size: 16px; color: var(--cream) }
-.xmas h2 em, .xmas p em { font-style: normal; color: var(--orange); white-space: nowrap }
+.xmas h2 em, .xmas p em { font-style: normal; color: #FFD27A; white-space: nowrap }
 .xmas p em { font-weight: 700 }
 .xmas-dates { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 10px }
 .xmas-dates li { display: flex; flex-direction: column; align-items: center; text-align: center; min-width: 104px; padding: 12px 16px; border-radius: 18px; background: rgba(241,232,221,.12); box-shadow: inset 0 0 0 1.5px rgba(241,232,221,.35) }
-.xmas-dates li:first-child { background: var(--orange); box-shadow: none; color: #1D1D1B }
+.xmas-dates li:first-child { background: #FFD27A; box-shadow: none; color: #5E0E0E }
 .xmas-dates b { font: 700 22px/1.1 var(--f-d) }
 .xmas-dates span { font-size: 14px; margin-top: 2px }
 @media (max-width: 900px) {
