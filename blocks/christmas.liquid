@@ -1,0 +1,34 @@
+{% doc %}
+  Renders the homepage Christmas opening strip under the hero (Eddie, 28/11/2026):
+  last orders 14 December, closed from 18 December, back 4 January. Dark green
+  with a snowflake pattern (asset xmas-strip.svg, drawn in code, no photo).
+  Hides itself from 4 January 2027, so nothing is left up after the break.
+
+  @param {string} content - Required. Eyebrow, heading and line.
+
+  @example
+  {% block 'christmas' %}
+    <h2 id="xmas-title">{{ 'home.xmas.title' | t }}</h2>
+  {% endblock %}
+{% enddoc %}
+
+{%- assign today = 'now' | date: '%Y%m%d' | plus: 0 -%}
+{%- if today < 20270104 -%}
+  <section class="xmas" aria-labelledby="xmas-title" style="--xmas-bg: url('{{ 'xmas-strip.svg' | asset_url }}')" {{ block.shopify_attributes }}>
+    <div class="xmas-text">
+      {{ content }}
+    </div>
+    <ol class="xmas-dates">
+      <li><b>{{ 'home.xmas.d1_day' | t }}</b><span>{{ 'home.xmas.d1_text' | t }}</span></li>
+      <li><b>{{ 'home.xmas.d2_day' | t }}</b><span>{{ 'home.xmas.d2_text' | t }}</span></li>
+      <li><b>{{ 'home.xmas.d3_day' | t }}</b><span>{{ 'home.xmas.d3_text' | t }}</span></li>
+    </ol>
+  </section>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "t:general.christmas",
+  "settings": []
+}
+{% endschema %}
